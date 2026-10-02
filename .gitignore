@@ -14,3 +14,25 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# ------------------------------------------------------------------
+# Development-only files: kept locally, never pushed.
+# The public repo holds only the game, credits, README and proposal.pdf.
+# proposal.pdf is a REQUIRED submission file and must never be ignored.
+# ------------------------------------------------------------------
+/AGENTS.md
+/CLAUDE.md
+/HANDOFF.md
+/TODO.md
+/DECISIONS.md
+/CHANGELOG.md
+/DEMO.md
+/REQUIREMENTS.md
+/GAME_DESIGN.md
+/DESIGN.md
+/docs/
+
+# Local AI-tool settings
+.claude/
+.codex/
+!/proposal.pdf
