@@ -538,6 +538,7 @@ func _events_at(beat: int, phase: String = "ACTIVATE") -> void:
 	if phase == "DECIDE":
 		events.append_array(_run.events.filter(func(event): return event.beat == beat and event.type == "MOVE"))
 	_stage.present_events(events, 3.0 if _fast else 1.0, _motion.button_pressed)
+	_speak(events)
 	for event in events:
 		if HITSTOP.has(event.type) and not _fast:
 			_hitstop = maxf(_hitstop, float(HITSTOP[event.type]))
@@ -1295,3 +1296,89 @@ func _find_decisive_beat(recorded: Dictionary) -> int:
 		if GOALS.evaluate(page, partial).won:
 			return beat
 	return -1
+
+
+
+## Gibberish voices: pitch per character, a few syllables per line.
+const VOICE_PITCH := {"boss": 120.0, "intern": 190.0, "grandma": 260.0, "kid": 320.0, "dog": 380.0, "cat": 520.0, "mouse": 760.0}
+const LINES := {
+	"DING": ["Aha!", "Ooh!", "Hmm!", "Oh!"],
+	"EAT": ["Yum!", "Mine!", "Nom!"],
+	"BONKED": ["Ow!", "Hey!", "Oof!"],
+	"EXIT": ["Bye!", "Nope!", "Eek!"],
+	"CLASH": ["Mine!", "No, mine!"],
+}
+var _blip_cache: Dictionary = {}
+
+
+func _speak(events: Array) -> void:
+	var spoken := 0
+	for event in events:
+		var speaker := ""
+		var kind := ""
+		match str(event.type):
+			"DING", "EAT", "EXIT":
+				speaker = str(event.actor)
+				kind = str(event.type)
+			"BONK":
+				speaker = str(event.get("target", ""))
+				kind = "BONKED"
+			"CLASH":
+				speaker = str(event.actor)
+				kind = "CLASH"
+		if speaker.is_empty() or not LINES.has(kind):
+			continue
+		var options: Array = LINES[kind]
+		var line: String = options[(speaker.hash() + int(event.beat)) % options.size()]
+		_stage.say(speaker, line)
+		# Stagger voices so a burst of DINGs doesn't turn into noise.
+		if spoken < 2:
+			_blip(speaker, line)
+		spoken += 1
+
+
+func _art_of(id: String) -> String:
+	for record in page.get("characters", []):
+		if record.id == id:
+			return str(record.art)
+	return id
+
+
+func _blip(speaker: String, line: String) -> void:
+	if not _sound.button_pressed or DisplayServer.get_name() == "headless":
+		return
+	var art := _art_of(speaker)
+	var syllables := clampi(line.length() / 2, 1, 4)
+	var key := art + ":" + str(syllables)
+	if not _blip_cache.has(key):
+		_blip_cache[key] = _make_blips(float(VOICE_PITCH.get(art, 240.0)), syllables, art.hash())
+	var player := _players[_audio_index % _players.size()]
+	_audio_index += 1
+	player.stream = _blip_cache[key]
+	player.play()
+
+
+func _make_blips(pitch: float, syllables: int, seed: int) -> AudioStreamWAV:
+	# Original procedural "voice": short vowel-like syllables with a little glide.
+	var sample_rate := 22050
+	var syllable := 0.075
+	var gap := 0.025
+	var total := syllables * (syllable + gap)
+	var bytes := PackedByteArray()
+	bytes.resize(int(sample_rate * total) * 2)
+	for index in bytes.size() / 2:
+		var t := float(index) / sample_rate
+		var n := int(t / (syllable + gap))
+		var local := t - n * (syllable + gap)
+		var value := 0.0
+		if local < syllable:
+			var step := float((seed + n * 7) % 5) / 4.0
+			var f := pitch * (0.85 + 0.35 * step) * (1.0 + 0.08 * local / syllable)
+			var envelope := sin(PI * local / syllable)
+			value = envelope * (sin(TAU * f * local) * 0.6 + sin(TAU * f * 2.0 * local) * 0.25 + sin(TAU * f * 3.0 * local) * 0.1)
+		bytes.encode_s16(index * 2, clampi(int(value * 9000.0), -32768, 32767))
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = sample_rate
+	stream.data = bytes
+	return stream

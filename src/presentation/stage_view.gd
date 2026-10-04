@@ -176,6 +176,7 @@ func configure(page: Dictionary) -> void:
 	_shade_from = null
 	_selected_lantern = 0
 	_lit_last.clear()
+	_spark_start.clear()
 	# Illustrated whenever every cast member and prop has production art.
 	_art = page.get("characters", []).all(func(record): return _manifest.characters.has(str(record.art))) 		and page.get("objects", []).all(func(record): return _textures.has(str(record.art)))
 	for rig in _rigs.values():
@@ -442,6 +443,7 @@ func cancel_presentation() -> void:
 	_drag_bulb = -1
 	_target = ""
 	_effects.clear()
+	_sayings.clear()
 	_bulb_mood = "idle"
 	_mood_left = 0.0
 	_trauma = 0.0
@@ -526,6 +528,11 @@ func _process(delta: float) -> void:
 	for effect in _effects:
 		effect.age += delta * _playback_speed
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
+	for saying in _sayings:
+		saying.age += delta * _playback_speed
+	_sayings = _sayings.filter(func(saying): return saying.age < 1.0)
+	if not _sayings.is_empty():
+		queue_redraw()
 	if _trauma > 0.0 and is_instance_valid(_root):
 		_shake_time += delta
 		_trauma = maxf(0.0, _trauma - delta * 1.6)
@@ -642,7 +649,14 @@ func _draw() -> void:
 			draw_circle(centre, 10, Color("efce66") if lamp.on else Color("687489"))
 		for object in world.get("objects", []):
 			if object.id == lamp.switch_id:
-				draw_polyline(PackedVector2Array([Vector2(_x(object.slot), FLOOR_Y), Vector2(_x(object.slot), FLOOR_Y + 5), Vector2(centre.x, FLOOR_Y + 5), centre]), Color("7f8e9e"), 2, true)
+				var wire := PackedVector2Array([Vector2(_x(object.slot), FLOOR_Y), Vector2(_x(object.slot), FLOOR_Y + 5), Vector2(centre.x, FLOOR_Y + 5), centre])
+				if lamp.on:
+					draw_polyline(wire, Color(1, 0.82, 0.4, 0.35), 7, true)
+					draw_polyline(wire, Color("ffd27a"), 3, true)
+					_draw_spark(wire, str(lamp.id))
+				else:
+					_spark_start.erase(str(lamp.id))
+					draw_polyline(wire, Color("5b6274"), 2, true)
 	_draw_lanterns()
 	var decisions: Array = _preview_decisions if not _preview.is_empty() else _decisions
 	if _planning:
@@ -654,7 +668,8 @@ func _draw() -> void:
 					var step := int(decision.get("step", 0))
 					if step != 0:
 						draw_circle(Vector2(_x(actor.slot + step), FLOOR_Y + 4), 5, Color("c68b3f"))
-					_label(self, positions[actor.id] + Vector2(-25, 25), str(decision.type).to_lower() + (" >" if step > 0 else (" <" if step < 0 else "")), MEMORY, 15)
+					_label(self, positions[actor.id] + Vector2(-25, 46), str(decision.type).to_lower() + (" >" if step > 0 else (" <" if step < 0 else "")), MEMORY, 14)
+	_draw_name_plates(world, positions)
 	var bubbles := _bubble_layout(world, positions)
 	for actor in world.get("characters", []):
 		if actor.status == "EXITED":
@@ -666,8 +681,7 @@ func _draw() -> void:
 			continue
 		var rect: Rect2 = bubbles[actor.id]
 		var colour: Color = COLOURS.get(actor.thought, MEMORY)
-		draw_line(rect.position + Vector2(48, 64), at - Vector2(0, _figure_height(actor.art) - 5.0), colour, 2, true)
-		draw_style_box(_bubble_style(colour), rect)
+		_draw_thought_cloud(rect, at - Vector2(0, _figure_height(actor.art) - 5.0), colour)
 		if _textures.has(actor.thought):
 			draw_texture_rect(_textures[actor.thought], Rect2(rect.position + Vector2(32, 4), Vector2(32, 32)), false)
 		var label_width := TEXT_FONT.get_string_size(actor.thought, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
@@ -679,6 +693,8 @@ func _draw() -> void:
 			draw_rect(rect.grow(5), Color("42a88c"), false, 3)
 	for effect in _effects:
 		_draw_word(effect)
+	for saying in _sayings:
+		_draw_saying(saying)
 	if _drag_bubble != "":
 		draw_circle(_mouse, 18, Color(1, 0.85, 0.3, 0.7))
 	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
@@ -1049,3 +1065,99 @@ func _draw_glow(canvas: CanvasItem) -> void:
 		var right := _x(float(zone[1]) + 0.45)
 		var top := Vector2((left + right) * 0.5, 74.0)
 		canvas.draw_polygon(PackedVector2Array([top + Vector2(-18, 0), top + Vector2(18, 0), Vector2(right, FLOOR_Y + 30), Vector2(left, FLOOR_Y + 30)]), PackedColorArray([Color(warm, 0.22), Color(warm, 0.22), Color(warm, 0.03), Color(warm, 0.03)]))
+
+
+func _draw_thought_cloud(rect: Rect2, head: Vector2, colour: Color) -> void:
+	# Comic thought bubble: a puffy cloud plus shrinking puffs down to the head.
+	var centre := rect.get_center()
+	var puffs: Array[Vector3] = []
+	var rx := rect.size.x * 0.5
+	var ry := rect.size.y * 0.5
+	for k in 9:
+		var angle := TAU * k / 9.0
+		puffs.append(Vector3(centre.x + cos(angle) * rx * 0.78, centre.y + sin(angle) * ry * 0.72, 17.0 if k % 2 == 0 else 15.0))
+	var bottom := Vector2(centre.x, rect.end.y + 2)
+	var trail: Array[Vector3] = []
+	for k in 3:
+		var t := (k + 1) / 4.0
+		var point := bottom.lerp(head, t)
+		trail.append(Vector3(point.x, point.y, 6.0 - k * 1.6))
+	for puff in puffs + trail:
+		draw_circle(Vector2(puff.x, puff.y), puff.z + 2.5, INK)
+	draw_rect(Rect2(rect.position + Vector2(6, 6), rect.size - Vector2(12, 12)), INK)
+	for puff in puffs + trail:
+		draw_circle(Vector2(puff.x, puff.y), puff.z, PAPER)
+	draw_rect(Rect2(rect.position + Vector2(8, 8), rect.size - Vector2(16, 16)), PAPER)
+	draw_arc(centre, minf(rx, ry) * 1.2, 0, TAU, 32, Color(colour, 0.0), 1.0)
+
+var _spark_start: Dictionary = {}
+
+func _draw_spark(wire: PackedVector2Array, id: String) -> void:
+	# A spark runs along the wire once when the lamp switches on.
+	if _reduced_motion:
+		return
+	if not _spark_start.has(id):
+		_spark_start[id] = _bulb_clock
+	var t := (_bulb_clock - float(_spark_start[id])) / 0.45
+	if t > 1.0:
+		return
+	var total := 0.0
+	for i in range(1, wire.size()):
+		total += wire[i - 1].distance_to(wire[i])
+	var travelled := total * t
+	for i in range(1, wire.size()):
+		var length := wire[i - 1].distance_to(wire[i])
+		if travelled <= length:
+			var point := wire[i - 1].lerp(wire[i], travelled / maxf(length, 0.001))
+			draw_circle(point, 9, Color(1, 0.9, 0.5, 0.45))
+			draw_circle(point, 4, Color("fff4d6"))
+			return
+		travelled -= length
+
+func _draw_name_plates(world: Dictionary, positions: Dictionary) -> void:
+	# Lit (or, during ACTION, active) characters show their name so nobody is
+	# confused about who is who. Dark characters show none.
+	for actor in world.get("characters", []):
+		if actor.status == "EXITED" or not positions.has(actor.id):
+			continue
+		var shown: bool = _lit(actor.slot, world) or (not _planning and actor.get("active", false))
+		if not shown:
+			continue
+		var name := str(actor.id).replace("_", " ").to_upper()
+		var at: Vector2 = positions[actor.id]
+		var width := TEXT_FONT.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 14
+		var plate := Rect2(at + Vector2(-width * 0.5, 8), Vector2(width, 19))
+		draw_rect(plate, Color("f6e27a"))
+		draw_rect(plate, INK, false, 1.5)
+		draw_string(TEXT_FONT, plate.position + Vector2(7, 14), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, INK)
+
+
+var _sayings: Array[Dictionary] = []
+
+## A short speech balloon over a lit/active character (dialogue is never a thought).
+func say(id: String, text: String) -> void:
+	for record in _world.get("characters", []):
+		if record.id == id and record.status != "EXITED":
+			var at := _actor_position(record)
+			_sayings = _sayings.filter(func(saying): return saying.id != id)
+			_sayings.append({"id": id, "text": text, "at": at - Vector2(0, _figure_height(str(record.get("art", ""))) + 18.0), "age": 0.0})
+	queue_redraw()
+
+func _draw_saying(saying: Dictionary) -> void:
+	var alpha := clampf((1.0 - float(saying.age)) * 5.0, 0.0, 1.0)
+	var pop := 1.0 if _reduced_motion else minf(1.0, float(saying.age) / 0.08)
+	var width := TEXT_FONT.get_string_size(saying.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x + 18.0
+	var at: Vector2 = saying.at + Vector2(34, -10)
+	draw_set_transform(_offset() + at * _fit(), 0, Vector2.ONE * pop * _fit())
+	var rect := Rect2(Vector2(-width * 0.5, -16), Vector2(width, 28))
+	var tail := PackedVector2Array([Vector2(-14, 10), Vector2(-4, 10), Vector2(-26, 24)])
+	draw_colored_polygon(tail, Color(Color.WHITE, alpha))
+	draw_polyline(PackedVector2Array([tail[0], tail[2], tail[1]]), Color(INK, alpha), 2, true)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(Color.WHITE, alpha)
+	style.border_color = Color(INK, alpha)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	draw_style_box(style, rect)
+	draw_string(TEXT_FONT, Vector2(-width * 0.5 + 9, 4), saying.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(INK, alpha))
+	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
