@@ -38,3 +38,7 @@ mono_crash.*.json
 .claude/
 .codex/
 !/proposal.pdf
+
+# Python bytecode
+__pycache__/
+*.pyc
