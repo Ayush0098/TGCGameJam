@@ -2124,14 +2124,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_title.mp3",
-      "duration_seconds": 4.7573,
+      "duration_seconds": 6.2144,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.76242,
+      "peak": 0.70125,
       "active_rms_dbfs": -19.6,
-      "leading_silence_seconds": 0.0007,
+      "leading_silence_seconds": 0.0009,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "31d587e3f95ed4449f771924c06328cecfe0f280bbed009ff034ecf3f634c211"
+      "sha256": "edd7b7a8db934da956bd88066c56222a7cff53c5538cd6285c7f80782269017c",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_twist_stamp",
@@ -2147,14 +2148,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_twist_stamp.mp3",
-      "duration_seconds": 1.34,
+      "duration_seconds": 1.0595,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.54306,
-      "active_rms_dbfs": -20.1,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "974864b870d93fc5fb8b6aa967ca89bc0865eec055cf4be77431bcb57d834282"
+      "peak": 0.49214,
+      "active_rms_dbfs": -19.97,
+      "leading_silence_seconds": 0.0004,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "d79e8f81f87eb8588e2ffae45986334c22372643f6973042dacc2ef09086e91f",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_nearmiss",
@@ -2170,14 +2172,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_nearmiss.mp3",
-      "duration_seconds": 4.042,
+      "duration_seconds": 6.0254,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68468,
-      "active_rms_dbfs": -19.69,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "28d68775a10cc21a225ee2d17d3b3332403635850349e6e2ababfa48541c42d2"
+      "peak": 0.50946,
+      "active_rms_dbfs": -20.24,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "57bf412db1eab748f0db65ef9ecd5dd5cfa49a6038eb3895367badea85edd648",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_fail_1",
@@ -2193,14 +2196,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_fail_1.mp3",
-      "duration_seconds": 2.6333,
+      "duration_seconds": 3.8929,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.58217,
-      "active_rms_dbfs": -20.14,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "ff3338946e905c8d93e11acb7b181653dd4ee2b1ea7c9a1851793f34d85341d3"
+      "peak": 0.59403,
+      "active_rms_dbfs": -20.12,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "b9456f5aee58f2214f35395c7015aba2e5994b37a106efc7fd695abf83840d71",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_fail_2",
@@ -2216,14 +2220,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_fail_2.mp3",
-      "duration_seconds": 4.0546,
+      "duration_seconds": 5.9869,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.71418,
-      "active_rms_dbfs": -19.69,
+      "peak": 0.67143,
+      "active_rms_dbfs": -19.77,
       "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "76db691d64c068a509421fd8c3745647c6c2bc82c2bdd5cb96640ac975f12fc7"
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "b909032b118567d9b1ea83e15aeaca050dc5791ac6ae0d229967672bdf5e8f30",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_fail_3",
@@ -2239,14 +2244,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_fail_3.mp3",
-      "duration_seconds": 2.1853,
+      "duration_seconds": 2.3173,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.44267,
-      "active_rms_dbfs": -20.41,
-      "leading_silence_seconds": 0.0004,
-      "trailing_silence_seconds": 0.0004,
-      "sha256": "40e3070caa934d00fffe12eb074fa85fbf2352714bad21a6ba7efcb721aed10b"
+      "peak": 0.49293,
+      "active_rms_dbfs": -20.38,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "15d2a4dc1c40366538568f40208fae3caadc049cfa0a1a0810de3ab4abf21d7a",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_fail_4",
@@ -2262,14 +2268,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_fail_4.mp3",
-      "duration_seconds": 2.3573,
+      "duration_seconds": 2.7132,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.58509,
-      "active_rms_dbfs": -19.73,
-      "leading_silence_seconds": 0.0006,
+      "peak": 0.6357,
+      "active_rms_dbfs": -19.61,
+      "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "bfa97871fb79d42af4deebe52cde4048a97b313aa41f0e9985bbaec25952f22f"
+      "sha256": "b1edc1e0f6b15638fa261d9f0a4e42694f0258f4c3419b81d9b9011c9e8e7e14",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_new_shy",
@@ -2285,14 +2292,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_new_shy.mp3",
-      "duration_seconds": 5.2427,
+      "duration_seconds": 6.3375,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.53025,
-      "active_rms_dbfs": -20.4,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "fef8d72c0c14dd68f81479719baf6487c9b89cb351659cda9f277c24215787c8"
+      "peak": 0.79094,
+      "active_rms_dbfs": -19.6,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "e286b4fe8241ef38b12238020903b08f88663e193ad568fb03170342cd38a617",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_new_love",
@@ -2308,14 +2316,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_new_love.mp3",
-      "duration_seconds": 6.2587,
+      "duration_seconds": 8.6537,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.69324,
-      "active_rms_dbfs": -19.9,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "b14322133432b0599d6616ad7daf460cc6b9a62750daa59024410e0beb7f0089"
+      "peak": 0.76676,
+      "active_rms_dbfs": -19.53,
+      "leading_silence_seconds": 0.0008,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "68eb62a6d0e709a72b19d02def572791705eb799963c3fec542cdfd4a98d7a15",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_new_jealous",
@@ -2331,14 +2340,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_new_jealous.mp3",
-      "duration_seconds": 6.3346,
+      "duration_seconds": 8.6291,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68909,
-      "active_rms_dbfs": -19.86,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "8efb71f0f7039e1f762bc8ed53c7db2f11c02d938bb70b32595b081283e6e462"
+      "peak": 0.80375,
+      "active_rms_dbfs": -19.29,
+      "leading_silence_seconds": 0.0009,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "1d9f2c58dc9250ccafc4ffdbf7c0b9facee718b5e5dffc0e574fae5a1862ff3c",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_act1",
@@ -2354,14 +2364,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_act1.mp3",
-      "duration_seconds": 11.3927,
+      "duration_seconds": 14.4959,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.60734,
-      "active_rms_dbfs": -20.27,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "528a153f7838ccee8b52760195ec91449bac9cdc436d55c2fa3151b3b7c97f57"
+      "peak": 0.75738,
+      "active_rms_dbfs": -19.56,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "89e673368db7b642bb21f4a7165574ee99cb2033e4dc298adf5dfa60e3959cef",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_act2",
@@ -2377,14 +2388,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_act2.mp3",
-      "duration_seconds": 8.752,
+      "duration_seconds": 11.447,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.75187,
-      "active_rms_dbfs": -19.86,
+      "peak": 0.65867,
+      "active_rms_dbfs": -19.76,
       "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "8cf34a2897a2d9d165ce23e8e12dce12942a14f100cd19ddeef8a8f6435e746a"
+      "sha256": "4ad91742942367340cbdc325885d6729ddf129bbfef165678565c55bc183b0b3",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_act3",
@@ -2400,14 +2412,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_act3.mp3",
-      "duration_seconds": 4.762,
+      "duration_seconds": 6.2452,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.82129,
-      "active_rms_dbfs": -19.6,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "49655c1669643c9aca188d4e83c5bd072624086d33052a97ba93631a31f6e3f6"
+      "peak": 0.64106,
+      "active_rms_dbfs": -19.91,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "666429073def3bed4af78fad8821d699e7a7e9feca1f7959a047eb5d0d740c8a",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_dinner_intro",
@@ -2423,14 +2436,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_dinner_intro.mp3",
-      "duration_seconds": 11.046,
+      "duration_seconds": 15.5047,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.62928,
-      "active_rms_dbfs": -20.0,
-      "leading_silence_seconds": 0.0006,
+      "peak": 0.66963,
+      "active_rms_dbfs": -19.62,
+      "leading_silence_seconds": 0.0008,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "b52fa7469179a8bc7bf98520d460dc6b50c1161f4fcbdb615420d984c1cb0f98"
+      "sha256": "a188277f46002c6e363093d446555286a2cddbc3f4db26b44611cf89de2475bd",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_dinner_original",
@@ -2446,14 +2460,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_dinner_original.mp3",
-      "duration_seconds": 4.2553,
+      "duration_seconds": 6.2261,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68051,
-      "active_rms_dbfs": -19.48,
-      "leading_silence_seconds": 0.0007,
+      "peak": 0.68006,
+      "active_rms_dbfs": -19.64,
+      "leading_silence_seconds": 0.0009,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "d3f272918f96e603cde2fc7544556faaf8935cf27379e0badb3085c801b94d68"
+      "sha256": "5e13c0da924dabf72612dab3e0779bd0c94949a9384eb26b42ffebaef5529f26",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_dinner_twist",
@@ -2469,15 +2484,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_dinner_twist.mp3",
-      "duration_seconds": 2.3786,
+      "duration_seconds": 2.6683,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.67299,
-      "active_rms_dbfs": -19.23,
+      "peak": 0.65006,
+      "active_rms_dbfs": -19.3,
       "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "c9300dfcb820e0c6edf5fa204fb408bed88d96efa7e6e54f1c0f75891d745169",
-      "spoken_as": "The Cat ate the fish."
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "2169f555227ca5cf6d16a6a7637a2c3c7abc4f82bb19923bcede63855a4ff422",
+      "spoken_as": "The Cat ate the fish.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_dinner_win",
@@ -2493,15 +2509,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_dinner_win.mp3",
-      "duration_seconds": 5.1506,
+      "duration_seconds": 7.3434,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.89343,
-      "active_rms_dbfs": -19.35,
-      "leading_silence_seconds": 0.0008,
-      "trailing_silence_seconds": 0.0009,
-      "sha256": "c9078d57a25d908366767682e4ba4f2033315546b19eaef48b83a7a5036ccf8e",
-      "spoken_as": "The Cat ate the... Who moved my lamp? Somebody Moved my Lamp."
+      "peak": 0.66822,
+      "active_rms_dbfs": -19.86,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "43d63a0af76df03bd0c0aa9e92dcb64bdcdf910b3e5e8f83eb067d7e51838321",
+      "spoken_as": "The Cat ate the... Who moved my lamp? Somebody Moved my Lamp.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_greens_intro",
@@ -2517,14 +2534,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_greens_intro.mp3",
-      "duration_seconds": 9.8493,
+      "duration_seconds": 13.9621,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.72449,
-      "active_rms_dbfs": -19.79,
-      "leading_silence_seconds": 0.0007,
+      "peak": 0.7646,
+      "active_rms_dbfs": -19.43,
+      "leading_silence_seconds": 0.0008,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "c8fe57f27ab855f153ccd6c9144bf08392a2dd97eedf8801e7f3046bb24fa2f9"
+      "sha256": "aed026cbe50d72a8f3e3031fd03ba196a6e04e7db0b565208eea7510ac86644f",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_greens_original",
@@ -2540,14 +2558,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_greens_original.mp3",
-      "duration_seconds": 5.3546,
+      "duration_seconds": 7.6061,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.64859,
-      "active_rms_dbfs": -19.84,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "794cd016c4522ccc2d19b20c8151ae0b47b2bb4ce3a3b98b0f22fc3542f9bf4a"
+      "peak": 0.68763,
+      "active_rms_dbfs": -19.71,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "8055f81a805c3e0542868903fa8fba1440e51a4fd8a05e724004b83c270f2d64",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_greens_twist",
@@ -2563,14 +2582,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_greens_twist.mp3",
-      "duration_seconds": 2.676,
+      "duration_seconds": 2.998,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.673,
-      "active_rms_dbfs": -19.57,
-      "leading_silence_seconds": 0.0007,
+      "peak": 0.61163,
+      "active_rms_dbfs": -19.66,
+      "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "676f3c72730f7781537b4b8057eacd6f00e0e28aee8fd829a44e612a35312429"
+      "sha256": "26272b779c36bbfeda0e39c956b666590b3fedc8e488dc277eebbf59570742c4",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_greens_win",
@@ -2586,14 +2606,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_greens_win.mp3",
-      "duration_seconds": 9.418,
+      "duration_seconds": 12.5241,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.66887,
-      "active_rms_dbfs": -19.97,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "02c66a7eafc5c3686114ff790c161bf8c921b5c16c57f98c2e32c9ce3a955dd8"
+      "peak": 0.71759,
+      "active_rms_dbfs": -19.47,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "713fc8ca4d47675d2651aa9d3fac25b9d160ae4a022828abcfd894cc7346824f",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_nap_intro",
@@ -2609,14 +2630,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_nap_intro.mp3",
-      "duration_seconds": 11.698,
+      "duration_seconds": 17.0057,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.65043,
-      "active_rms_dbfs": -20.04,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "702a639b4a66367fb4c5f289afaf3d432e120268a61f8e83ec5acb64064de0c1"
+      "peak": 0.76713,
+      "active_rms_dbfs": -19.38,
+      "leading_silence_seconds": 0.0008,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "094f10e31df8cad5ba9009a18b5769e96e9683901be53078f0327ef785140202",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_nap_original",
@@ -2632,14 +2654,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_nap_original.mp3",
-      "duration_seconds": 3.8546,
+      "duration_seconds": 4.507,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.7013,
-      "active_rms_dbfs": -19.4,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "79dc46f949eeeb7579d013681c3a139ee58758a6a91622391c660344903b3c7c"
+      "peak": 0.76099,
+      "active_rms_dbfs": -18.94,
+      "leading_silence_seconds": 0.001,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "ec3ebf2b669bec4cfe96f4f4139e9c3b466d80da7dc49070fb1a9bedbecc8c99",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_nap_twist",
@@ -2655,15 +2678,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_nap_twist.mp3",
-      "duration_seconds": 4.1533,
+      "duration_seconds": 5.7371,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.63818,
-      "active_rms_dbfs": -19.68,
+      "peak": 0.68391,
+      "active_rms_dbfs": -19.36,
       "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "61680af4099a8dd35fedca1bbb0cb38ef8b926b39e76b78fca99a5ca2b840f18",
-      "spoken_as": "The Dog ate the cake. The Boss napped in the dog bed."
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "bbd346de9f273d6b261e01714069eae675b451f7cf114a0013c3d6b91bb2a47e",
+      "spoken_as": "The Dog ate the cake. The Boss napped in the dog bed.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_nap_win",
@@ -2679,14 +2703,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_nap_win.mp3",
-      "duration_seconds": 10.1646,
+      "duration_seconds": 14.1367,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.72302,
-      "active_rms_dbfs": -19.82,
-      "leading_silence_seconds": 0.0006,
+      "peak": 0.65222,
+      "active_rms_dbfs": -19.64,
+      "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "39229bb6381061570b09a97ec75c322c74c8beaf2cb06bfada4c94243bccc279"
+      "sha256": "68c855cd71684ac279303142ef3efc19166d12e8e5e2ec1870aa3c7c4f940c63",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_snack_intro",
@@ -2702,14 +2727,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_snack_intro.mp3",
-      "duration_seconds": 9.6653,
+      "duration_seconds": 12.1703,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.62313,
-      "active_rms_dbfs": -20.03,
+      "peak": 0.65432,
+      "active_rms_dbfs": -19.71,
       "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "027b14e8cda4438d82fa51c65a213a75769c8389f0ec732726e155f9e688116e"
+      "sha256": "dd4d2dea5ae0aabe0cd0bf36f45b0aa878a9e77c53c4ff77b648008a22733681",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_snack_original",
@@ -2725,14 +2751,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_snack_original.mp3",
-      "duration_seconds": 5.3066,
+      "duration_seconds": 7.0913,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.62428,
-      "active_rms_dbfs": -19.96,
-      "leading_silence_seconds": 0.0006,
+      "peak": 0.58971,
+      "active_rms_dbfs": -20.03,
+      "leading_silence_seconds": 0.0005,
       "trailing_silence_seconds": 0.0005,
-      "sha256": "c9c19c4e23d3e213c5a5353cee45eed74fa3453c8644b10cf25907485fe1b233"
+      "sha256": "855fbedb1c44513d7d6381676db8e2c24712be5cc50a74d4c64097756c698634",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_snack_twist",
@@ -2748,15 +2775,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_snack_twist.mp3",
-      "duration_seconds": 2.3233,
+      "duration_seconds": 2.5963,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.87215,
-      "active_rms_dbfs": -17.73,
-      "leading_silence_seconds": 0.001,
-      "trailing_silence_seconds": 0.0009,
-      "sha256": "4940db8426b709dd190bb48fd7d8b552f1ed4608c6777ddf2b48bf5e0095dbbd",
-      "spoken_as": "The Dog ate the pie."
+      "peak": 0.5957,
+      "active_rms_dbfs": -19.66,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "d8c9d0306e9b095345c7938db838e9eacf7d4aa4a2844c24654eaba3f77dc2e6",
+      "spoken_as": "The Dog ate the pie.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_snack_win",
@@ -2772,14 +2800,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_snack_win.mp3",
-      "duration_seconds": 8.6166,
+      "duration_seconds": 10.053,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.58902,
-      "active_rms_dbfs": -20.15,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "2cdcc11020e66dd3822117e7acfcc7baf1ce976695dfd4a6d215d518a0588d46"
+      "peak": 0.72594,
+      "active_rms_dbfs": -19.37,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "dbd6399bb21196dff5a7a72375cd6c69d0607ce0138cc77e9a22cc8016d9e096",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_stage_intro",
@@ -2795,14 +2824,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_stage_intro.mp3",
-      "duration_seconds": 10.0186,
+      "duration_seconds": 14.3669,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.65925,
-      "active_rms_dbfs": -19.99,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "1d9e51126661da1205d9c59287d17d1fede01cd209ab96bafd1b1ebd173dbdd3"
+      "peak": 0.75934,
+      "active_rms_dbfs": -19.4,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "3d870e25256293ac2e5e582e6f4bef7865a48321ab767e345e9dc0b92ae7839a",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_stage_original",
@@ -2818,14 +2848,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_stage_original.mp3",
-      "duration_seconds": 5.8813,
+      "duration_seconds": 6.7658,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.69072,
-      "active_rms_dbfs": -19.63,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "f95d59bde3b3d9578516dc5b14e69386d9a65173e5beff5d7174b76478356963"
+      "peak": 0.58438,
+      "active_rms_dbfs": -19.85,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "83a3f6bfeed44557075d36f14eb4815ca864df1515f8196decb0623975e1bdbd",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_stage_twist",
@@ -2841,15 +2872,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_stage_twist.mp3",
-      "duration_seconds": 4.4066,
+      "duration_seconds": 6.2296,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.66329,
-      "active_rms_dbfs": -19.47,
-      "leading_silence_seconds": 0.0007,
+      "peak": 0.65366,
+      "active_rms_dbfs": -19.45,
+      "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "fe801c7d70425457a4dcf541bb4d0032946f2c1b19e21c10ab9d6b64cbc8ae41",
-      "spoken_as": "The Boss hid from the spotlight. The Dog ate the prize cake."
+      "sha256": "277b95851a1bf4e7ad46c767bb96bd70ceaac86f92ae90384d9043c6db7a4122",
+      "spoken_as": "The Boss hid from the spotlight. The Dog ate the prize cake.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_stage_win",
@@ -2865,14 +2897,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_stage_win.mp3",
-      "duration_seconds": 12.0327,
+      "duration_seconds": 16.3993,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.71613,
-      "active_rms_dbfs": -19.86,
+      "peak": 0.68711,
+      "active_rms_dbfs": -19.65,
       "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "3553ff4ff4d002d90e41db217cbf728f992ac8a7227ee0593d2f1b2ec6499ba4"
+      "sha256": "c9fea4475cea0a19bbbaee2f451950c44a82dbaf3ce75a2ae58fe412bbaba1bf",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_birthday_intro",
@@ -2888,14 +2921,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_birthday_intro.mp3",
-      "duration_seconds": 11.2953,
+      "duration_seconds": 16.7481,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.67984,
-      "active_rms_dbfs": -20.01,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "22e0a23f71e1ce5fc77a5c13bedcd62a31e7bb6496d8ce7f3d4159ae7d72bab5"
+      "peak": 0.77422,
+      "active_rms_dbfs": -19.34,
+      "leading_silence_seconds": 0.0011,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "347af4aac6376deb89ce57aa87eb30fc826ee555bd64ed610e361065857b8ee9",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_birthday_original",
@@ -2911,14 +2945,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_birthday_original.mp3",
-      "duration_seconds": 4.9666,
+      "duration_seconds": 6.4816,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.71822,
-      "active_rms_dbfs": -19.49,
+      "peak": 0.72714,
+      "active_rms_dbfs": -19.54,
       "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "e4802a5b1ec4d78975865a86dd012b667a5219c4fb6f0cfbb22a51bed62c9c87"
+      "sha256": "135967ba22bfaae4c5c33060bdfc0f8e75a06d30f8c00ba9f168bfa5ddae0792",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_birthday_twist",
@@ -2934,15 +2969,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_birthday_twist.mp3",
-      "duration_seconds": 2.7287,
+      "duration_seconds": 2.8393,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.73654,
+      "peak": 0.67253,
       "active_rms_dbfs": -19.23,
       "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0008,
-      "sha256": "a532b9a8169889201e89c45b08d55a9224ea04f657d2f10b41b5916b02cebc0e",
-      "spoken_as": "The Dog ate the birthday cake."
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "41eae430e0462ea2645e3b8b98a2582718037bed5c660fc7569308b8b4584ee8",
+      "spoken_as": "The Dog ate the birthday cake.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_birthday_win",
@@ -2958,14 +2994,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_birthday_win.mp3",
-      "duration_seconds": 10.078,
+      "duration_seconds": 14.3691,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68487,
-      "active_rms_dbfs": -19.81,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "f7b38bfc80b23f661c4e6638aa43482ef61c3d4b1603accc34749ea9ff3096cf"
+      "peak": 0.65848,
+      "active_rms_dbfs": -19.57,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "dfa9397e276d5fb5073d25da57e5982ca9b007040bc9b8a7bcdb9dbac4790834",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_revenge_intro",
@@ -2981,14 +3018,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_revenge_intro.mp3",
-      "duration_seconds": 9.1793,
+      "duration_seconds": 11.9114,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68813,
-      "active_rms_dbfs": -19.89,
-      "leading_silence_seconds": 0.0006,
+      "peak": 0.65385,
+      "active_rms_dbfs": -19.63,
+      "leading_silence_seconds": 0.0008,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "5f0978bd4f4f5cdb2a40b8216156273e3424466460df02168260527359940f3c"
+      "sha256": "6d53d4fa6475efc67165a520de8e2a0fc2c69ad4c4b9f49abaef45ff9aedda0d",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_revenge_original",
@@ -3004,14 +3042,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_revenge_original.mp3",
-      "duration_seconds": 4.7573,
+      "duration_seconds": 5.9797,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.86563,
-      "active_rms_dbfs": -18.56,
+      "peak": 0.87864,
+      "active_rms_dbfs": -19.08,
       "leading_silence_seconds": 0.001,
-      "trailing_silence_seconds": 0.001,
-      "sha256": "cfcd568c3ce0a0d36677461e5044229fa6447f800671205fd3f4e684634faf46"
+      "trailing_silence_seconds": 0.0009,
+      "sha256": "b301b7fac64a386c629a80eda7ad810b515380086b8019b8c5561a38047df07e",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_revenge_twist",
@@ -3027,15 +3066,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_revenge_twist.mp3",
-      "duration_seconds": 3.5733,
+      "duration_seconds": 5.0491,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.57705,
-      "active_rms_dbfs": -19.89,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "dd37916c2ac1eeb5b95e3b7f11ba821026e33261a675e6cd7c401e61034f4cd6",
-      "spoken_as": "Grandma bonked the Boss. The Dog ate the cake."
+      "peak": 0.66251,
+      "active_rms_dbfs": -19.35,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "8ad5829f32358035b4b74bd5c9b7cc2bbea1313a07b453c91dab4aab070cab6c",
+      "spoken_as": "Grandma bonked the Boss. The Dog ate the cake.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_revenge_win",
@@ -3051,14 +3091,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_revenge_win.mp3",
-      "duration_seconds": 10.406,
+      "duration_seconds": 12.5608,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.78753,
-      "active_rms_dbfs": -19.63,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "c6969ff6bb1c05f4ef3a720615ce61d85014a4d026707a81c261e147c11bfa3c"
+      "peak": 0.65209,
+      "active_rms_dbfs": -19.67,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "23db38ddab96fbf56f4d3c5480be314eabad5b9bb4e4c2cff1d060c071656d90",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_date_intro",
@@ -3074,14 +3115,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_date_intro.mp3",
-      "duration_seconds": 11.1073,
+      "duration_seconds": 14.6244,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.66541,
-      "active_rms_dbfs": -20.12,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "33f9a42c006dc101d1e2f3b67982c8466a72658eaf78e4557d601b08f586de2a"
+      "peak": 0.72098,
+      "active_rms_dbfs": -19.53,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "a6de4c466e13748ecf9493e2a72a0e7f43677e82821f922a0603ecc91a0f4552",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_date_original",
@@ -3097,14 +3139,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_date_original.mp3",
-      "duration_seconds": 6.2306,
+      "duration_seconds": 8.6283,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.49195,
-      "active_rms_dbfs": -20.36,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0004,
-      "sha256": "28f42f43acb74cb5c1fc9702cb8224d69770304fc038a6c2d1786381325e9361"
+      "peak": 0.5921,
+      "active_rms_dbfs": -19.87,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "00e4d468938faa203c60cfe2a735e28f8fe5b70240adf17a5c8ed5371e681f7b",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_date_twist",
@@ -3120,14 +3163,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_date_twist.mp3",
-      "duration_seconds": 3.91,
+      "duration_seconds": 5.0427,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.73813,
-      "active_rms_dbfs": -19.5,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "20eb89d01fcedf5d5f3305000d4258334a3bcef814d962fcf8090f6badb6cc30"
+      "peak": 0.78695,
+      "active_rms_dbfs": -19.0,
+      "leading_silence_seconds": 0.0009,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "4c0ccc898f30d964ac59afe6ec7c7a8fcac3292227625814fece6f2b65bc39ff",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_date_win",
@@ -3143,14 +3187,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_date_win.mp3",
-      "duration_seconds": 11.57,
+      "duration_seconds": 15.4039,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.76148,
-      "active_rms_dbfs": -19.75,
-      "leading_silence_seconds": 0.0007,
+      "peak": 0.76219,
+      "active_rms_dbfs": -19.46,
+      "leading_silence_seconds": 0.0008,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "68f37589c75f060c63145246e52a1a49c438ab6ec50c98ea8bfbb099a9c8a80e"
+      "sha256": "a354eca4860fd0866e6f63acae05369bcb64e9e753a1c6ae8eb1215d0af58117",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_shadow_intro",
@@ -3166,14 +3211,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_shadow_intro.mp3",
-      "duration_seconds": 13.0126,
+      "duration_seconds": 18.4636,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.90881,
-      "active_rms_dbfs": -18.92,
-      "leading_silence_seconds": 0.001,
-      "trailing_silence_seconds": 0.001,
-      "sha256": "028cad9f41c99d50d5a3a22e2b8f8c0122327c0ace127af31910795b5d76107f"
+      "peak": 0.79227,
+      "active_rms_dbfs": -19.49,
+      "leading_silence_seconds": 0.0008,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "d4fb319680d54cff7f6194b8f3a3e8672ff59515526df52dab5ff2c388584d75",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_shadow_original",
@@ -3189,14 +3235,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_shadow_original.mp3",
-      "duration_seconds": 3.738,
+      "duration_seconds": 4.2728,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.67123,
-      "active_rms_dbfs": -19.71,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "b1990153365c4e4509640551354e00e9cc1ac907e41f60f76ddd2377189dd630"
+      "peak": 0.5364,
+      "active_rms_dbfs": -20.02,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "08f8b3658b04c780e74d8a6ef0eb82974254ec12297cc62c57d14dff9afa0589",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_shadow_twist",
@@ -3212,14 +3259,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_shadow_twist.mp3",
-      "duration_seconds": 2.4226,
+      "duration_seconds": 2.5591,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.74526,
-      "active_rms_dbfs": -19.33,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0008,
-      "sha256": "50d8495d20efce312087420070226b381d6d1d7e1276a1dd066dc152cf10aa24"
+      "peak": 0.71786,
+      "active_rms_dbfs": -19.21,
+      "leading_silence_seconds": 0.0011,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "fdca3e56b10a7d2785fc86b924e5730cc4f5ea04a6947e6fd18b6ba6b50ae278",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_shadow_win",
@@ -3235,14 +3283,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_shadow_win.mp3",
-      "duration_seconds": 8.5806,
+      "duration_seconds": 12.1706,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.90766,
-      "active_rms_dbfs": -19.3,
+      "peak": 0.84721,
+      "active_rms_dbfs": -19.41,
       "leading_silence_seconds": 0.001,
-      "trailing_silence_seconds": 0.001,
-      "sha256": "d7f02b7ee9911ff237e4640fbf90900afa0cd9662da0c5d8accef0f7f928db7b"
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "ffef929d56af19f53f7d5204f1fe1da8275abbe90dd480751ff42685f2159c8a",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_slice_intro",
@@ -3258,14 +3307,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_slice_intro.mp3",
-      "duration_seconds": 12.376,
+      "duration_seconds": 17.4806,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.87486,
-      "active_rms_dbfs": -19.41,
+      "peak": 0.77803,
+      "active_rms_dbfs": -19.35,
       "leading_silence_seconds": 0.0008,
-      "trailing_silence_seconds": 0.0008,
-      "sha256": "cac653e3f378c928ba0a53bf1f914e819680abb8f2cb076ee584ab6d6e9d161c"
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "e030d5e80912974023e37512d0764331c07d1d910efd63f08d7c5f5b45b5a347",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_slice_original",
@@ -3281,14 +3331,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_slice_original.mp3",
-      "duration_seconds": 6.9527,
+      "duration_seconds": 9.7304,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68035,
-      "active_rms_dbfs": -19.9,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "e9e29f2e27ac3cca7d6a5ff20e7524560c12c828ca86142b03e841afd7389e2f"
+      "peak": 0.78085,
+      "active_rms_dbfs": -19.17,
+      "leading_silence_seconds": 0.0009,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "1410502274cd16c642f4bdd67fc29fa38583e5f17b15ac8f314921a61e2b429a",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_slice_twist",
@@ -3304,14 +3355,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_slice_twist.mp3",
-      "duration_seconds": 5.4773,
+      "duration_seconds": 6.9239,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.67384,
-      "active_rms_dbfs": -19.92,
+      "peak": 0.66118,
+      "active_rms_dbfs": -19.63,
       "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "b87b3b178744afd4156b07aed7542f5542c2322a45803b27f2eab9194a3f27cf"
+      "sha256": "6f732fd3f715b7cc8e5a0356c193e5ea19e57f829f30b8400cbc376eb17d53dd",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_slice_win",
@@ -3327,14 +3379,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_slice_win.mp3",
-      "duration_seconds": 16.2473,
+      "duration_seconds": 21.7272,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.67777,
-      "active_rms_dbfs": -20.07,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "60d8ded48e0f265de525ad9a02795ee8a7c3485e71fc71f80810332f5da98b32"
+      "peak": 0.79096,
+      "active_rms_dbfs": -19.32,
+      "leading_silence_seconds": 0.0008,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "fa5036525a5ca83d60e2645abb498a5be483ad4e32a53ce8e98a23963b83fc9c",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_powercut_intro",
@@ -3351,14 +3404,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_powercut_intro.mp3",
-      "duration_seconds": 11.2153,
+      "duration_seconds": 16.1617,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.85468,
-      "active_rms_dbfs": -20.41,
-      "leading_silence_seconds": 0.0009,
-      "trailing_silence_seconds": 0.0009,
-      "sha256": "9bf116403cb3877f30518d162bcf690c4450f61da5f57da1fe1b6ab8481d0b0f"
+      "peak": 0.68011,
+      "active_rms_dbfs": -19.84,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "98402daf6e7d9d79bdb50fac41e07912d4dc8be77e970e0beb8e13cd46a69822",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_powercut_original",
@@ -3374,14 +3428,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_powercut_original.mp3",
-      "duration_seconds": 3.4567,
+      "duration_seconds": 3.8172,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.57126,
-      "active_rms_dbfs": -19.93,
-      "leading_silence_seconds": 0.0005,
+      "peak": 0.4901,
+      "active_rms_dbfs": -20.22,
+      "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0005,
-      "sha256": "d07a70c64462e9267e21cfbe62bd9696b7e9ac6b8994ddcdac8e58ddc853b5ba"
+      "sha256": "a7e70a492f363aa9fbdd1712490cf0b5c2dc701b2a95608c0db61306c9fc4352",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_powercut_twist",
@@ -3397,15 +3452,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_powercut_twist.mp3",
-      "duration_seconds": 3.9613,
+      "duration_seconds": 5.1599,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.57749,
-      "active_rms_dbfs": -19.99,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "a63c80be6cadd13cf98a119abc24df97ad0e9ab7309ea46c465f3af890729fff",
-      "spoken_as": "The Mouse napped in the armchair. The Dog ate the cake."
+      "peak": 0.75119,
+      "active_rms_dbfs": -19.17,
+      "leading_silence_seconds": 0.0008,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "cb21eb8d896449220006e9824fcc1ecfa745e82ae1de7d309f80892e67c00e8d",
+      "spoken_as": "The Mouse napped in the armchair. The Dog ate the cake.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_powercut_win",
@@ -3421,14 +3477,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_powercut_win.mp3",
-      "duration_seconds": 11.4746,
+      "duration_seconds": 15.229,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.62964,
-      "active_rms_dbfs": -20.16,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "2f6ae39b35a0aa10afa21da3bc4dca47f8062d61de1e4a5da2be3a36372c41cf"
+      "peak": 0.68494,
+      "active_rms_dbfs": -19.7,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "cf2d722bc5b3d6237a308d538ffd11f8a56cc709b41f8e76c2f2c15c580a5a49",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_catmouse_intro",
@@ -3444,14 +3501,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_catmouse_intro.mp3",
-      "duration_seconds": 10.0107,
+      "duration_seconds": 13.8078,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.64293,
-      "active_rms_dbfs": -20.06,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "bd74b68bff1ac79238249103f684ca7748b41f50fd1051c6e3ac9cba22f89928"
+      "peak": 0.62727,
+      "active_rms_dbfs": -19.8,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "90e943bd34e9b6525fafe9bb4fe508bb047447d206b57d9a5d506943276e32e0",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_catmouse_original",
@@ -3467,14 +3525,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_catmouse_original.mp3",
-      "duration_seconds": 4.3053,
+      "duration_seconds": 4.7432,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.59159,
-      "active_rms_dbfs": -19.99,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "14cacc58153fa545518f8aa9c15a79a76486cac4a6e8999dd9a5b6acfe58c76a"
+      "peak": 0.59891,
+      "active_rms_dbfs": -19.88,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "d9a393e0127e907d6bf39ffb75dae44f47f20b1f1202fd66310ef8b876b80240",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_catmouse_twist",
@@ -3490,15 +3549,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_catmouse_twist.mp3",
-      "duration_seconds": 3.674,
+      "duration_seconds": 4.6973,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.56764,
-      "active_rms_dbfs": -19.82,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "62ddb670214f11a1b0082e5f932cfdc78fcafcf6456445d64ab1d33716d524a0",
-      "spoken_as": "The Mouse bonked the Cat. The Dog got the cheese."
+      "peak": 0.63269,
+      "active_rms_dbfs": -19.34,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "11a85e82f214093a18a40a0286160686a88dbe7add0c15fe2bda60263c4a524c",
+      "spoken_as": "The Mouse bonked the Cat. The Dog got the cheese.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_catmouse_win",
@@ -3514,14 +3574,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_catmouse_win.mp3",
-      "duration_seconds": 10.4773,
+      "duration_seconds": 14.3664,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.66726,
-      "active_rms_dbfs": -19.88,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "f4ae8c1afaa11dfbffec62673d16f5331e96da37d7c8c311f996f1f2362c8248"
+      "peak": 0.8204,
+      "active_rms_dbfs": -19.09,
+      "leading_silence_seconds": 0.0009,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "feb816f7fb82421ff5bc38d2a2b4e24914a17ee796ea8db777635f118a3705fe",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_haunted_intro",
@@ -3537,14 +3598,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_haunted_intro.mp3",
-      "duration_seconds": 11.2666,
+      "duration_seconds": 16.4564,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68356,
-      "active_rms_dbfs": -19.97,
-      "leading_silence_seconds": 0.0006,
+      "peak": 0.69646,
+      "active_rms_dbfs": -19.75,
+      "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "15665e28cc21e3a8da2f50071debf40170eb925e3daf6285e05d2fcd15d55613"
+      "sha256": "91ace5124d79e400df8a5fa70134f3096b993a138e5b980d54017d35b5d79b1d",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_haunted_original",
@@ -3560,14 +3622,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_haunted_original.mp3",
-      "duration_seconds": 7.066,
+      "duration_seconds": 8.961,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.58352,
-      "active_rms_dbfs": -20.19,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "52a83c4e9afb8dd98f96e74c15fa13a2700f2f2936858b217e2909081c60fbd6"
+      "peak": 0.77903,
+      "active_rms_dbfs": -19.44,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "b6f1d07f8635ec21c45fd4860b7398034f5cca0ab48523df3336b57a2fb3188c",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_haunted_twist",
@@ -3583,14 +3646,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_haunted_twist.mp3",
-      "duration_seconds": 2.5907,
+      "duration_seconds": 2.7089,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.71961,
-      "active_rms_dbfs": -19.28,
+      "peak": 0.68562,
+      "active_rms_dbfs": -19.22,
       "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "0e2fecb9d38eb7519b8b8e60aded87bc34643401f00f40b70219d89663a84f59"
+      "sha256": "0e05f74adfc94af6b1e5fa002457a5ec3dd699a86a5fd7c7df5bc383ffc14f90",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_haunted_win",
@@ -3606,14 +3670,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_haunted_win.mp3",
-      "duration_seconds": 13.5006,
+      "duration_seconds": 16.5366,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.65233,
-      "active_rms_dbfs": -20.09,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "52b7b26e27de4e323361b111fb5848474058e8f9a045e69213b3ca0b8c583beb"
+      "peak": 0.77404,
+      "active_rms_dbfs": -19.38,
+      "leading_silence_seconds": 0.0008,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "e90d8c0b8c6117f4d430673ef29781ba650fef43a5179f492f8f67750c726daf",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_wedding_intro",
@@ -3629,14 +3694,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_wedding_intro.mp3",
-      "duration_seconds": 12.756,
+      "duration_seconds": 15.8088,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.71369,
-      "active_rms_dbfs": -19.93,
+      "peak": 0.68485,
+      "active_rms_dbfs": -19.71,
       "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "debf13ad224fd2ec529422d8f899577eb00b8d775bc1b48df77043b160dd9019"
+      "sha256": "ce8712bb169aad8199a8ad5dc59e502dfe7793c1126fb8cb4e26e2b432c02ba2",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_wedding_original",
@@ -3652,14 +3718,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_wedding_original.mp3",
-      "duration_seconds": 6.4,
+      "duration_seconds": 8.3091,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.83116,
-      "active_rms_dbfs": -19.57,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0007,
-      "sha256": "c641401f6299ed792d01a36555a204aa8669f9b48218fe8ce901d3209c0e4c42"
+      "peak": 0.89965,
+      "active_rms_dbfs": -19.14,
+      "leading_silence_seconds": 0.0009,
+      "trailing_silence_seconds": 0.0009,
+      "sha256": "9a31622fb6c632d18b3aaff5aac3bf221c6dc4af160785bc63b555a54806ea91",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_wedding_twist",
@@ -3675,15 +3742,16 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_wedding_twist.mp3",
-      "duration_seconds": 3.7766,
+      "duration_seconds": 5.1383,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.61739,
-      "active_rms_dbfs": -19.79,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "f1a50a3ad30a94c1e0c6209d15d2ba07cef497d72750bdd6da18a6fbfac2926c",
-      "spoken_as": "The Cat hugged the Mouse. The Dog ate the wedding cake."
+      "peak": 0.6536,
+      "active_rms_dbfs": -19.37,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "0c5a5cbe672603fcd19c51e06cf7d9e9d911a0c58c94450c86ff0fdbe3dc8946",
+      "spoken_as": "The Cat hugged the Mouse. The Dog ate the wedding cake.",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_wedding_win",
@@ -3699,14 +3767,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_wedding_win.mp3",
-      "duration_seconds": 13.3513,
+      "duration_seconds": 17.8278,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.83041,
+      "peak": 0.71508,
       "active_rms_dbfs": -19.57,
       "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "62ca25beab74d5841efbf6845ba34566fbb756c9129b866ca92d8fcdd29f757c"
+      "sha256": "decb605670e8573df08e2cf7c0a21c67e69d54495c0afa98fae1b0d1e3bf312b",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_finale_intro",
@@ -3722,14 +3791,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_finale_intro.mp3",
-      "duration_seconds": 11.2687,
+      "duration_seconds": 15.8837,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.74409,
-      "active_rms_dbfs": -19.93,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "895ca9315d2fb17d6e3f729b928addf702bd15b5c80252d0abd75b082cd16bc1"
+      "peak": 0.59086,
+      "active_rms_dbfs": -20.05,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "efae0b36c06da30091983cdadaf0bfc3d59f485e0d99ef82498290699c6bfbc3",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_finale_original",
@@ -3745,14 +3815,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_finale_original.mp3",
-      "duration_seconds": 7.2613,
+      "duration_seconds": 8.3999,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.74675,
-      "active_rms_dbfs": -19.73,
-      "leading_silence_seconds": 0.0007,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "2f03b99a94db3135c134b5ceec99bec16c22056c239d5db9d29aa1409e52db30"
+      "peak": 0.90082,
+      "active_rms_dbfs": -19.21,
+      "leading_silence_seconds": 0.0009,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "c0b727572a5703695ff59bc88879b6b98c6faea1a2def8fbe67f122328982a3c",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_finale_twist",
@@ -3768,14 +3839,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_finale_twist.mp3",
-      "duration_seconds": 2.7073,
+      "duration_seconds": 2.52,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.60411,
-      "active_rms_dbfs": -20.28,
-      "leading_silence_seconds": 0.0005,
-      "trailing_silence_seconds": 0.0005,
-      "sha256": "22f553ad3f4e02bc72558d34d96c8078db90d681d86a1ed8e2c266947d30c89f"
+      "peak": 0.7458,
+      "active_rms_dbfs": -19.71,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "5e553ef21a3da0fd2231069f9a915691ae21eefcda493478334085d6ae2cc4cf",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "narr15_finale_win",
@@ -3792,14 +3864,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_finale_win.mp3",
-      "duration_seconds": 19.4227,
+      "duration_seconds": 26.1703,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.88419,
-      "active_rms_dbfs": -19.02,
+      "peak": 0.8701,
+      "active_rms_dbfs": -18.21,
       "leading_silence_seconds": 0.0011,
-      "trailing_silence_seconds": 0.0011,
-      "sha256": "9f54ca55aabbbb8e7cabc2a184ac52994da212d23364fdd0209ddb107f8bf425"
+      "trailing_silence_seconds": 0.001,
+      "sha256": "72be97cc43f879a9f9e4086044df1dc482abd499367e4b39950e0a34fa43d2ba",
+      "delivery": "phrase-level performance (assets/audio/narrator_performance.py)"
     },
     {
       "id": "boss_hug",
