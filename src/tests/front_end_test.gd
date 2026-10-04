@@ -36,7 +36,7 @@ func run(check: Callable) -> bool:
 	game._finish_run()
 	check.call(game._stamp.visible and game._stamp.text == "TWIST!" and "Still needed" not in game._missing.text, "A win slams the TWIST! stamp")
 	check.call("NEW ENDING" in game._missing.text and game.endings_found.page_02.size() == 2, "Each distinct result caption is collected as an ending")
-	check.call("★☆" not in game._progress_label.text and game._progress_label.text.begins_with("★") and "Endings 2 / 2" in game._progress_label.text, "Nap Time shows its single star and both endings")
+	check.call("star_off" not in game._progress_label.text and game._progress_label.text.begins_with("[img=20x20]res://assets/ui/star_on") and "Endings 2 / 2" in game._progress_label.text, "Nap Time shows its single star and both endings")
 	pages = game._progress()
 	check.call(pages[0].solved and pages[1].unlocked and not pages[2].unlocked, "Solving a page inks it and unlocks the next")
 	game._open_edition()

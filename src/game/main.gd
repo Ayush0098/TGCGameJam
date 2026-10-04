@@ -46,7 +46,7 @@ var _result_stage: Control
 var _comparison: HBoxContainer
 var _title: Label
 var _goal: Label
-var _facts: Label
+var _facts: RichTextLabel
 var _caption: Label
 var _original_caption: Label
 var _twist_caption: Label
@@ -92,13 +92,16 @@ var _missing: Label
 # Stars (main twist + bonus challenges) and the endings collection, per page id.
 var bonus_done: Dictionary = {}
 var endings_found: Dictionary = {}
-var _progress_label: Label
+var _progress_label: RichTextLabel
 # Hitstop: impact frames pause the playback clock (not Engine.time_scale).
 var _hitstop := 0.0
 const HITSTOP := {"BONK": 0.12, "CLASH": 0.12, "EXIT": 0.1, "EAT": 0.08}
 ## FLICK: a run with an unused spare bulb keeps playing quiet beats this long.
 const FLICK_WINDOW_BEATS := 8
 const AIM_SLOWDOWN := 0.4
+## Slow motion on the beat that completes the twist (known from the event log).
+const DECISIVE_SLOWDOWN := 0.45
+var _decisive_beat := -1
 const INK := Color("243043")
 const PAPER := Color("f2e8cf")
 const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
@@ -180,15 +183,16 @@ func _build_ui() -> void:
 	_goal.size = Vector2(1248, 26)
 	_goal.add_theme_color_override("font_color", Color("a4383e"))
 	_ui.add_child(_goal)
-	_progress_label = _label("", 18)
+	# Rich text with icon images: the web build has no system glyph fallback.
+	_progress_label = _rich(18)
 	_progress_label.name = "Progress"
 	_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_progress_label.position = Vector2(860, 48)
-	_progress_label.size = Vector2(404, 26)
+	_progress_label.position = Vector2(860, 46)
+	_progress_label.size = Vector2(404, 28)
 	_ui.add_child(_progress_label)
-	_facts = _label("", 15)
+	_facts = _rich(15)
 	_facts.position = Vector2(16, 75)
-	_facts.size = Vector2(1248, 22)
+	_facts.size = Vector2(1248, 24)
 	_ui.add_child(_facts)
 	_instructions = _label("", 15)
 	_instructions.position = Vector2(16, 101)
@@ -323,6 +327,22 @@ func _layout_ui() -> void:
 	_ui.position = (size - Vector2(1280, 720) * factor) * 0.5
 
 
+func _rich(font_size: int) -> RichTextLabel:
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = false
+	label.scroll_active = false
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("normal_font_size", font_size)
+	label.add_theme_color_override("default_color", INK)
+	return label
+
+
+func _icon(name: String, size: int = 16) -> String:
+	return "[img=%dx%d]res://assets/ui/%s.svg[/img] " % [size, size, name]
+
+
 func _label(text: String, font_size: int) -> Label:
 	var label := Label.new()
 	label.text = text
@@ -366,11 +386,14 @@ func _load_page(index: int) -> void:
 	_goal.text = "TWIST: " + page.goal.twist_caption
 	_original_run = SIMULATOR.run(page, plan.to_data(), true)
 	_begin(_original_run, true)
-	if index == 0 and _cues.has("narrator_intro"):
+	if page.id == "page_02" and _cues.has("narrator_intro"):
 		_story_waiting = true
 		_last_cue = "narrator_intro"
 		_subtitle.text = "Start the story to hear the narrator, or skip voice to watch the Original."
 		_update_voice_buttons()
+		if is_instance_valid(_front) and not _front.visible:
+			# Audio is already unlocked by an earlier click; start straight away.
+			_replay_voice()
 
 
 func _start_action() -> void:
@@ -391,6 +414,7 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 	mode = "INTRO" if original else "PLAY"
 	_cursor = 0
 	_hitstop = 0.0
+	_decisive_beat = -1 if original else _find_decisive_beat(recorded)
 	_frame_cursor = 0
 	_playback_world = _run.snapshots[0]
 	_clock = 0.0
@@ -432,6 +456,8 @@ func _process(delta: float) -> void:
 	_stage.set_flick_ready(_flick_available(), aim)
 	if aim >= 0:
 		elapsed *= AIM_SLOWDOWN
+	elif _decisive_beat > 0 and not _fast and not _motion.button_pressed and int(_clock / BEAT_SECONDS) + 1 == _decisive_beat:
+		elapsed *= DECISIVE_SLOWDOWN
 	if _hitstop > 0.0:
 		_hitstop = maxf(0.0, _hitstop - delta)
 		return
@@ -549,13 +575,13 @@ func _show_facts(result: Dictionary) -> void:
 	var labels: Array[String] = []
 	for item in result.facts:
 		var fact: Dictionary = item.fact
-		var mark := "✔ " if item.met else ("✘ " if mode == "RESULT" else "☐ ")
+		var mark := _icon("check") if item.met else (_icon("cross") if mode == "RESULT" else _icon("box"))
 		labels.append(mark + GOALS.fact_text(fact))
 	for bonus in page.get("bonus", []):
 		var done: bool = bonus.id in bonus_done.get(page.id, [])
-		labels.append(("★ " if done else "☆ ") + "Bonus: " + str(bonus.caption).trim_suffix("."))
+		labels.append(_icon("star_on" if done else "star_off") + "Bonus: " + str(bonus.caption).trim_suffix("."))
 	_facts.text = "   /   ".join(labels)
-	_facts.add_theme_color_override("font_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
+	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
 
 
 func _return_to_plan() -> void:
@@ -583,7 +609,7 @@ func _return_to_plan() -> void:
 func _refresh_plan() -> void:
 	_display(RULES.initial_world(page, plan.to_data()), true)
 	_show_facts({"facts": page.goal.facts.map(func(fact): return {"fact": fact, "met": false})})
-	_facts.add_theme_color_override("font_color", Color("243043"))
+	_facts.add_theme_color_override("default_color", Color("243043"))
 	_update_hooks()
 	_update_instructions()
 
@@ -1104,7 +1130,7 @@ func _record_progress(result: Dictionary) -> Array[String]:
 		challenge.goal = {"facts": bonus.facts, "twist_caption": bonus.caption}
 		if GOALS.evaluate(challenge, _run).won:
 			done.append(bonus.id)
-			rewards.append("★ BONUS: " + str(bonus.caption))
+			rewards.append("BONUS STAR! " + str(bonus.caption))
 	bonus_done[page.id] = done
 	_save_progress()
 	return rewards
@@ -1116,7 +1142,7 @@ func _update_progress_label() -> void:
 	var total: int = 1 + page.get("bonus", []).size()
 	var stars := _stars(page)
 	var found: int = endings_found.get(page.id, []).size()
-	_progress_label.text = "★".repeat(stars) + "☆".repeat(total - stars) + "     Endings %d / %d" % [found, maxi(int(page.get("endings_total", 0)), found)]
+	_progress_label.text = _icon("star_on", 20).repeat(stars) + _icon("star_off", 20).repeat(total - stars) + "    Endings %d / %d" % [found, maxi(int(page.get("endings_total", 0)), found)]
 
 
 func _persistent() -> bool:
@@ -1213,6 +1239,7 @@ func _drop_flick(slot: int) -> void:
 	_saved_plan = plan.to_data()
 	# Pure re-simulation; playback continues from the same clock and frame.
 	_run = SIMULATOR.run(page, flicked, true)
+	_decisive_beat = _find_decisive_beat(_run)
 	_stage.set_flick_ready(false)
 	_ding(880.0)
 	_play_effect("LAMP_ON")
@@ -1240,3 +1267,14 @@ func _show_hint() -> void:
 	_stage.set_mood("scheme", 1.5)
 	_play_effect("SWAP")
 	_update_buttons()
+
+
+
+func _find_decisive_beat(recorded: Dictionary) -> int:
+	if not GOALS.evaluate(page, recorded).won:
+		return -1
+	for beat in range(1, int(recorded.end_beat) + 1):
+		var partial := {"snapshots": [recorded.snapshots[mini(beat, recorded.snapshots.size() - 1)]], "events": recorded.events.filter(func(event): return event.beat <= beat)}
+		if GOALS.evaluate(page, partial).won:
+			return beat
+	return -1

@@ -71,7 +71,7 @@ func run(check: Callable) -> bool:
 	for i in range(3):
 		game._start_action()
 		game._finish_run()
-		check.call("✘" in game._facts.text, "Failed result marks unmet facts with a cross")
+		check.call("cross.svg" in game._facts.text, "Failed result marks unmet facts with a cross")
 		game._return_to_plan()
 	check.call(game.failures == 3 and not game._skip_page.disabled, "Skip page unlocks after three actual failures")
 	check.call(game._next.disabled, "A past win does not enable NEXT on a later failed result")
