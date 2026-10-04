@@ -1,0 +1,99 @@
+{
+  "id": "grandma",
+  "canvas": [
+    320,
+    400
+  ],
+  "anchor": [
+    160,
+    380
+  ],
+  "parts": [
+    {
+      "name": "leg_left",
+      "texture": "res://assets/characters/grandma/leg_left.svg",
+      "pivot": [
+        133,
+        298
+      ],
+      "z": -3
+    },
+    {
+      "name": "leg_right",
+      "texture": "res://assets/characters/grandma/leg_right.svg",
+      "pivot": [
+        185,
+        298
+      ],
+      "z": -2
+    },
+    {
+      "name": "arm_left",
+      "texture": "res://assets/characters/grandma/arm_left.svg",
+      "pivot": [
+        104,
+        187
+      ],
+      "z": -1
+    },
+    {
+      "name": "body",
+      "texture": "res://assets/characters/grandma/body.svg",
+      "pivot": [
+        160,
+        218
+      ],
+      "z": 0
+    },
+    {
+      "name": "arm_right",
+      "texture": "res://assets/characters/grandma/arm_right.svg",
+      "pivot": [
+        213,
+        190
+      ],
+      "z": 1
+    },
+    {
+      "name": "head",
+      "texture": "res://assets/characters/grandma/head.svg",
+      "pivot": [
+        160,
+        114
+      ],
+      "z": 2
+    },
+    {
+      "name": "bowtie",
+      "texture": "res://assets/characters/grandma/bowtie.svg",
+      "pivot": [
+        160,
+        180
+      ],
+      "z": 3
+    }
+  ],
+  "expressions": {
+    "neutral": "res://assets/characters/grandma/face_neutral.svg",
+    "hungry": "res://assets/characters/grandma/face_hungry.svg",
+    "sleepy": "res://assets/characters/grandma/face_sleepy.svg",
+    "angry": "res://assets/characters/grandma/face_angry.svg",
+    "frightened": "res://assets/characters/grandma/face_frightened.svg",
+    "surprised": "res://assets/characters/grandma/face_surprised.svg",
+    "pleased": "res://assets/characters/grandma/face_pleased.svg"
+  },
+  "animations": [
+    "idle",
+    "walk",
+    "startle",
+    "run",
+    "eat",
+    "sit",
+    "sleep",
+    "bonk",
+    "ko",
+    "exit",
+    "celebrate"
+  ],
+  "author": "Original LIGHTBULB MOMENT production artwork"
+}

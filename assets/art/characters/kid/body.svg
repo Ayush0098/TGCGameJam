@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400"><defs>
+<linearGradient id="skin_light" x2=".8" y2="1"><stop stop-color="#ffe8cf"/><stop offset="1" stop-color="#eab894"/></linearGradient>
+<linearGradient id="skin_kid" x2=".8" y2="1"><stop stop-color="#f6cfa6"/><stop offset="1" stop-color="#cf8f62"/></linearGradient>
+<linearGradient id="skin_deep" x2=".8" y2="1"><stop stop-color="#c9926b"/><stop offset="1" stop-color="#8c5a3d"/></linearGradient>
+<linearGradient id="cardigan" x2=".4" y2="1"><stop stop-color="#c7b1e0"/><stop offset="1" stop-color="#7f68a8"/></linearGradient>
+<linearGradient id="tee" x2=".4" y2="1"><stop stop-color="#ef6a5d"/><stop offset="1" stop-color="#bb3b3f"/></linearGradient>
+<linearGradient id="oxford" x2="1" y2="1"><stop stop-color="#dcebfb"/><stop offset="1" stop-color="#8fb0d6"/></linearGradient>
+</defs><path d="M118 168 Q160 154 202 168 Q228 214 222 284 Q160 302 98 284 Q92 214 118 168 Z" fill="url(#tee)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M104 206 Q160 214 216 206 M101 236 Q160 244 220 236 M100 264 Q160 272 221 264" fill="none" stroke="#fbefe0" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" /><path d="M140 168 Q160 184 180 168" fill="none" stroke="#453747" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /><path d="M146 222 l14 -16 l14 16 l-14 16 Z" fill="#ffd27a" stroke="#453747" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>

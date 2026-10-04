@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "playable_nap_time",
+  "status": "playable_all_pages",
   "background": {
     "texture": "res://assets/backgrounds/living_room_stage.png",
     "crop": [
@@ -18,6 +18,18 @@
     "dog": {
       "rig": "res://assets/characters/dog/rig.json",
       "scale": 0.3136
+    },
+    "grandma": {
+      "rig": "res://assets/characters/grandma/rig.json",
+      "scale": 0.45
+    },
+    "kid": {
+      "rig": "res://assets/characters/kid/rig.json",
+      "scale": 0.37
+    },
+    "intern": {
+      "rig": "res://assets/characters/intern/rig.json",
+      "scale": 0.5
     }
   },
   "props": {
@@ -25,7 +37,15 @@
     "cake_empty": "res://assets/props/cake_empty.svg",
     "dog_bed": "res://assets/props/dog_bed.svg",
     "lantern": "res://assets/props/lantern.svg",
-    "fixture": "res://assets/props/fixture.svg"
+    "fixture": "res://assets/props/fixture.svg",
+    "pie": "res://assets/props/pie.svg",
+    "pie_empty": "res://assets/props/pie_empty.svg",
+    "armchair": "res://assets/props/armchair.svg",
+    "office_chair": "res://assets/props/office_chair.svg",
+    "pedal": "res://assets/props/pedal.svg",
+    "pedal_down": "res://assets/props/pedal_down.svg",
+    "lamp_off": "res://assets/props/lamp_off.svg",
+    "lamp_on": "res://assets/props/lamp_on.svg"
   },
   "thoughts": {
     "hungry": "res://assets/thoughts/hungry.svg",

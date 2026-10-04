@@ -18,7 +18,7 @@ var expression_name := "neutral"
 
 
 func configure(id: String) -> bool:
-	if id not in ["boss", "dog"]:
+	if id.is_empty() or not FileAccess.file_exists(ART_ROOT + id + "/rig.json"):
 		return false
 	var file := FileAccess.open(ART_ROOT + id + "/rig.json", FileAccess.READ)
 	if file == null:

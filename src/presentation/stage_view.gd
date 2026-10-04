@@ -137,7 +137,8 @@ func configure(page: Dictionary) -> void:
 	_shade = null
 	_shade_from = null
 	_selected_lantern = 0
-	_art = page.get("id", "") == "page_02"
+	# Illustrated whenever every cast member and prop has production art.
+	_art = page.get("characters", []).all(func(record): return _manifest.characters.has(str(record.art))) 		and page.get("objects", []).all(func(record): return _textures.has(str(record.art)))
 	for rig in _rigs.values():
 		_root.remove_child(rig)
 		rig.queue_free()
@@ -260,14 +261,23 @@ func _update_visuals() -> void:
 		if not _prop_sprites.has(object.id):
 			continue
 		var key := str(object.art)
-		if key == "cake" and not object.get("present", true):
-			key = "cake_empty"
+		if not object.get("present", true) and _textures.has(key + "_empty"):
+			key += "_empty"
+		for lamp in world.get("lamps", []):
+			if lamp.get("switch_id", "") == object.id and lamp.get("on", false) and _textures.has(key + "_down"):
+				key += "_down"
 		var sprite: Sprite2D = _prop_sprites[object.id]
 		sprite.texture = _textures[key]
 		sprite.position = Vector2(_x(object.slot) - sprite.texture.get_width() * 0.5, FLOOR_Y - sprite.texture.get_height())
 		sprite.material.set_shader_parameter("lit", 1.0 if _lit(object.slot, world) else 0.0)
 	_props.queue_redraw()
 	queue_redraw()
+
+func _figure_height(art: String) -> float:
+	# Drawn height in stage pixels: human rigs are ~340 px tall at scale 1.
+	if art == "dog":
+		return 100.0
+	return 340.0 * float(_manifest.get("characters", {}).get(art, {}).get("scale", 0.49))
 
 func _actor_position(record: Dictionary, stack: int = 0) -> Vector2:
 	return Vector2(_x(float(_visual_positions.get(record.id, record.slot))) + stack * 22, FLOOR_Y - stack * 12)
@@ -414,7 +424,7 @@ func present_events(events: Array, speed: float = 1.0, reduced_motion: bool = fa
 				# The idea bulb pops above the head; the word sits a little higher.
 				for record in _world.get("characters", []):
 					if record.id == id:
-						height = FLOOR_Y - (205.0 if record.get("art", "") != "dog" else 140.0)
+						height = FLOOR_Y - _figure_height(str(record.get("art", ""))) - 37.0
 			var wobble := float((str(event.type).hash() + int(slot) * 7) % 7 - 3) * 0.05
 			_effects.append({"text": words[event.type], "kind": str(event.type), "at": Vector2(clampf(anchor_x if anchor_x >= 0.0 and event.type != "LAMP_ON" else _x(slot), 75, 1205), height), "age": 0.0, "rot": wobble, "colour": WORD_COLOURS.get(event.type, Color("ffd27a"))})
 			if not reduced_motion:
@@ -476,7 +486,7 @@ func _bubble_layout(world: Dictionary, positions: Dictionary) -> Dictionary:
 		if actor.status != "READY" or not _lit(actor.slot, world):
 			continue
 		var at: Vector2 = positions[actor.id]
-		var height := 168.0 if actor.get("art", "") != "dog" else 100.0
+		var height := _figure_height(str(actor.get("art", "")))
 		var origin := Vector2(clampf(at.x - 48, 10, 1174), maxf(70, at.y - height - 83 - (36 if int(actor.slot) % 2 == 0 else 0)))
 		var candidates: Array[Vector2] = [origin]
 		for row in [80.0, 150.0, 220.0]:
@@ -491,7 +501,7 @@ func _bubble_layout(world: Dictionary, positions: Dictionary) -> Dictionary:
 			for other in ordered:
 				if other.status == "EXITED":
 					continue
-				var head: Vector2 = positions[other.id] - Vector2(0, 150 if other.get("art", "") != "dog" else 85)
+				var head: Vector2 = positions[other.id] - Vector2(0, _figure_height(str(other.get("art", ""))) - 17.0)
 				if Rect2(head - Vector2(34, 24), Vector2(68, 48)).intersects(rect):
 					blocked = true
 			if not blocked:
@@ -532,7 +542,11 @@ func _draw() -> void:
 		var centre := Vector2(_x((float(lamp.zone[0]) + float(lamp.zone[1])) * 0.5), 65)
 		if lamp.on:
 			draw_colored_polygon(PackedVector2Array([centre, Vector2(_x(lamp.zone[0]) - _spacing() * 0.45, FLOOR_Y), Vector2(_x(lamp.zone[1]) + _spacing() * 0.45, FLOOR_Y)]), Color(1, 0.86, 0.55, 0.055))
-		draw_circle(centre, 10, Color("efce66") if lamp.on else Color("687489"))
+		if _art and _textures.has("lamp_on"):
+			draw_line(Vector2(centre.x, 0), centre - Vector2(0, 30), Color("524b51"), 3, true)
+			draw_texture(_textures["lamp_on" if lamp.on else "lamp_off"], centre - Vector2(40, 30))
+		else:
+			draw_circle(centre, 10, Color("efce66") if lamp.on else Color("687489"))
 		for object in world.get("objects", []):
 			if object.id == lamp.switch_id:
 				draw_polyline(PackedVector2Array([Vector2(_x(object.slot), FLOOR_Y), Vector2(_x(object.slot), FLOOR_Y + 5), Vector2(centre.x, FLOOR_Y + 5), centre]), Color("7f8e9e"), 2, true)
@@ -554,12 +568,12 @@ func _draw() -> void:
 			continue
 		var at: Vector2 = positions[actor.id]
 		if not _planning and actor.active:
-			draw_circle(at - Vector2(0, 180 if actor.art != "dog" else 113), 5, Color("efd17a"))
+			draw_circle(at - Vector2(0, _figure_height(actor.art) + 13.0), 5, Color("efd17a"))
 		if not bubbles.has(actor.id):
 			continue
 		var rect: Rect2 = bubbles[actor.id]
 		var colour: Color = COLOURS.get(actor.thought, MEMORY)
-		draw_line(rect.position + Vector2(48, 64), at - Vector2(0, 164 if actor.art != "dog" else 94), colour, 2, true)
+		draw_line(rect.position + Vector2(48, 64), at - Vector2(0, _figure_height(actor.art) - 5.0), colour, 2, true)
 		draw_style_box(_bubble_style(colour), rect)
 		if _textures.has(actor.thought):
 			draw_texture_rect(_textures[actor.thought], Rect2(rect.position + Vector2(32, 4), Vector2(32, 32)), false)
@@ -567,7 +581,7 @@ func _draw() -> void:
 		_label(self, rect.position + Vector2((96 - label_width) / 2, 54), actor.thought, colour, 16)
 		if _planning:
 			_bubble_rects[actor.id] = rect
-			_actor_rects[actor.id] = Rect2(at - Vector2(42, 168 if actor.art != "dog" else 100), Vector2(84, 168 if actor.art != "dog" else 100))
+			_actor_rects[actor.id] = Rect2(at - Vector2(42, _figure_height(actor.art)), Vector2(84, _figure_height(actor.art)))
 		if actor.id == _target:
 			draw_rect(rect.grow(5), Color("42a88c"), false, 3)
 	for effect in _effects:
