@@ -12,6 +12,7 @@ const CARD := Color("fffaf0")
 const RED := Color("a4383e")
 const GOLD := Color("d9a521")
 const MUTED := Color("8c8a80")
+const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 
 var _title_panel: Control
 var _edition_panel: Control
@@ -45,6 +46,7 @@ func _button(text: String, font_size: int, primary: bool) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.add_theme_font_size_override("font_size", font_size)
+	button.add_theme_font_override("font", COMIC_FONT)
 	button.custom_minimum_size = Vector2(240, 56)
 	for state in ["normal", "hover", "pressed", "focus"]:
 		var box := StyleBoxFlat.new()
@@ -74,7 +76,8 @@ func _build_title() -> void:
 	var bulb := _Bulb.new()
 	bulb.position = Vector2(640, 150)
 	_title_panel.add_child(bulb)
-	var title := _label("LIGHTBULB MOMENT", 64, Color("ffe08a"))
+	var title := _label("LIGHTBULB MOMENT", 88, Color("ffe08a"))
+	title.add_theme_font_override("font", COMIC_FONT)
 	title.add_theme_constant_override("outline_size", 10)
 	title.add_theme_color_override("font_outline_color", INK)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -110,7 +113,8 @@ func _build_edition() -> void:
 	_edition_panel.size = size
 	_edition_panel.hide()
 	add_child(_edition_panel)
-	var masthead := _label("THE DAILY BULB", 52)
+	var masthead := _label("THE DAILY BULB", 64)
+	masthead.add_theme_font_override("font", COMIC_FONT)
 	masthead.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	masthead.position = Vector2(0, 26)
 	masthead.size = Vector2(1280, 64)

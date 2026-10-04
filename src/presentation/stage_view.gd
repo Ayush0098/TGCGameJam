@@ -20,6 +20,8 @@ const LIGHTING = preload("res://core/lighting.gd")
 const ACTOR = preload("res://scenes/character_actor.tscn")
 const ROOM_SHADER = preload("res://presentation/room_light.gdshader")
 const LOGICAL_SIZE := Vector2(1280, 460)
+const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
+const WORD_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 const SAMPLE_Y := 318.0
 const FLOOR_Y := 404.0
 var _page: Dictionary = {}
@@ -489,7 +491,7 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 func _label(canvas: CanvasItem, at: Vector2, value: String, colour: Color = INK, font_size: int = 18) -> void:
-	canvas.draw_string(ThemeDB.fallback_font, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, colour)
+	canvas.draw_string(TEXT_FONT, at, value, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, colour)
 
 func _draw_props(canvas: CanvasItem) -> void:
 	var world := _shown()
@@ -619,7 +621,7 @@ func _draw() -> void:
 		draw_style_box(_bubble_style(colour), rect)
 		if _textures.has(actor.thought):
 			draw_texture_rect(_textures[actor.thought], Rect2(rect.position + Vector2(32, 4), Vector2(32, 32)), false)
-		var label_width := ThemeDB.fallback_font.get_string_size(actor.thought, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+		var label_width := TEXT_FONT.get_string_size(actor.thought, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
 		_label(self, rect.position + Vector2((96 - label_width) / 2, 54), actor.thought, colour, 16)
 		if _planning:
 			_bubble_rects[actor.id] = rect
@@ -644,7 +646,7 @@ func _draw_word(effect: Dictionary) -> void:
 			scale = lerpf(1.25, 1.0, (age - 0.1) / 0.08)
 	var alpha := clampf((EFFECT_LIFE - age) * 5.0, 0.0, 1.0)
 	var at: Vector2 = effect.at + Vector2(0, 0 if _reduced_motion else -age * 14.0)
-	var font := ThemeDB.fallback_font
+	var font: Font = WORD_FONT
 	var kind := str(effect.get("kind", ""))
 	var size := 26 if kind in ["DING", "SIT"] else 34
 	var width := font.get_string_size(effect.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x

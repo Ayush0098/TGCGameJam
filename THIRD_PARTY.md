@@ -20,6 +20,8 @@ Do not list planned resources as used. Recheck this inventory before release.
 | Node.js v24.20.0, existing local installation | Node.js contributors; [source and license](https://github.com/nodejs/node/blob/v24.20.0/LICENSE) | MIT with bundled dependency notices in the linked LICENSE. | Development only: the local preview server uses built-in modules. Node.js and the server are not shipped in the game export. |
 
 | OpenAI built-in image generation | OpenAI; [service terms](https://openai.com/policies/service-terms/) | Generated output; no stock image or third-party reference was supplied. No open-source license is asserted for this output. | Original reference room and new playable vintage living room in `assets/art/backgrounds/`, copied to runtime assets. Provenance: `assets/production/background_reference.json` and `assets/production/living_room_stage.json` (2026-10-04,1672×941). |
+| Bangers (font) | The Bangers Project Authors; [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/bangers) | SIL Open Font License 1.1, stored in [Bangers-OFL.txt](src/licenses/Bangers-OFL.txt) | Title, stamps, onomatopoeia and comic headings. `src/assets/fonts/Bangers-Regular.ttf`, added 2026-10-04. |
+| Comic Neue Bold (font) | The Comic Neue Project Authors; [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/comicneue) | SIL Open Font License 1.1, stored in [ComicNeue-OFL.txt](src/licenses/ComicNeue-OFL.txt) | UI text, captions, bubbles. `src/assets/fonts/ComicNeue-Bold.ttf`, added 2026-10-04. |
 | Kokoro ONNX wrapper 0.6.1 | thewh1teagle; [source/license](https://github.com/thewh1teagle/kokoro-onnx) | MIT | Offline voice production only, `assets/audio/generate_reference.py`. |
 | Kokoro v1.0 ONNX model and voices-v1.0 bank | hexgrad; [model/license](https://huggingface.co/hexgrad/Kokoro-82M); [ONNX release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1) | Apache-2.0 model; upstream voice production resources | Three audition clips from original scripts: af_heart narrator and bm_george Boss. Model/voice bank local only; checksums pinned in generator. |
 | ONNX Runtime 1.30.0 | Microsoft; [source/license](https://github.com/microsoft/onnxruntime) | MIT with upstream dependency notices | Offline CPU inference only. |
@@ -35,9 +37,10 @@ local environment with their upstream notices. No paid speech service, speech
 model, voice bank or production runtime is shipped in the game export.
 Generated dialogue uses original scripts, not recordings of teammates.
 
-Boss/Dog SVG cutouts, thought icons, cake/consumed cake/dog bed/lantern/fixture SVGs,
+Boss/Dog/Grandma/Kid/Intern/Cat/Mouse SVG cutouts (`assets/art/build_reference.py`,
+`assets/art/build_cast.py`), thought icons, all prop SVGs, Bulby,
 rig code, greybox shapes, frame/binary lighting shaders, light masks, comic effects,
 prototype DING and procedural action sounds are original project work. No external
-sound library is used for those effects. No external character art, custom font
-or music has been added. Godot's default font and dependencies are covered by the
-included engine notices. The preview server has no npm dependencies.
+sound library is used for those effects. No external character art or music has been
+added. The only external fonts are Bangers and Comic Neue (OFL, listed above);
+Godot's default font and dependencies are covered by the included engine notices. The preview server has no npm dependencies.

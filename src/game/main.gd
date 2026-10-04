@@ -101,6 +101,8 @@ const FLICK_WINDOW_BEATS := 8
 const AIM_SLOWDOWN := 0.4
 const INK := Color("243043")
 const PAPER := Color("f2e8cf")
+const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
+const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 const SAVE_PATH := "user://lightbulb_campaign_v1.json"
 const BEAT_SECONDS := 0.4
 const RECOVERY_SECONDS := 0.45
@@ -150,7 +152,8 @@ func _build_ui() -> void:
 	heading.position = Vector2(16, 8)
 	heading.size = Vector2(1248, 34)
 	_ui.add_child(heading)
-	_title = _label("LIGHTBULB MOMENT", 24)
+	_title = _label("LIGHTBULB MOMENT", 28)
+	_title.add_theme_font_override("font", COMIC_FONT)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(_title)
 	_pages_button = Button.new()
@@ -171,7 +174,8 @@ func _build_ui() -> void:
 	for toggle in [_sound, _motion]:
 		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color"]:
 			toggle.add_theme_color_override(state, Color("243043"))
-	_goal = _label("", 20)
+	_goal = _label("", 24)
+	_goal.add_theme_font_override("font", COMIC_FONT)
 	_goal.position = Vector2(16, 46)
 	_goal.size = Vector2(1248, 26)
 	_goal.add_theme_color_override("font_color", Color("a4383e"))
@@ -241,6 +245,7 @@ func _build_ui() -> void:
 			_twist_caption = caption
 	_comparison.hide()
 	_stamp = _label("", 64)
+	_stamp.add_theme_font_override("font", COMIC_FONT)
 	_stamp.name = "Stamp"
 	_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_stamp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1147,6 +1152,7 @@ func _load_progress() -> void:
 func _comic_theme() -> Theme:
 	# Printed-comic buttons: paper, ink border, hard offset shadow (no blur).
 	var theme := Theme.new()
+	theme.default_font = TEXT_FONT
 	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
 		var box := StyleBoxFlat.new()
 		box.bg_color = PAPER if state != "hover" else Color("fff4d6")
