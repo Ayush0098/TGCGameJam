@@ -1,14 +1,16 @@
 extends RefCounted
-## Campaign page from design thread "Level and puzzle logic design" (design/levels.md).
-## New fields: lanterns.count (hard lantern limit), flick, hints, CLONK fact.
+## Level 2/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_02",
+		"number": 2,
 		"room": "living_room",
-		"narration": "nap",
+		"narration_key": "nap",
 		"title": "Nap Time",
+		"difficulty": "green",
 		"width": 11,
 		"rail_span": [
 			0,
@@ -42,6 +44,7 @@ static func definition() -> Dictionary:
 				}
 			]
 		},
+		"obstacles": [],
 		"flick": 0,
 		"fixed_lights": [
 			[
@@ -57,6 +60,7 @@ static func definition() -> Dictionary:
 		"characters": [
 			{
 				"id": "intern",
+				"name": "Intern",
 				"art": "intern",
 				"slot": 3,
 				"facing": "R",
@@ -65,6 +69,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "dog",
+				"name": "Dog",
 				"art": "dog",
 				"slot": 5,
 				"facing": "R",
@@ -73,6 +78,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "boss",
+				"name": "Boss",
 				"art": "boss",
 				"slot": 7,
 				"facing": "L",
@@ -99,31 +105,26 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "The Dog bonks the Boss.",
+				"caption": "THE BOSS BONKS THE DOG",
 				"facts": [
 					{
 						"type": "BONKED",
-						"character": "dog",
-						"target": "boss"
+						"character": "boss",
+						"target": "dog"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "The Intern naps in the dog bed.",
+				"caption": "THE DOG BONKS THE INTERN",
 				"facts": [
 					{
-						"type": "ASLEEP",
-						"character": "intern",
-						"object": "dog_bed"
+						"type": "BONKED",
+						"character": "dog",
+						"target": "intern"
 					}
 				]
 			}
-		],
-		"hints": [
-			"Somebody in the dark is sleepy.",
-			"Swap the Dog's thought with the Boss's.",
-			"ghost: lantern over slot 6 + swap Dog/Boss"
 		],
 		"goal": {
 			"facts": [
@@ -143,5 +144,45 @@ static func definition() -> Dictionary:
 				"DOG",
 				"BOSS"
 			]
-		}
+		},
+		"narration": {
+			"intro": "Sunday afternoon. The fire is warm, the cake is waiting, and the Boss is in charge. As usual.",
+			"win": "The Dog got the cake. The Boss got the dog bed. Nobody is telling HR.",
+			"fail": "That's one ending. Not the one we wanted."
+		},
+		"dialogue": [
+			{
+				"character": "boss",
+				"when": "lit",
+				"line": "Cake time. Boss privileges."
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Five more minutes..."
+			},
+			{
+				"character": "intern",
+				"when": "lit",
+				"line": "Don't look at me like that."
+			},
+			{
+				"character": "boss",
+				"when": "swap",
+				"line": "Suddenly... so... sleepy..."
+			},
+			{
+				"character": "dog",
+				"when": "win",
+				"line": "Best. Nap. Ever. Wait, I ate cake."
+			}
+		],
+		"tutorial": [
+			"Drag a thought bubble onto another lit character to swap their thoughts."
+		],
+		"hints": [
+			"Somebody else wants that cake.",
+			"Light the Dog and the Boss together and swap their thoughts.",
+			"ghost: lantern at x 6, swap Dog and Boss"
+		]
 	}

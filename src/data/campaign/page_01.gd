@@ -1,14 +1,16 @@
 extends RefCounted
-## Campaign page from design thread "Level and puzzle logic design" (design/levels.md).
-## New fields: lanterns.count (hard lantern limit), flick, hints, CLONK fact.
+## Level 1/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_01",
+		"number": 1,
 		"room": "kitchen",
-		"narration": "dinner",
+		"narration_key": "dinner",
 		"title": "Dinner Time",
+		"difficulty": "green",
 		"width": 9,
 		"rail_span": [
 			0,
@@ -42,13 +44,14 @@ static func definition() -> Dictionary:
 				}
 			]
 		},
+		"obstacles": [],
 		"flick": 0,
-		"coach": "Drag the glowing lantern. Whoever stands in its light gets an idea, and they only notice what is lit.",
 		"fixed_lights": [],
 		"lamps": [],
 		"characters": [
 			{
 				"id": "cat",
+				"name": "Cat",
 				"art": "cat",
 				"slot": 2,
 				"facing": "R",
@@ -57,6 +60,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "dog",
+				"name": "Dog",
 				"art": "dog",
 				"slot": 6,
 				"facing": "L",
@@ -83,7 +87,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "The Dog goes for the cookie.",
+				"caption": "THE DOG GOES FOR THE COOKIE",
 				"facts": [
 					{
 						"type": "ATE",
@@ -92,11 +96,6 @@ static func definition() -> Dictionary:
 					}
 				]
 			}
-		],
-		"hints": [
-			"The Cat can't eat what it can't see.",
-			"Light the Cat and the fish together.",
-			"ghost: lantern over slot 3"
 		],
 		"goal": {
 			"facts": [
@@ -110,5 +109,754 @@ static func definition() -> Dictionary:
 			"red_pen_words": [
 				"CAT"
 			]
-		}
+		},
+		"narration": {
+			"intro": "Dinner time at the Bulb house. Somebody always gets the fish, and it's never the Cat.",
+			"win": "And for once, the Cat dined like a king. The Dog is still sulking.",
+			"fail": "Not quite the ending the Cat was hoping for. Try another light."
+		},
+		"dialogue": [
+			{
+				"character": "cat",
+				"when": "lit",
+				"line": "Is that... fish?"
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Mine! Mine! Mine!"
+			},
+			{
+				"character": "cat",
+				"when": "win",
+				"line": "Purrfect."
+			}
+		],
+		"tutorial": {
+			"panels": [
+				{
+					"id": "p1_light",
+					"title": "Lights, please",
+					"teaches": [
+						"light reveals names and thoughts",
+						"move the bulb",
+						"raise/lower the bulb",
+						"goal clipping: Original vs Twist",
+						"ACTION and the result popup"
+					],
+					"width": 8,
+					"rail_span": [
+						0,
+						7
+					],
+					"spotlights": {
+						"count": 1,
+						"default_centres": [
+							5
+						]
+					},
+					"lanterns": {
+						"radius": 1.6,
+						"bounds": [
+							0.0,
+							-1.2,
+							7.0,
+							0.6
+						],
+						"count": 1,
+						"defaults": [
+							{
+								"x": 5.0,
+								"y": -0.6,
+								"enabled": true
+							},
+							{
+								"x": 0.0,
+								"y": -0.6,
+								"enabled": false
+							}
+						]
+					},
+					"obstacles": [],
+					"flick": 0,
+					"fixed_lights": [],
+					"lamps": [],
+					"characters": [
+						{
+							"id": "cat",
+							"name": "Cat",
+							"art": "cat",
+							"slot": 1,
+							"facing": "R",
+							"thought": "HUNGRY",
+							"contradiction": false
+						},
+						{
+							"id": "dog",
+							"name": "Dog",
+							"art": "dog",
+							"slot": 6,
+							"facing": "L",
+							"thought": "HUNGRY",
+							"contradiction": false
+						}
+					],
+					"objects": [
+						{
+							"id": "fish",
+							"type": "FOOD",
+							"art": "fish",
+							"slot": 4
+						}
+					],
+					"original_caption": "The Dog ate the fish.",
+					"goal": {
+						"facts": [
+							{
+								"type": "ATE",
+								"character": "cat",
+								"object": "fish"
+							}
+						],
+						"twist_caption": "The CAT ate the fish.",
+						"red_pen_words": [
+							"CAT"
+						]
+					},
+					"bonus": [],
+					"steps": [
+						{
+							"caption": "It's dark in here. Drag me over to see who's home.",
+							"gate": "lit",
+							"target": "cat"
+						},
+						{
+							"caption": "Lit characters show their name and what they're thinking. Slide me away...",
+							"gate": "unlit",
+							"target": "cat"
+						},
+						{
+							"caption": "...and their thoughts hide again. Only lit characters act or see anything.",
+							"gate": "click"
+						},
+						{
+							"caption": "This is today's comic. Tap the crossed-out line to watch what was printed.",
+							"gate": "clipping_opened"
+						},
+						{
+							"caption": "Our version: the CAT eats the fish. Pull my cord down so my light reaches the Cat AND the fish.",
+							"gate": "lit_set",
+							"target": [
+								"cat",
+								"fish"
+							]
+						},
+						{
+							"caption": "Keep the Dog in the dark. A dark Dog can't smell a thing.",
+							"gate": "unlit",
+							"target": "dog"
+						},
+						{
+							"caption": "Now press ACTION and watch the beats play out.",
+							"gate": "action"
+						},
+						{
+							"caption": "Twist printed! RETRY replays, NEXT moves on.",
+							"gate": "result_closed"
+						}
+					],
+					"hints": [
+						"Lower the bulb: its light gets wider.",
+						"Bulb between the Cat and the fish, pulled all the way down."
+					],
+					"solution": [
+						{
+							"swaps": [],
+							"needs_flick": false
+						}
+					]
+				},
+				{
+					"id": "p2_swap",
+					"title": "Change of heart",
+					"teaches": [
+						"thought icons and the legend",
+						"swap two lit thoughts",
+						"bonus headlines (stars)"
+					],
+					"width": 8,
+					"rail_span": [
+						0,
+						7
+					],
+					"spotlights": {
+						"count": 1,
+						"default_centres": [
+							2
+						]
+					},
+					"lanterns": {
+						"radius": 1.6,
+						"bounds": [
+							0.0,
+							-1.2,
+							7.0,
+							0.6
+						],
+						"count": 1,
+						"defaults": [
+							{
+								"x": 2.5,
+								"y": -0.3,
+								"enabled": true
+							},
+							{
+								"x": 0.0,
+								"y": -0.6,
+								"enabled": false
+							}
+						]
+					},
+					"obstacles": [],
+					"flick": 0,
+					"fixed_lights": [],
+					"lamps": [],
+					"characters": [
+						{
+							"id": "cat",
+							"name": "Cat",
+							"art": "cat",
+							"slot": 2,
+							"facing": "L",
+							"thought": "SLEEPY",
+							"contradiction": false
+						},
+						{
+							"id": "dog",
+							"name": "Dog",
+							"art": "dog",
+							"slot": 3,
+							"facing": "R",
+							"thought": "HUNGRY",
+							"contradiction": false
+						}
+					],
+					"objects": [
+						{
+							"id": "cushion",
+							"type": "SEAT",
+							"art": "cushion",
+							"slot": 1
+						},
+						{
+							"id": "fish",
+							"type": "FOOD",
+							"art": "fish",
+							"slot": 4
+						}
+					],
+					"original_caption": "The Dog ate the fish. The Cat napped.",
+					"goal": {
+						"facts": [
+							{
+								"type": "ATE",
+								"character": "cat",
+								"object": "fish"
+							}
+						],
+						"twist_caption": "The CAT ate the fish.",
+						"red_pen_words": [
+							"CAT"
+						]
+					},
+					"bonus": [
+						{
+							"id": "headline_1",
+							"caption": "THE DOG NAPS ON THE CUSHION",
+							"facts": [
+								{
+									"type": "ASLEEP",
+									"character": "dog",
+									"object": "cushion"
+								}
+							]
+						}
+					],
+					"steps": [
+						{
+							"caption": "Everyone wants something. Tap ? to see what each thought does.",
+							"gate": "legend_opened"
+						},
+						{
+							"caption": "The Cat is sleepy, the Dog is hungry. Drag the Dog's thought onto the Cat.",
+							"gate": "swap",
+							"target": [
+								"cat",
+								"dog"
+							]
+						},
+						{
+							"caption": "Both must be lit to swap. Now press ACTION.",
+							"gate": "action"
+						},
+						{
+							"caption": "See the extra headline? Bonus headlines earn extra stars on every page.",
+							"gate": "result_closed"
+						}
+					],
+					"hints": [
+						"Swap the Cat's and the Dog's thoughts."
+					],
+					"solution": [
+						{
+							"swaps": [
+								[
+									"Cat",
+									"HUNGRY"
+								],
+								[
+									"Dog",
+									"SLEEPY"
+								]
+							],
+							"needs_flick": false
+						}
+					]
+				},
+				{
+					"id": "p3_pedal",
+					"title": "Step on it",
+					"teaches": [
+						"pedals switch on lamps",
+						"lamp light wakes characters on the next beat"
+					],
+					"width": 11,
+					"rail_span": [
+						0,
+						10
+					],
+					"spotlights": {
+						"count": 1,
+						"default_centres": [
+							2
+						]
+					},
+					"lanterns": {
+						"radius": 1.6,
+						"bounds": [
+							0.0,
+							-1.2,
+							3.0,
+							0.6
+						],
+						"count": 1,
+						"defaults": [
+							{
+								"x": 2.0,
+								"y": -0.6,
+								"enabled": true
+							},
+							{
+								"x": 0.0,
+								"y": -0.6,
+								"enabled": false
+							}
+						]
+					},
+					"obstacles": [],
+					"flick": 0,
+					"fixed_lights": [
+						[
+							6,
+							6
+						]
+					],
+					"lamps": [
+						{
+							"id": "lamp",
+							"zone": [
+								8,
+								10
+							],
+							"switch_id": "pedal",
+							"initially_on": false
+						}
+					],
+					"characters": [
+						{
+							"id": "grandma",
+							"name": "Grandma",
+							"art": "grandma",
+							"slot": 0,
+							"facing": "R",
+							"thought": "SLEEPY",
+							"contradiction": false
+						},
+						{
+							"id": "kid",
+							"name": "Kid",
+							"art": "kid",
+							"slot": 2,
+							"facing": "R",
+							"thought": "HUNGRY",
+							"contradiction": false
+						},
+						{
+							"id": "dog",
+							"name": "Dog",
+							"art": "dog",
+							"slot": 10,
+							"facing": "L",
+							"thought": "HUNGRY",
+							"contradiction": false
+						}
+					],
+					"objects": [
+						{
+							"id": "pedal",
+							"type": "SWITCH",
+							"art": "pedal",
+							"slot": 3
+						},
+						{
+							"id": "armchair",
+							"type": "SEAT",
+							"art": "armchair",
+							"slot": 4
+						},
+						{
+							"id": "pie",
+							"type": "FOOD",
+							"art": "pie",
+							"slot": 6
+						}
+					],
+					"original_caption": "The Kid ate the pie.",
+					"goal": {
+						"facts": [
+							{
+								"type": "ATE",
+								"character": "dog",
+								"object": "pie"
+							}
+						],
+						"twist_caption": "The DOG ate the pie.",
+						"red_pen_words": [
+							"DOG"
+						]
+					},
+					"bonus": [],
+					"steps": [
+						{
+							"caption": "See the pedal? The dashed wire runs to that lamp. It's OFF.",
+							"gate": "click"
+						},
+						{
+							"caption": "Anyone who walks over the pedal switches the lamp ON. The Dog is under it.",
+							"gate": "click"
+						},
+						{
+							"caption": "The Kid always beats the Dog to the pie. Make the Kid sleepy instead. Swap with Grandma.",
+							"gate": "swap",
+							"target": [
+								"kid",
+								"grandma"
+							]
+						},
+						{
+							"caption": "Keep Grandma in the dark, then press ACTION.",
+							"gate": "action"
+						}
+					],
+					"hints": [
+						"Give the Kid Grandma's sleepiness.",
+						"The armchair is past the pedal. Leave Grandma dark."
+					],
+					"solution": [
+						{
+							"swaps": [
+								[
+									"Grandma",
+									"HUNGRY"
+								],
+								[
+									"Kid",
+									"SLEEPY"
+								]
+							],
+							"needs_flick": false
+						}
+					]
+				},
+				{
+					"id": "p4_two_bulbs",
+					"title": "Double feature",
+					"teaches": [
+						"the second bulb: deploy and park"
+					],
+					"width": 10,
+					"rail_span": [
+						0,
+						9
+					],
+					"spotlights": {
+						"count": 2,
+						"default_centres": [
+							4
+						]
+					},
+					"lanterns": {
+						"radius": 1.6,
+						"bounds": [
+							0.0,
+							-1.2,
+							9.0,
+							0.6
+						],
+						"count": 2,
+						"defaults": [
+							{
+								"x": 4.5,
+								"y": -0.3,
+								"enabled": true
+							},
+							{
+								"x": 0.0,
+								"y": -0.6,
+								"enabled": false
+							}
+						]
+					},
+					"obstacles": [],
+					"flick": 0,
+					"fixed_lights": [],
+					"lamps": [],
+					"characters": [
+						{
+							"id": "cat",
+							"name": "Cat",
+							"art": "cat",
+							"slot": 1,
+							"facing": "R",
+							"thought": "HUNGRY",
+							"contradiction": false
+						},
+						{
+							"id": "dog",
+							"name": "Dog",
+							"art": "dog",
+							"slot": 6,
+							"facing": "L",
+							"thought": "HUNGRY",
+							"contradiction": false
+						}
+					],
+					"objects": [
+						{
+							"id": "fish",
+							"type": "FOOD",
+							"art": "fish",
+							"slot": 3
+						},
+						{
+							"id": "bone",
+							"type": "FOOD",
+							"art": "bone",
+							"slot": 8
+						}
+					],
+					"original_caption": "The Dog ate the fish.",
+					"goal": {
+						"facts": [
+							{
+								"type": "ATE",
+								"character": "cat",
+								"object": "fish"
+							},
+							{
+								"type": "ATE",
+								"character": "dog",
+								"object": "bone"
+							}
+						],
+						"twist_caption": "The Cat ate the fish. The Dog ate the BONE.",
+						"red_pen_words": [
+							"BONE"
+						]
+					},
+					"bonus": [],
+					"steps": [
+						{
+							"caption": "Some pages give you a second bulb. Drag it off its hook.",
+							"gate": "lantern_deployed"
+						},
+						{
+							"caption": "Drag it back to the hook to park it. Try it.",
+							"gate": "lantern_parked"
+						},
+						{
+							"caption": "Light the Cat with the fish and the Dog with the bone. Leave the gap dark, then press ACTION.",
+							"gate": "action"
+						}
+					],
+					"hints": [
+						"One bulb on the Cat and the fish, one on the Dog and the bone.",
+						"If the Dog sees the fish, he wants it more."
+					],
+					"solution": [
+						{
+							"swaps": [],
+							"needs_flick": false
+						}
+					]
+				},
+				{
+					"id": "p5_flick",
+					"title": "Spare bulb",
+					"teaches": [
+						"the spare bulb (FLICK) during ACTION",
+						"timing"
+					],
+					"width": 10,
+					"rail_span": [
+						0,
+						9
+					],
+					"spotlights": {
+						"count": 1,
+						"default_centres": [
+							3
+						]
+					},
+					"lanterns": {
+						"radius": 1.6,
+						"bounds": [
+							0.0,
+							-1.2,
+							5.0,
+							0.6
+						],
+						"count": 1,
+						"defaults": [
+							{
+								"x": 3.5,
+								"y": -0.3,
+								"enabled": true
+							},
+							{
+								"x": 0.0,
+								"y": -0.6,
+								"enabled": false
+							}
+						]
+					},
+					"obstacles": [],
+					"flick": 1,
+					"fixed_lights": [],
+					"lamps": [],
+					"characters": [
+						{
+							"id": "cat",
+							"name": "Cat",
+							"art": "cat",
+							"slot": 2,
+							"facing": "R",
+							"thought": "HUNGRY",
+							"contradiction": false
+						},
+						{
+							"id": "dog",
+							"name": "Dog",
+							"art": "dog",
+							"slot": 7,
+							"facing": "L",
+							"thought": "HUNGRY",
+							"contradiction": false
+						}
+					],
+					"objects": [
+						{
+							"id": "fish",
+							"type": "FOOD",
+							"art": "fish",
+							"slot": 5
+						}
+					],
+					"original_caption": "The Cat ate the fish.",
+					"goal": {
+						"facts": [
+							{
+								"type": "ATE",
+								"character": "dog",
+								"object": "fish"
+							}
+						],
+						"twist_caption": "The DOG ate the fish.",
+						"red_pen_words": [
+							"DOG"
+						]
+					},
+					"bonus": [],
+					"steps": [
+						{
+							"caption": "The Dog is out of my reach. Light the fish, keep the Cat dark, press ACTION.",
+							"gate": "action"
+						},
+						{
+							"caption": "Quick! Click the rail over the Dog to drop the spare bulb. You get one per run.",
+							"gate": "flick"
+						}
+					],
+					"hints": [
+						"Drop the spare bulb right at the start of the run.",
+						"Light only the fish, then flick on the Dog on the first beat."
+					],
+					"solution": [
+						{
+							"swaps": [],
+							"needs_flick": true
+						}
+					],
+					"pause_for_flick_at_beat": 1
+				}
+			],
+			"final": {
+				"steps": [
+					{
+						"caption": "Your turn. No arrows this time.",
+						"when": "start"
+					},
+					{
+						"caption": "Stuck? Tap HINT. Each hint shows a bit more.",
+						"when": "first_fail"
+					},
+					{
+						"caption": "Every different result goes in your Endings book.",
+						"when": "first_new_ending"
+					}
+				]
+			},
+			"stars_from": "final",
+			"skip": {
+				"where": [
+					"intro_card",
+					"hud_tab",
+					"pause_sheet"
+				],
+				"confirm": "tap_again_3s",
+				"goes_to": "final",
+				"unlocks_next_only_on_win": true,
+				"sets_save": "tutorial_done"
+			},
+			"replay": [
+				"settings_replay_tutorial",
+				"level_card_badge"
+			],
+			"resume_panel_on_reopen": true
+		},
+		"hints": [
+			"The Cat can't eat what it can't see.",
+			"Light the Cat and the fish together, not the Dog.",
+			"ghost: lantern at x 3, y -0.6"
+		]
 	}

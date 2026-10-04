@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "generator": "local Kokoro ONNX + original synthesized nonverbal animal vocals",
+  "models_sha256": {
+    "kokoro-v1.0.onnx": "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a",
+    "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+  },
+  "voices": {
+    "narr": {
+      "voice": "af_heart",
+      "lang": "en-us",
+      "speed": 0.96,
+      "pitch": 1.0
+    },
+    "boss": {
+      "voice": "bm_george",
+      "lang": "en-gb",
+      "speed": 0.95,
+      "pitch": 0.98
+    },
+    "grandma": {
+      "voice": "bf_lily",
+      "lang": "en-gb",
+      "speed": 0.91,
+      "pitch": 1.0
+    },
+    "kid": {
+      "voice": "af_sky",
+      "lang": "en-us",
+      "speed": 1.08,
+      "pitch": 1.14
+    },
+    "intern": {
+      "voice": "am_puck",
+      "lang": "en-us",
+      "speed": 1.02,
+      "pitch": 1.07
+    },
+    "dog": {
+      "voice": "am_santa",
+      "lang": "en-us",
+      "speed": 1.05,
+      "pitch": 0.8
+    },
+    "cat": {
+      "voice": "af_nicole",
+      "lang": "en-us",
+      "speed": 0.98,
+      "pitch": 1.07
+    },
+    "mouse": {
+      "voice": "af_sky",
+      "lang": "en-us",
+      "speed": 1.08,
+      "pitch": 1.48
+    }
+  },
+  "format": "MP3 mono44100Hz",
+  "cues": [
+    {
+      "id": "narr_title",
+      "text": "The Daily Bulb presents... Lightbulb Moment!",
+      "direction": "",
+      "speaker": "narr",
+      "kind": "spoken",
+      "profile": {
+        "voice": "af_heart",
+        "lang": "en-us",
+        "speed": 0.96,
+        "pitch": 1.0
+      },
+      "audio": "assets/audio/voice/narrator/narr_title.mp3",
+      "duration_seconds": 2.6827,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak": 0.55271,
+      "active_rms_dbfs": -20.42,
+      "leading_silence_seconds": 0.0006,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "e4891e8c4e375d2f586653df367040dd879bf80d7081510e0f2ee869c2fba4ef"
+    },
+    {
+      "id": "boss_flee",
+      "text": "This is NOT in my contract!",
+      "direction": "panicking",
+      "speaker": "boss",
+      "kind": "spoken",
+      "profile": {
+        "voice": "bm_george",
+        "lang": "en-gb",
+        "speed": 1.007,
+        "pitch": 0.98
+      },
+      "audio": "assets/audio/voice/characters/boss_flee.mp3",
+      "duration_seconds": 2.5156,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak": 0.39837,
+      "active_rms_dbfs": -20.67,
+      "leading_silence_seconds": 0.0004,
+      "trailing_silence_seconds": 0.0004,
+      "sha256": "e8ebcd1c837d1b4a69680ea6c2d40cb27d935e8877caeb2322cbbc9b48719b52"
+    },
+    {
+      "id": "grandma_bonk",
+      "text": "Take THAT!",
+      "direction": "fierce",
+      "speaker": "grandma",
+      "kind": "spoken",
+      "profile": {
+        "voice": "bf_lily",
+        "lang": "en-gb",
+        "speed": 0.9646000000000001,
+        "pitch": 1.0
+      },
+      "audio": "assets/audio/voice/characters/grandma_bonk.mp3",
+      "duration_seconds": 1.198,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak": 0.51597,
+      "active_rms_dbfs": -20.27,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0006,
+      "sha256": "bed6ef7a5fdc89f63cd350b886350f981fc7b2a0b95d92d3d5f12eb314b9fd72"
+    },
+    {
+      "id": "kid_eat",
+      "text": "Yum!",
+      "direction": "",
+      "speaker": "kid",
+      "kind": "spoken",
+      "profile": {
+        "voice": "af_sky",
+        "lang": "en-us",
+        "speed": 1.08,
+        "pitch": 1.14
+      },
+      "audio": "assets/audio/voice/characters/kid_eat.mp3",
+      "duration_seconds": 0.8637,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak": 0.49831,
+      "active_rms_dbfs": -20.72,
+      "leading_silence_seconds": 0.0005,
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "9697f3ff258a5e0a2fb470b998c2ae47c7ce5e5a204aec90575d6269cd130518"
+    },
+    {
+      "id": "intern_clash",
+      "text": "Oh, no, after you... no, after ME!",
+      "direction": "",
+      "speaker": "intern",
+      "kind": "spoken",
+      "profile": {
+        "voice": "am_puck",
+        "lang": "en-us",
+        "speed": 1.02,
+        "pitch": 1.07
+      },
+      "audio": "assets/audio/voice/characters/intern_clash.mp3",
+      "duration_seconds": 1.9302,
+      "sample_rate": 44100,
+      "channels": 1,
+      "peak": 0.49185,
+      "active_rms_dbfs": -20.32,
+      "leading_silence_seconds": 0.0004,
+      "trailing_silence_seconds": 0.0004,
+      "sha256": "4bcb04efce3d10bc4971fd566162e098a60677865c9b06d00a42d1aa97d681d3"
+    }
+  ],
+  "quality_note": "Waveform checks do not establish acting/pronunciation quality; human audition required. Four nonverbal animal cues and animal blips are original synthesis."
+}

@@ -640,8 +640,7 @@ func _draw() -> void:
 	for obstacle in _page.get("obstacles", []):
 		var start := world_to_stage(Vector2(obstacle.from[0], obstacle.from[1]))
 		var end := world_to_stage(Vector2(obstacle.to[0], obstacle.to[1]))
-		draw_line(start, end, Color("b3ada0"), 9, true)
-		draw_line(start, end, INK, 2, true)
+		_draw_screen(start, end)
 	_draw_flick(world)
 	for lamp in world.get("lamps", []):
 		if lamp.get("id", "") == "flick":
@@ -767,7 +766,14 @@ func _draw_lanterns() -> void:
 	for index in _plan.get("lanterns", []).size():
 		var light: Dictionary = _plan.lanterns[index]
 		if not light.enabled:
-			_bulb_rects.append(Rect2())
+			# Parked bulbs hang on hooks inside the panel; one hook per usable
+			# lantern (lanterns.count), so the limit is visible.
+			if index < _lantern_count() and _planning:
+				var hook := _hook_position(index)
+				_draw_parked_bulb(hook, index)
+				_bulb_rects.append(Rect2(hook - Vector2(24, 26), Vector2(48, 58)))
+			else:
+				_bulb_rects.append(Rect2())
 			continue
 		var at := _light_position(light)
 		var opacity := 1.0 if _planning else 0.3
@@ -814,6 +820,18 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 		queue_redraw()
 		return
+	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_RIGHT]:
+		for index in range(_bulb_rects.size()):
+			if _bulb_rects[index].has_area() and _bulb_rects[index].has_point(_mouse) and _plan.lanterns[index].enabled:
+				_selected_lantern = index
+				var light: Dictionary = _plan.lanterns[index]
+				if event.button_index == MOUSE_BUTTON_RIGHT:
+					lantern_moved.emit(index, Vector2(light.x, light.y), false)
+				else:
+					# Wheel raises/lowers the bulb: lower lights a wider circle of the floor.
+					_move_selected(Vector2(light.x, light.y + (-0.1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 0.1)))
+				accept_event()
+				return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			grab_focus()
@@ -838,6 +856,10 @@ func _gui_input(event: InputEvent) -> void:
 				accept_event()
 				return
 		else:
+			if _drag_bulb >= 0 and _hook_area().has_point(_mouse):
+				# Dropping a bulb back on the hooks parks it.
+				var parked: Dictionary = _plan.lanterns[_drag_bulb]
+				lantern_moved.emit(_drag_bulb, Vector2(parked.x, parked.y), false)
 			if _drag_bubble != "" and _target != "":
 				thought_swapped.emit(_drag_bubble, _target)
 			_drag_bubble = ""
@@ -1129,7 +1151,7 @@ func _draw_name_plates(world: Dictionary, positions: Dictionary) -> void:
 		var shown: bool = _lit(actor.slot, world) or (not _planning and actor.get("active", false))
 		if not shown:
 			continue
-		var name := str(actor.id).replace("_", " ").to_upper()
+		var name := str(actor.get("name", actor.id)).replace("_", " ").to_upper()
 		var at: Vector2 = positions[actor.id]
 		var width := TEXT_FONT.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 14
 		var plate := Rect2(at + Vector2(-width * 0.5, 8), Vector2(width, 19))
@@ -1183,7 +1205,51 @@ func _draw_caption_box() -> void:
 		return
 	var width := 600.0
 	var lines := TEXT_FONT.get_multiline_string_size(_caption_text, HORIZONTAL_ALIGNMENT_LEFT, width - 24, 17).y
-	var rect := Rect2(Vector2(12, 12), Vector2(width, lines + 16))
+	var rect := Rect2(Vector2(_hook_area().end.x + 12 if _planning else 12.0, 12), Vector2(width, lines + 16))
 	draw_rect(rect, Color("f6e27a"))
 	draw_rect(rect, INK, false, 2.5)
 	draw_multiline_string(TEXT_FONT, rect.position + Vector2(12, 24), _caption_text, HORIZONTAL_ALIGNMENT_LEFT, width - 24, 17, -1, INK)
+
+
+func _lantern_count() -> int:
+	return int(_page.get("lanterns", {}).get("count", 2))
+
+func _hook_position(index: int) -> Vector2:
+	return Vector2(44 + index * 52, 74)
+
+func _hook_area() -> Rect2:
+	return Rect2(Vector2(14, 20), Vector2(56 + 52 * _lantern_count(), 96))
+
+func _draw_parked_bulb(at: Vector2, index: int) -> void:
+	# Hook rail, cord and a sleeping bulb waiting to be dragged into the room.
+	draw_line(Vector2(20, 26), Vector2(_hook_area().end.x - 6, 26), Color("524b51"), 4, true)
+	draw_arc(at - Vector2(0, 40), 6, 0, PI, 8, Color("524b51"), 3, true)
+	draw_line(at - Vector2(0, 34), at - Vector2(0, 16), Color("524b51"), 2, true)
+	var tint := Color("ffc7d9") if index == 1 else Color("ffe17a")
+	draw_circle(at, 14, tint.darkened(0.25))
+	draw_arc(at, 14, 0, TAU, 24, INK, 2.2, true)
+	draw_rect(Rect2(at + Vector2(-6, 11), Vector2(12, 7)), Color("8e97aa"))
+	for side in [-1, 1]:
+		draw_line(at + Vector2(side * 5 - 3, -2), at + Vector2(side * 5 + 3, -2), INK, 2, true)
+	if _planning:
+		_label(self, at + Vector2(-18, 40), "drag", Color("d8c79a"), 12)
+
+
+func _draw_screen(start: Vector2, end: Vector2) -> void:
+	# A folding paper screen drawn exactly on its blocking segment, so the art
+	# and the shadow it casts can never disagree.
+	var top := Vector2(start.x, minf(start.y, end.y))
+	var bottom := Vector2(end.x, maxf(start.y, end.y))
+	if absf(start.x - end.x) > 1.0:
+		draw_line(start, end, Color("7b5a3c"), 10, true)
+		draw_line(start, end, INK, 2, true)
+		return
+	var height := bottom.y - top.y
+	var panels := [Vector2(-21, 4), Vector2(-7, 0), Vector2(7, 4)]
+	for offset in panels:
+		var rect := Rect2(Vector2(top.x + offset.x, top.y + offset.y), Vector2(14, height - offset.y))
+		draw_rect(rect, Color("c9a77c"))
+		draw_rect(rect.grow(-3), Color("efe1c4"))
+		draw_line(rect.position + Vector2(7, 8), rect.position + Vector2(7, rect.size.y - 8), Color(0.6, 0.45, 0.3, 0.35), 1)
+		draw_rect(rect, INK, false, 2)
+	draw_line(Vector2(top.x - 24, bottom.y), Vector2(top.x + 24, bottom.y), INK, 3)

@@ -8,6 +8,7 @@ const FACT_TYPES = ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "UNEATEN", "ALL_A
 
 var _errors := PackedStringArray()
 var _page_id := "<unknown>"
+var _finale := false
 var _width := 0
 var _ids: Dictionary = {}
 
@@ -21,6 +22,7 @@ func validate(content: Variant) -> Dictionary:
 		_error("page", content, "expected a dictionary")
 		return _result({})
 	var page: Dictionary = content
+	_finale = page.get("finale", false) == true
 	if _field(page, "id", TYPE_STRING, "id"):
 		_page_id = page.id
 	for field in ["title", "original_caption"]:
@@ -237,7 +239,7 @@ func _validate_goal(value: Variant, cast: Dictionary, props: Dictionary) -> void
 		if type in ["ATE", "UNEATEN"] or (type == "ASLEEP" and fact.has("object")):
 			if _field(fact, "object", TYPE_STRING, path + ".object"):
 				_reference(props, fact.object, "SEAT" if type == "ASLEEP" else "FOOD", path + ".object")
-		if type == "ALL_ACTIVATED" and _page_id != "page_08":
+		if type == "ALL_ACTIVATED" and _page_id != "page_08" and not _finale:
 			_error(path + ".type", type, "finale-only fact")
 
 

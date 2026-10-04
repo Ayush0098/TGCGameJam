@@ -7,6 +7,7 @@ const CAMPAIGN = [
 	preload("res://data/campaign/page_03.gd"), preload("res://data/campaign/page_04.gd"),
 	preload("res://data/campaign/page_05.gd"), preload("res://data/campaign/page_06.gd"),
 	preload("res://data/campaign/page_07.gd"), preload("res://data/campaign/page_08.gd"),
+	preload("res://data/campaign/page_09.gd"), preload("res://data/campaign/page_10.gd"),
 ]
 ## Integration tests swap in the original MVP fixture pages before instancing.
 static var page_override: Array = []
@@ -240,7 +241,9 @@ func _build_ui() -> void:
 	_stage.spotlight_moved.connect(_move_light)
 	_stage.lantern_moved.connect(_move_lantern)
 	_stage.thought_swapped.connect(_swap)
-	_stage.actor_revealed.connect(func(_id: String, thought: String): _play_effect("REVEAL_" + thought))
+	_stage.actor_revealed.connect(func(id: String, thought: String):
+		_play_effect("REVEAL_" + thought)
+		_say_scripted("lit", [id]))
 	_stage.actor_poked.connect(func(_id: String, kind: String): _play_effect(kind))
 	_stage.flick_cleared.connect(_clear_flick)
 	_stage.preview_requested.connect(_preview)
@@ -413,6 +416,7 @@ func _load_page(index: int) -> void:
 	_original_run = SIMULATOR.run(page, plan.to_data(), true)
 	_begin(_original_run, true)
 	_fail_count = 0
+	_said_scripted.clear()
 	_narrate("intro")
 	if page.id == "page_02" and not page.has("narration") and _cues.has("narrator_intro"):
 		_story_waiting = true
@@ -613,6 +617,7 @@ func _finish_run() -> void:
 	_show_result_card(result)
 	if result.won:
 		_narrate("twist")
+		_say_scripted("win", [])
 	else:
 		_fail_count += 1
 		_narrate("fail_%d" % (1 + _fail_count % 2))
@@ -702,6 +707,7 @@ func _swap(first: String, second: String) -> void:
 		_refresh_plan()
 		_stage.react_swap(first, second)
 		_play_effect("SWAP")
+		_say_scripted("swap", [first, second])
 
 
 func _preview(first: String, second: String) -> void:
@@ -1056,8 +1062,11 @@ func _update_instructions() -> void:
 			text = "TWIST! Press NEXT PAGE, or hunt for another ending." if _won_current else "Not quite. REWIND keeps your plan; RESTART resets the page."
 		"PLAN":
 			var lit := _lit_ids()
+			var tutorial: Variant = page.get("tutorial")
 			if page.has("coach") and not completed.has(page.id):
 				text = str(page.coach)
+			elif tutorial is Array and not tutorial.is_empty() and not completed.has(page.id):
+				text = str(tutorial[0])
 			elif not _lanterns_useful:
 				text = "Everyone is lit. Drag one thought bubble onto the other character to swap, then ACTION! (Space)."
 			elif lit.is_empty():
@@ -1501,11 +1510,20 @@ func _play_voice_file(base: String, player: AudioStreamPlayer = null) -> bool:
 ## Narrator caption + voice: page intro, the Original's ending, a win, a fail.
 func _narrate(moment: String) -> void:
 	var key := ""
+	var voice_key := str(page.get("narration_key", page.get("narration", ""))) if not page.get("narration") is Dictionary else str(page.get("narration_key", ""))
 	if moment.begins_with("fail_"):
 		key = "narr_" + moment
-	elif page.has("narration"):
-		key = "narr_%s_%s" % [page.narration, moment]
+	elif not voice_key.is_empty():
+		key = "narr_%s_%s" % [voice_key, moment]
 	var text: String = _lines.get("narrator", {}).get(key, "")
+	# Level data owns the written narration; the voice file keys stay the same.
+	var written: Variant = page.get("narration")
+	if written is Dictionary:
+		var field: String = str({"intro": "intro", "twist": "win"}.get(moment, "fail" if moment.begins_with("fail_") else ""))
+		if not str(field).is_empty() and written.has(field):
+			text = str(written[field])
+			if moment.begins_with("fail_") and not voice_key.is_empty():
+				key = "narr_" + moment
 	if text.is_empty():
 		return
 	_stage.set_caption(text, 4.5 if moment in ["intro", "original"] else 0.0)
@@ -1971,3 +1989,24 @@ func _build_settings_sheet() -> void:
 	back.pressed.connect(func(): _settings_sheet.hide())
 	sheet.add_child(back)
 	_settings_sheet.hide()
+
+
+
+## Page dialogue (levels.md): lines spoken when a character is first lit, after a
+## swap, or on a win. Only lit/active characters speak (theme rule).
+var _said_scripted: Dictionary = {}
+
+
+func _say_scripted(when: String, ids: Array) -> void:
+	for entry in page.get("dialogue", []):
+		if not entry is Dictionary or str(entry.get("when", "")) != when:
+			continue
+		var id := str(entry.get("character", ""))
+		if not ids.is_empty() and id not in ids:
+			continue
+		var key: String = str(page.id) + ":" + when + ":" + id
+		if when == "lit" and _said_scripted.has(key):
+			continue
+		_said_scripted[key] = true
+		_stage.say(id, str(entry.get("line", "")), 2.2)
+		_blip(id, str(entry.get("line", "")))

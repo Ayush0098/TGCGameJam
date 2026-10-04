@@ -1,23 +1,25 @@
 extends RefCounted
-## Campaign page from design thread "Level and puzzle logic design" (design/levels.md).
-## New fields: lanterns.count (hard lantern limit), flick, hints, CLONK fact.
+## Level 8/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_08",
-		"room": "office",
-		"narration": "finale",
-		"title": "Lightbulb Moment",
-		"width": 12,
+		"number": 8,
+		"room": "living_room",
+		"narration_key": "revenge",
+		"title": "Grandma's Revenge",
+		"difficulty": "red",
+		"width": 11,
 		"rail_span": [
 			0,
-			11
+			10
 		],
 		"spotlights": {
-			"count": 1,
+			"count": 2,
 			"default_centres": [
-				2
+				4
 			]
 		},
 		"lanterns": {
@@ -25,13 +27,13 @@ static func definition() -> Dictionary:
 			"bounds": [
 				0.0,
 				-1.2,
-				4.0,
+				10.0,
 				0.6
 			],
-			"count": 1,
+			"count": 2,
 			"defaults": [
 				{
-					"x": 2.0,
+					"x": 4.0,
 					"y": -0.6,
 					"enabled": true
 				},
@@ -42,141 +44,159 @@ static func definition() -> Dictionary:
 				}
 			]
 		},
-		"flick": 1,
+		"obstacles": [],
+		"flick": 0,
 		"fixed_lights": [],
 		"lamps": [
 			{
 				"id": "lamp",
 				"zone": [
-					5,
-					8
+					3,
+					4
 				],
 				"switch_id": "pedal",
-				"initially_on": false
-			},
-			{
-				"id": "lamp_2",
-				"zone": [
-					9,
-					11
-				],
-				"switch_id": "pedal_2",
 				"initially_on": false
 			}
 		],
 		"characters": [
 			{
-				"id": "boss",
-				"art": "boss",
-				"slot": 2,
+				"id": "kid",
+				"name": "Kid",
+				"art": "kid",
+				"slot": 1,
 				"facing": "R",
-				"thought": "ANGRY",
-				"contradiction": false
-			},
-			{
-				"id": "intern",
-				"art": "intern",
-				"slot": 3,
-				"facing": "R",
-				"thought": "ANGRY",
+				"thought": "SLEEPY",
 				"contradiction": false
 			},
 			{
 				"id": "dog",
+				"name": "Dog",
 				"art": "dog",
-				"slot": 5,
+				"slot": 4,
 				"facing": "R",
 				"thought": "HUNGRY",
 				"contradiction": false
 			},
 			{
 				"id": "grandma",
+				"name": "Grandma",
 				"art": "grandma",
-				"slot": 8,
+				"slot": 5,
 				"facing": "L",
-				"thought": "SCARED",
+				"thought": "ANGRY",
 				"contradiction": true
 			},
 			{
-				"id": "cat",
-				"art": "cat",
-				"slot": 11,
+				"id": "boss",
+				"name": "Boss",
+				"art": "boss",
+				"slot": 10,
 				"facing": "L",
-				"thought": "SLEEPY",
+				"thought": "HUNGRY",
 				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "pedal",
-				"type": "SWITCH",
-				"art": "pedal",
-				"slot": 4
-			},
-			{
 				"id": "chair",
 				"type": "SEAT",
 				"art": "chair",
-				"slot": 6
+				"slot": 0
 			},
 			{
 				"id": "cake",
 				"type": "FOOD",
 				"art": "cake",
-				"slot": 8
+				"slot": 7
 			},
 			{
-				"id": "pedal_2",
+				"id": "pedal",
 				"type": "SWITCH",
 				"art": "pedal",
-				"slot": 9
+				"slot": 8
 			}
 		],
-		"original_caption": "The Boss and the Intern had the same bad idea.",
-		"endings_total": 20,
+		"original_caption": "Grandma bonked the Dog.",
+		"endings_total": 55,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "The Intern and the Dog bonk each other.",
+				"caption": "THE BOSS BONKS THE KID",
 				"facts": [
 					{
 						"type": "BONKED",
-						"character": "intern",
-						"target": "dog"
-					},
-					{
-						"type": "BONKED",
-						"character": "dog",
-						"target": "intern"
+						"character": "boss",
+						"target": "kid"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "The Boss bonks the Dog.",
+				"caption": "THE KID NAPS THROUGH THE BONKING",
 				"facts": [
 					{
+						"type": "ASLEEP",
+						"character": "kid",
+						"object": "chair"
+					},
+					{
 						"type": "BONKED",
-						"character": "boss",
+						"character": "grandma",
 						"target": "dog"
 					}
 				]
 			}
 		],
-		"hints": [
-			"Each lamp needs someone to walk over its pedal.",
-			"Somebody has to cross the whole room, and your spare bulb can give them a reason.",
-			"ghost: lantern slot 4 + flick on the Boss at beat 1"
-		],
 		"goal": {
 			"facts": [
 				{
-					"type": "ALL_ACTIVATED"
+					"type": "BONKED",
+					"character": "grandma",
+					"target": "boss"
+				},
+				{
+					"type": "ATE",
+					"character": "dog",
+					"object": "cake"
 				}
 			],
-			"twist_caption": "EVERYONE had a lightbulb moment!",
+			"twist_caption": "Grandma bonked the BOSS. The DOG ate the cake.",
 			"red_pen_words": [
-				"EVERYONE"
+				"BOSS",
+				"DOG"
 			]
-		}
+		},
+		"narration": {
+			"intro": "Grandma has had enough of everyone. Somebody's getting bonked. Let's choose who.",
+			"win": "Grandma got her revenge on the right person, and the Dog got the cake. Justice!",
+			"fail": "Wrong target, Grandma."
+		},
+		"dialogue": [
+			{
+				"character": "grandma",
+				"when": "lit",
+				"line": "Somebody is getting it."
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Cake? Cake!"
+			},
+			{
+				"character": "boss",
+				"when": "lit",
+				"line": "Is that cake for me?"
+			},
+			{
+				"character": "grandma",
+				"when": "win",
+				"line": "That's for the birthday!"
+			}
+		],
+		"tutorial": [],
+		"hints": [
+			"Grandma bonks whoever is closest and lit.",
+			"Keep the Dog in the dark until the Boss steps on the pedal.",
+			"ghost: bulbs at x 6 and x 9"
+		]
 	}

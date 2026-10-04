@@ -63,7 +63,10 @@
     "rocker": "res://assets/props/rocker.svg",
     "chair": "res://assets/props/office_chair.svg",
     "cheese": "res://assets/props/cheese.svg",
-    "cheese_empty": "res://assets/props/cheese_empty.svg"
+    "cheese_empty": "res://assets/props/cheese_empty.svg",
+    "bone": "res://assets/props/bone.svg",
+    "bone_empty": "res://assets/props/bone_empty.svg",
+    "cushion": "res://assets/props/cushion.svg"
   },
   "thoughts": {
     "hungry": "res://assets/thoughts/hungry.svg",

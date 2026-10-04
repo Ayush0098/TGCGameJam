@@ -132,6 +132,9 @@ func _audit(page: Dictionary) -> void:
 	var win_arrangements := {}
 	var endings := {}
 	var bonus_hits := {}
+	# Ideas per star (master_plan §3.1): thought arrangement + who is lit at
+	# ACTION + who the FLICK wakes. Exact positions/beats are not new ideas.
+	var star_ideas := {"twist": {}}
 	var nothing := 0
 	var original_won: bool = GOALS.evaluate(page, SIM.run(page, {"centres": [], "lanterns": page.lanterns.defaults, "thoughts": base})).won
 	for key in configs:
@@ -146,6 +149,14 @@ func _audit(page: Dictionary) -> void:
 				endings[result.caption] = endings.get(result.caption, 0) + 1
 				if result.caption.begins_with("Nobody"):
 					nothing += 1
+				var woken := []
+				for event in run.events:
+					if event.type == "DING" and event.get("lamp", "") == "flick":
+						woken.append(event.actor)
+				woken.sort()
+				var idea := str(a) + "|" + str(configs[key].lit) + "|" + str(woken)
+				if result.won:
+					star_ideas.twist[idea] = true
 				if result.won:
 					wins += 1
 					win_arrangements[str(a)] = true
@@ -156,7 +167,9 @@ func _audit(page: Dictionary) -> void:
 					challenge.goal = {"facts": bonus.facts, "twist_caption": bonus.caption}
 					if GOALS.evaluate(challenge, run).won:
 						bonus_hits[bonus.id] = bonus_hits.get(bonus.id, 0) + 1
+						star_ideas.get_or_add(bonus.id, {})[idea] = true
 	print("== %s %s: %d lit configs x %d arrangements x %d flick options = %d plans; wins %d (%.1f%%), wins without flick %d, winning arrangements %d; endings %d (endings_total %s); nothing %d; original wins: %s; %d ms" % [
 		page.id, page.title, configs.size(), arrangements.size(), flicks.size(), plans, wins, 100.0 * wins / maxf(1, plans), plain_wins, win_arrangements.size(), endings.size(), str(page.get("endings_total", "-")), nothing, str(original_won), Time.get_ticks_msec() - start])
+	print("   twist: %d ideas" % star_ideas.twist.size())
 	for bonus in page.get("bonus", []):
-		print("   bonus %s: %d plans" % [bonus.id, bonus_hits.get(bonus.id, 0)])
+		print("   bonus %s: %d plans, %d ideas" % [bonus.id, bonus_hits.get(bonus.id, 0), star_ideas.get(bonus.id, {}).size()])

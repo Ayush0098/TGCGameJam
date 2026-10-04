@@ -1,14 +1,16 @@
 extends RefCounted
-## Campaign page from design thread "Level and puzzle logic design" (design/levels.md).
-## New fields: lanterns.count (hard lantern limit), flick, hints, CLONK fact.
+## Level 6/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_06",
+		"number": 6,
 		"room": "office",
-		"narration": "birthday",
+		"narration_key": "birthday",
 		"title": "The Boss's Birthday",
+		"difficulty": "yellow",
 		"width": 11,
 		"rail_span": [
 			0,
@@ -26,7 +28,7 @@ static func definition() -> Dictionary:
 				0.0,
 				-1.2,
 				5.0,
-				0.6
+				-0.6
 			],
 			"count": 1,
 			"defaults": [
@@ -42,7 +44,8 @@ static func definition() -> Dictionary:
 				}
 			]
 		},
-		"flick": 1,
+		"obstacles": [],
+		"flick": 0,
 		"fixed_lights": [],
 		"lamps": [
 			{
@@ -58,6 +61,7 @@ static func definition() -> Dictionary:
 		"characters": [
 			{
 				"id": "intern",
+				"name": "Intern",
 				"art": "intern",
 				"slot": 1,
 				"facing": "R",
@@ -66,6 +70,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "grandma",
+				"name": "Grandma",
 				"art": "grandma",
 				"slot": 2,
 				"facing": "R",
@@ -74,6 +79,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "boss",
+				"name": "Boss",
 				"art": "boss",
 				"slot": 4,
 				"facing": "R",
@@ -82,6 +88,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "dog",
+				"name": "Dog",
 				"art": "dog",
 				"slot": 9,
 				"facing": "L",
@@ -91,9 +98,9 @@ static func definition() -> Dictionary:
 		],
 		"objects": [
 			{
-				"id": "chair",
+				"id": "office_chair",
 				"type": "SEAT",
-				"art": "chair",
+				"art": "office_chair",
 				"slot": 0
 			},
 			{
@@ -110,11 +117,11 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Boss ate the birthday cake.",
-		"endings_total": 45,
+		"endings_total": 12,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "Grandma bonks the Boss.",
+				"caption": "GRANDMA BONKS THE BOSS",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -125,25 +132,14 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "The Boss gets his cake and Grandma bonks him.",
+				"caption": "THE BOSS RUNS OUT OF HIS OWN PARTY",
 				"facts": [
 					{
-						"type": "ATE",
-						"character": "boss",
-						"object": "cake"
-					},
-					{
-						"type": "BONKED",
-						"character": "grandma",
-						"target": "boss"
+						"type": "EXITED",
+						"character": "boss"
 					}
 				]
 			}
-		],
-		"hints": [
-			"Sweet Grandma isn't as calm as she looks.",
-			"Make someone run past the pedal.",
-			"ghost: swap Grandma/Boss + lantern slot 3"
 		],
 		"goal": {
 			"facts": [
@@ -157,5 +153,48 @@ static func definition() -> Dictionary:
 			"red_pen_words": [
 				"DOG"
 			]
-		}
+		},
+		"narration": {
+			"intro": "It's the Boss's birthday. There's cake. There's a desk lamp on a pedal. There's a very hungry Dog in the dark.",
+			"win": "Happy birthday, Boss. The Dog says thanks for the cake.",
+			"fail": "The party went on without the twist."
+		},
+		"dialogue": [
+			{
+				"character": "boss",
+				"when": "lit",
+				"line": "My cake. My party. My cake."
+			},
+			{
+				"character": "grandma",
+				"when": "lit",
+				"line": "Oh my, so many people!"
+			},
+			{
+				"character": "intern",
+				"when": "lit",
+				"line": "Nobody invited me."
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "I heard cake."
+			},
+			{
+				"character": "boss",
+				"when": "swap",
+				"line": "Why is everyone looking at me?!"
+			},
+			{
+				"character": "dog",
+				"when": "win",
+				"line": "Best party ever."
+			}
+		],
+		"tutorial": [],
+		"hints": [
+			"Sweet Grandma isn't as calm as she looks.",
+			"Make someone run right past the pedal.",
+			"ghost: swap Grandma and Boss, lantern at x 3"
+		]
 	}

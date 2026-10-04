@@ -1,14 +1,16 @@
 extends RefCounted
-## Campaign page from design thread "Level and puzzle logic design" (design/levels.md).
-## New fields: lanterns.count (hard lantern limit), flick, hints, CLONK fact.
+## Level 3/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_03",
+		"number": 3,
 		"room": "kitchen",
-		"narration": "greens",
+		"narration_key": "greens",
 		"title": "Eat Your Greens",
+		"difficulty": "green",
 		"width": 11,
 		"rail_span": [
 			0,
@@ -42,12 +44,14 @@ static func definition() -> Dictionary:
 				}
 			]
 		},
+		"obstacles": [],
 		"flick": 0,
 		"fixed_lights": [],
 		"lamps": [],
 		"characters": [
 			{
 				"id": "kid",
+				"name": "Kid",
 				"art": "kid",
 				"slot": 4,
 				"facing": "R",
@@ -56,6 +60,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "dog",
+				"name": "Dog",
 				"art": "dog",
 				"slot": 8,
 				"facing": "L",
@@ -64,6 +69,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "grandma",
+				"name": "Grandma",
 				"art": "grandma",
 				"slot": 10,
 				"facing": "L",
@@ -96,7 +102,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "The Dog steals the armchair.",
+				"caption": "THE DOG NAPS IN THE ARMCHAIR",
 				"facts": [
 					{
 						"type": "ASLEEP",
@@ -107,20 +113,15 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "Grandma swipes the cookie.",
+				"caption": "THE KID NAPS INSTEAD",
 				"facts": [
 					{
-						"type": "ATE",
-						"character": "grandma",
-						"object": "cookie"
+						"type": "ASLEEP",
+						"character": "kid",
+						"object": "armchair"
 					}
 				]
 			}
-		],
-		"hints": [
-			"If the Kid can see the cookie, he'll pick it.",
-			"Keep the cookie and the Dog in the dark.",
-			"ghost: lanterns over slots 4 and 6"
 		],
 		"goal": {
 			"facts": [
@@ -134,5 +135,40 @@ static func definition() -> Dictionary:
 			"red_pen_words": [
 				"BROCCOLI"
 			]
-		}
+		},
+		"narration": {
+			"intro": "Dinner rules: greens first. The Kid has other plans, and the Dog has a nose.",
+			"win": "The Kid ate the broccoli. Nobody saw the cookie. Nobody will ever know.",
+			"fail": "The broccoli survives another day."
+		},
+		"dialogue": [
+			{
+				"character": "kid",
+				"when": "lit",
+				"line": "Cookie! Cookie! Cookie!"
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Is someone not eating that?"
+			},
+			{
+				"character": "grandma",
+				"when": "lit",
+				"line": "Eat your greens, dear."
+			},
+			{
+				"character": "kid",
+				"when": "win",
+				"line": "...Huh. Not bad."
+			}
+		],
+		"tutorial": [
+			"You have a second bulb. Two lights can overlap."
+		],
+		"hints": [
+			"If the Kid can see the cookie, he picks the cookie.",
+			"Keep the cookie and the Dog in the dark. You have two bulbs.",
+			"ghost: bulbs at x 4 and x 6"
+		]
 	}
