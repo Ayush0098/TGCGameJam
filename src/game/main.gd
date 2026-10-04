@@ -246,6 +246,9 @@ func _build_ui() -> void:
 		_say_scripted("lit", [id]))
 	_stage.actor_poked.connect(func(_id: String, kind: String): _play_effect(kind))
 	_stage.flick_cleared.connect(_clear_flick)
+	_stage.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and mode == "PLAN":
+			_tutorial_click())
 	_stage.preview_requested.connect(_preview)
 	_stage.preview_cleared.connect(_stage.clear_preview)
 	_comparison = HBoxContainer.new()
@@ -391,11 +394,18 @@ func _button(parent: Node, text: String, callback: Callable) -> Button:
 	return button
 
 
-func _load_page(index: int) -> void:
+func _load_page(index: int, override: Dictionary = {}) -> void:
 	_cancel_presentation()
 	_last_cue = ""
 	page_index = index
-	var validated: Dictionary = VALIDATOR.new().validate(PAGE_SCRIPTS[index].definition())
+	if override.is_empty():
+		_tutorial_panel = -1
+		var tutorial: Variant = PAGE_SCRIPTS[index].definition().get("tutorial")
+		if tutorial is Dictionary and not tutorial_done and _persistent_or_campaign():
+			# First visit: the tutorial panels come before Dinner Time itself.
+			_start_tutorial(index)
+			return
+	var validated: Dictionary = VALIDATOR.new().validate(PAGE_SCRIPTS[index].definition() if override.is_empty() else override)
 	if not validated.errors.is_empty():
 		mode = "ERROR"
 		_caption.text = "Content error: " + "; ".join(validated.errors)
@@ -412,6 +422,8 @@ func _load_page(index: int) -> void:
 	for view in [_stage, _original_stage, _result_stage]:
 		view.configure(page)
 	_title.text = "LIGHTBULB MOMENT  ·  Page %d: %s" % [index + 1, page.title]
+	_tutorial_step = 0
+	_tutorial_gate_hold = false
 	_goal.text = "TWIST: " + page.goal.twist_caption
 	_original_run = SIMULATOR.run(page, plan.to_data(), true)
 	_begin(_original_run, true)
@@ -431,6 +443,7 @@ func _load_page(index: int) -> void:
 func _start_action() -> void:
 	if mode != "PLAN":
 		return
+	_tutorial_event("action")
 	attempts += 1
 	_stage.set_caption("")
 	_saved_plan = plan.to_data()
@@ -602,7 +615,8 @@ func _finish_run() -> void:
 	_won_current = result.won
 	_show_facts(result)
 	if result.won:
-		completed[page.id] = true
+		if _tutorial_panel < 0:
+			completed[page.id] = true
 	else:
 		failures += 1
 	run_history.append({"page": page.id, "attempt": attempts, "won": result.won, "plan": _saved_plan.duplicate(true), "end_beat": _run.end_beat})
@@ -673,6 +687,7 @@ func _return_to_plan() -> void:
 
 
 func _refresh_plan() -> void:
+	call_deferred("_check_tutorial_gates")
 	_display(RULES.initial_world(page, plan.to_data()), true)
 	_show_facts({"facts": page.goal.facts.map(func(fact): return {"fact": fact, "met": false})})
 	_facts.add_theme_color_override("default_color", Color("243043"))
@@ -706,6 +721,7 @@ func _swap(first: String, second: String) -> void:
 		_stage.clear_preview()
 		_refresh_plan()
 		_stage.react_swap(first, second)
+		_tutorial_event("swap")
 		_play_effect("SWAP")
 		_say_scripted("swap", [first, second])
 
@@ -730,6 +746,7 @@ func _restart_page() -> void:
 
 
 func _replay_original() -> void:
+	_tutorial_event("clipping_opened")
 	if mode not in ["PLAN", "RESULT"]:
 		return
 	_saved_plan = plan.to_data()
@@ -744,6 +761,9 @@ func _toggle_fast() -> void:
 
 func _next_page() -> void:
 	if mode != "RESULT" or not _won_current:
+		return
+	if _tutorial_panel >= 0:
+		_advance_tutorial_panel()
 		return
 	if page_index < PAGE_SCRIPTS.size() - 1:
 		_load_page(page_index + 1)
@@ -1223,6 +1243,8 @@ func _stars(definition: Dictionary) -> int:
 
 
 func _record_progress(result: Dictionary) -> Array[String]:
+	if _tutorial_panel >= 0:
+		return []
 	# Every player run can find a new ending; any run can also earn bonus stars.
 	var rewards: Array[String] = []
 	var found: Array = endings_found.get(page.id, [])
@@ -1264,7 +1286,7 @@ func _save_progress() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		return
-	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found}))
+	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done}))
 
 
 func _load_progress() -> void:
@@ -1281,6 +1303,7 @@ func _load_progress() -> void:
 		bonus_done = data.bonus
 	if data.get("endings") is Dictionary:
 		endings_found = data.endings
+	tutorial_done = data.get("tutorial_done", false) == true
 
 
 func _comic_theme() -> Theme:
@@ -1349,6 +1372,7 @@ func _drop_flick(slot: int) -> void:
 	_run = SIMULATOR.run(page, flicked, true)
 	_decisive_beat = _find_decisive_beat(_run)
 	_stage.set_flick_ready(false)
+	_tutorial_event("flick")
 	_ding(880.0)
 	_play_effect("LAMP_ON")
 	_update_instructions()
@@ -1589,7 +1613,11 @@ func _restyle_hud() -> void:
 	_progress_label.size = Vector2(334, 34)
 	# Goal clipping: twist in red pen plus the headline (bonus) lines.
 	_goal_card = _paper_panel(Rect2(16, 56, 900, 62), 0.0)
-	_goal_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_goal_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	_goal_card.tooltip_text = "Click to watch the Original strip"
+	_goal_card.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and mode in ["PLAN", "RESULT"]:
+			_replay_original())
 	_ui.add_child(_goal_card)
 	_ui.move_child(_goal_card, _goal.get_index())
 	_goal.position = Vector2(30, 58)
@@ -1610,6 +1638,11 @@ func _restyle_hud() -> void:
 	# Bottom bar: legend, narration line, ⟲ and ACTION.
 	_legend = _label("HUNGRY > food   ·   SLEEPY > seat   ·   ANGRY > bonk   ·   SCARED > flee", 14)
 	_legend.position = Vector2(16, 594)
+	_legend.mouse_filter = Control.MOUSE_FILTER_STOP
+	_legend.tooltip_text = "What each thought makes a character do"
+	_legend.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed:
+			_tutorial_click())
 	_legend.size = Vector2(700, 20)
 	_legend.add_theme_color_override("font_color", Color("6d6a62"))
 	_ui.add_child(_legend)
@@ -1786,13 +1819,15 @@ func _tier(index: int) -> int:
 var _pause_sheet: Control
 var _pause_hint: Button
 var _pause_skip: Button
+var _pause_tutorial: Button
 
 
 func _open_pause() -> void:
 	if not is_instance_valid(_pause_sheet):
 		_build_pause_sheet()
 	_pause_hint.visible = _hint_button.visible
-	_pause_skip.visible = failures >= 3
+	_pause_skip.visible = failures >= 3 and _tutorial_panel < 0
+	_pause_tutorial.visible = _tutorial_panel >= 0
 	_pause_sheet.show()
 
 
@@ -1835,6 +1870,7 @@ func _build_pause_sheet() -> void:
 		["eye", "WATCH THE ORIGINAL", func(): _close_pause(); _replay_original()],
 		["hint", "HINT", func(): _close_pause(); _show_hint()],
 		["skip", "SKIP PAGE", func(): _close_pause(); _skip_current_page()],
+		["skip", "SKIP TUTORIAL", func(): _close_pause(); _finish_tutorial()],
 		["settings", "SETTINGS", func(): _open_settings()],
 		["levels", "LEVELS", func(): _close_pause(); _open_edition()],
 		["home", "MAIN MENU", func(): _close_pause(); _front.show_title(not completed.is_empty())],
@@ -1853,6 +1889,8 @@ func _build_pause_sheet() -> void:
 			_pause_hint = button
 		elif entry[1] == "SKIP PAGE":
 			_pause_skip = button
+		elif entry[1] == "SKIP TUTORIAL":
+			_pause_tutorial = button
 	_pause_sheet.visibility_changed.connect(func():
 		sub.text = "Page %d  ·  %s" % [page_index + 1, str(page.get("title", ""))])
 	_pause_sheet.hide()
@@ -1964,6 +2002,13 @@ func _build_settings_sheet() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if on else DisplayServer.WINDOW_MODE_WINDOWED))
 	sheet.add_child(fullscreen)
 	y += 56
+	var replay := Button.new()
+	replay.text = "REPLAY TUTORIAL"
+	replay.position = Vector2(30, y - 4)
+	replay.add_theme_font_size_override("font_size", 15)
+	replay.pressed.connect(_replay_tutorial)
+	sheet.add_child(replay)
+	y += 48
 	var reset := Button.new()
 	reset.text = "THROW AWAY ALL PROGRESS"
 	reset.position = Vector2(30, y)
@@ -2010,3 +2055,150 @@ func _say_scripted(when: String, ids: Array) -> void:
 		_said_scripted[key] = true
 		_stage.say(id, str(entry.get("line", "")), 2.2)
 		_blip(id, str(entry.get("line", "")))
+
+
+
+# ------------------------------------------------------------ tutorial (ui.md §8)
+var tutorial_done := false
+var _tutorial_panel := -1
+var _tutorial_step := 0
+var _tutorial_gate_hold := false
+var _tutorial_skip: Button
+
+
+func _persistent_or_campaign() -> bool:
+	# Legacy MVP fixtures never run the tutorial.
+	return page_override.is_empty()
+
+
+func _tutorial_data() -> Dictionary:
+	var tutorial: Variant = PAGE_SCRIPTS[page_index].definition().get("tutorial")
+	return tutorial if tutorial is Dictionary else {}
+
+
+func _start_tutorial(index: int, panel: int = 0) -> void:
+	var data := _tutorial_data()
+	var panels: Array = data.get("panels", [])
+	if panel >= panels.size():
+		_finish_tutorial()
+		return
+	var definition: Dictionary = panels[panel].duplicate(true)
+	definition.id = "%s_tutorial_%d" % [PAGE_SCRIPTS[index].definition().id, panel + 1]
+	definition.room = PAGE_SCRIPTS[index].definition().get("room", "living_room")
+	_load_page(index, definition)
+	_tutorial_panel = panel
+	_tutorial_step = 0
+	_title.text = "TUTORIAL %d/%d  ·  %s" % [panel + 1, panels.size(), str(definition.get("title", "")).to_upper()]
+	_ensure_skip_tab()
+	_show_tutorial_step()
+
+
+func _ensure_skip_tab() -> void:
+	if not is_instance_valid(_tutorial_skip):
+		_tutorial_skip = Button.new()
+		_tutorial_skip.text = "SKIP TUTORIAL"
+		_tutorial_skip.position = Vector2(1100, 86)
+		_tutorial_skip.add_theme_font_size_override("font_size", 14)
+		_tutorial_skip.pressed.connect(func():
+			if _tutorial_skip.text == "SKIP TUTORIAL":
+				_tutorial_skip.text = "SURE? CLICK AGAIN"
+				get_tree().create_timer(3.0).timeout.connect(func():
+					if is_instance_valid(_tutorial_skip):
+						_tutorial_skip.text = "SKIP TUTORIAL")
+			else:
+				_finish_tutorial())
+		_ui.add_child(_tutorial_skip)
+	_tutorial_skip.visible = _tutorial_panel >= 0
+
+
+func _tutorial_steps() -> Array:
+	var panels: Array = _tutorial_data().get("panels", [])
+	if _tutorial_panel < 0 or _tutorial_panel >= panels.size():
+		return []
+	return panels[_tutorial_panel].get("steps", [])
+
+
+func _show_tutorial_step() -> void:
+	var steps := _tutorial_steps()
+	if _tutorial_step < steps.size():
+		_stage.set_caption("Bulby: " + str(steps[_tutorial_step].get("caption", "")), 0.0)
+		_stage.set_mood("scheme", 1.0)
+		_instructions.text = "Tutorial step %d / %d" % [_tutorial_step + 1, steps.size()]
+
+
+func _tutorial_event(gate: String) -> void:
+	var steps := _tutorial_steps()
+	if _tutorial_step >= steps.size():
+		return
+	if str(steps[_tutorial_step].get("gate", "")) == gate:
+		_tutorial_step += 1
+		_show_tutorial_step()
+
+
+func _check_tutorial_gates() -> void:
+	# State-based gates are checked every frame during PLAN.
+	var steps := _tutorial_steps()
+	if _tutorial_step >= steps.size() or mode != "PLAN":
+		return
+	var step: Dictionary = steps[_tutorial_step]
+	var gate := str(step.get("gate", ""))
+	var lit := _lit_ids()
+	var world: Dictionary = RULES.initial_world(page, plan.to_data())
+	var lit_slots: Array = RULES.lit_slots(page, plan.to_data(), world)
+	var targets: Array = step.get("target", []) if step.get("target") is Array else [step.get("target", "")]
+	var satisfied := false
+	match gate:
+		"lit":
+			satisfied = targets.all(func(id): return id in lit)
+		"unlit":
+			satisfied = targets.all(func(id): return id not in lit)
+		"lit_set":
+			satisfied = targets.all(func(id): return id in lit or _object_lit(world, lit_slots, str(id)))
+		"lantern_deployed":
+			satisfied = plan.lanterns.filter(func(l): return l.enabled).size() >= 2
+		"lantern_parked":
+			satisfied = plan.lanterns.filter(func(l): return l.enabled).size() <= 1
+	if satisfied:
+		_tutorial_step += 1
+		_show_tutorial_step()
+
+
+func _object_lit(world: Dictionary, lit_slots: Array, id: String) -> bool:
+	for object in world.objects:
+		if object.id == id:
+			return int(object.slot) in lit_slots
+	return false
+
+
+func _tutorial_click() -> void:
+	var steps := _tutorial_steps()
+	if _tutorial_step < steps.size() and str(steps[_tutorial_step].get("gate", "")) in ["click", "legend_opened"]:
+		_tutorial_step += 1
+		_show_tutorial_step()
+
+
+func _advance_tutorial_panel() -> void:
+	_start_tutorial(page_index, _tutorial_panel + 1)
+
+
+func _finish_tutorial() -> void:
+	tutorial_done = true
+	_save_progress()
+	_tutorial_panel = -1
+	if is_instance_valid(_tutorial_skip):
+		_tutorial_skip.hide()
+	_load_page(page_index)
+	var final: Array = _tutorial_data().get("final", {}).get("steps", [])
+	if not final.is_empty():
+		_stage.set_caption("Bulby: " + str(final[0].get("caption", "")), 6.0)
+
+
+func _replay_tutorial() -> void:
+	tutorial_done = false
+	_save_progress()
+	if is_instance_valid(_settings_sheet):
+		_settings_sheet.hide()
+	_close_pause()
+	if is_instance_valid(_front):
+		_front.hide()
+	_load_page(0)
