@@ -1,16 +1,17 @@
 extends RefCounted
-## Page 1 "Biryani Sunday", IIIT-H story rev 4 (design/story_proposal.md, design/build_p1_3/spec.md).
-## Star ladder verified by the solver (design/levels_solver/ladder), 0.2 and 0.02 lantern grids.
+## Level 1/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_01",
 		"number": 1,
-		"title": "Biryani Sunday",
+		"title": "Dinner Time",
+		"voice": "dinner",
+		"room": "kitchen",
+		"narration_key": "dinner",
 		"difficulty": "green",
-		"room": "kadamba",
-		"voice": "page_01",
 		"width": 9,
 		"rail_span": [
 			0,
@@ -51,16 +52,16 @@ static func definition() -> Dictionary:
 		"characters": [
 			{
 				"id": "cat",
-				"name": "Dassi",
+				"name": "Cat",
 				"art": "cat",
-				"slot": 3,
+				"slot": 2,
 				"facing": "R",
-				"thought": "SCARED",
+				"thought": "HUNGRY",
 				"contradiction": false
 			},
 			{
 				"id": "dog",
-				"name": "Chintu",
+				"name": "Dog",
 				"art": "dog",
 				"slot": 6,
 				"facing": "L",
@@ -70,107 +71,85 @@ static func definition() -> Dictionary:
 		],
 		"objects": [
 			{
-				"id": "biryani",
+				"id": "fish",
 				"type": "FOOD",
-				"art": "biryani",
+				"art": "fish",
 				"slot": 4
 			},
 			{
-				"id": "bonda",
+				"id": "cookie",
 				"type": "FOOD",
-				"art": "bonda",
+				"art": "cookie",
 				"slot": 8
 			}
 		],
-		"original_caption": "Chintu ate the biryani.",
-		"endings_total": 6,
+		"original_caption": "The Dog ate the fish.",
+		"endings_total": 4,
+		"bonus": [
+			{
+				"id": "headline_1",
+				"caption": "THE DOG SETTLES FOR A COOKIE",
+				"facts": [
+					{
+						"type": "ATE",
+						"character": "dog",
+						"object": "cookie"
+					}
+				]
+			}
+		],
 		"goal": {
 			"facts": [
 				{
 					"type": "ATE",
 					"character": "cat",
-					"object": "biryani"
+					"object": "fish"
 				}
 			],
-			"twist_caption": "DASSI ate the biryani.",
+			"twist_caption": "The CAT ate the fish.",
 			"red_pen_words": [
-				"DASSI"
+				"CAT"
 			]
 		},
-		"ladder": [
-			{
-				"id": "star_2",
-				"caption": "…and Chintu ran out of the comic.",
-				"facts": [
-					{
-						"type": "EXITED",
-						"character": "dog"
-					}
-				]
-			}
-		],
 		"narration": {
-			"intro": "Sunday. Biryani Day at Kadamba, the one day there's no Pappu in it. Every Sunday for eleven years, Chintu the campus dog has eaten the biryani. Chintu does not refuse literally anything. Dassi does not eat biryani. Dassi has seen what is IN the biryani.",
-			"original": "Chintu ate the biryani. Frog and all. A classic.",
-			"twist": "DASSI ate the biryani.",
-			"win": "Dassi ate the biryani. Ten CGPA, never touches mess food. Who moved my lamp? Somebody MOVED my LAMP.",
-			"stars": [
-				"And Chintu ran out of the comic. The dog who eats everything has refused something. Write it down. History."
-			],
-			"fails": [
-				"Chintu ate the biryani. As per policy.",
-				"Ah, the classics. Like the mess menu.",
-				"Wrong Answer on test 1. Lovely."
-			],
-			"hidden": []
+			"intro": "Dinner at the Bulb house. Every night for eleven years, the Dog has eaten the fish. It is a classic. It is tradition. It is, frankly, the only joke I have.",
+			"original": "The Dog ate the fish. Ha. Ha ha. Classic.",
+			"twist": "The CAT ate the fish.",
+			"win": "The CAT ate the... Who moved my lamp? Somebody MOVED my LAMP.",
+			"fail": "The Dog ate the fish. As is tradition. As God and the Narrator intended.",
+			"fail_alt": [
+				"Ah, the classics.",
+				"The fish has spoken."
+			]
 		},
 		"dialogue": [
 			{
 				"character": "cat",
 				"when": "lit",
-				"line": "I have a ten CGPA. I KNOW what's in that biryani."
-			},
-			{
-				"character": "cat",
-				"when": "gets_HUNGRY",
-				"line": "Actually… a ten CGPA needs protein."
-			},
-			{
-				"character": "cat",
-				"when": "win",
-				"line": "Write it down, Narrator. Dassi. Ate. The. Biryani."
+				"line": "Eleven years. ELEVEN YEARS he gets the fish."
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Biryani biryani biryani."
+				"line": "Fish fish fish fish fish."
 			},
 			{
-				"character": "dog",
-				"when": "gets_SCARED",
-				"line": "Something in there just did a 👌 at me."
+				"character": "cat",
+				"when": "win",
+				"line": "Tell them, Narrator. Tell them who ate the fish."
 			},
 			{
 				"character": "dog",
 				"when": "fail",
-				"line": "Biryani."
+				"line": "Fish."
 			}
-		],
-		"stickers": [],
-		"hints": [
-			"Dassi has to WANT the biryani. Who in this room is the hungry one?",
-			"Light Dassi and Chintu together, then drag Chintu's hunger onto Dassi to swap their thoughts.",
-			"After the swap, keep the light on Dassi and the biryani, and press ACTION."
-		],
-		"star_hints": [
-			"Keep Chintu in the light too. After the swap he's scared, and scared characters run."
 		],
 		"tutorial": {
 			"intro": [
-				"Welcome to the Official Campus Comic (Approved). Every page has already been printed. That's the ORIGINAL story.",
-				"You're Bulby, the only working bulb in OBH. Characters only act when they're in your light, and each one does what its thought bubble says.",
-				"Your goal: change who's lit and what they think, so the page ends with the TWIST written in red pen. The grey pencil lines are fine-tunes for extra stars.",
-				"One star for the twist, more for the fine-tunes, and collect every ending. Let's start with Biryani Sunday…"
+				"Welcome to the Daily Bulb! Every page is a comic strip that has already been printed. That's the ORIGINAL story.",
+				"You're Bulby, the lightbulb. Characters only act when they're in your light, and each one does what its thought bubble says.",
+				"Your goal: change who's lit and what they think, so the strip ends with the TWIST written in red pen.",
+				"Win the twist for a star, find bonus headlines for more stars, and collect every ending. Let's start with dinner..."
 			],
 			"panels": [
 				{
@@ -223,7 +202,7 @@ static func definition() -> Dictionary:
 					"characters": [
 						{
 							"id": "cat",
-							"name": "Dassi",
+							"name": "Cat",
 							"art": "cat",
 							"slot": 1,
 							"facing": "R",
@@ -232,7 +211,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "dog",
-							"name": "Chintu",
+							"name": "Dog",
 							"art": "dog",
 							"slot": 6,
 							"facing": "L",
@@ -242,24 +221,24 @@ static func definition() -> Dictionary:
 					],
 					"objects": [
 						{
-							"id": "biryani",
+							"id": "fish",
 							"type": "FOOD",
-							"art": "biryani",
+							"art": "fish",
 							"slot": 4
 						}
 					],
-					"original_caption": "Chintu ate the biryani.",
+					"original_caption": "The Dog ate the fish.",
 					"goal": {
 						"facts": [
 							{
 								"type": "ATE",
 								"character": "cat",
-								"object": "biryani"
+								"object": "fish"
 							}
 						],
-						"twist_caption": "DASSI ate the biryani.",
+						"twist_caption": "The CAT ate the fish.",
 						"red_pen_words": [
-							"DASSI"
+							"CAT"
 						]
 					},
 					"bonus": [],
@@ -283,19 +262,19 @@ static func definition() -> Dictionary:
 							"gate": "clipping_opened"
 						},
 						{
-							"caption": "Our version: DASSI eats the biryani. Pull my cord down so my light reaches Dassi AND the biryani.",
+							"caption": "Our version: the CAT eats the fish. Pull my cord down so my light reaches the Cat AND the fish.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
-								"biryani"
+								"fish"
 							]
 						},
 						{
-							"caption": "Things get name tags too when they're lit: that's the biryani.",
+							"caption": "Things get name tags too when they're lit: that's the fish.",
 							"gate": "click"
 						},
 						{
-							"caption": "Keep Chintu in the dark. A dark Chintu can't smell a thing.",
+							"caption": "Keep the Dog in the dark. A dark Dog can't smell a thing.",
 							"gate": "unlit",
 							"target": "dog"
 						},
@@ -314,7 +293,7 @@ static func definition() -> Dictionary:
 					],
 					"hints": [
 						"Lower the bulb: its light gets wider.",
-						"Hang the bulb between Dassi and the biryani, at their level, so the light stops before Chintu."
+						"Bulb between the Cat and the fish, pulled all the way down."
 					],
 					"solution": [
 						{
@@ -327,8 +306,7 @@ static func definition() -> Dictionary:
 							],
 							"flick_wakes": []
 						}
-					],
-					"room": "kadamba"
+					]
 				},
 				{
 					"id": "p2_swap",
@@ -378,7 +356,7 @@ static func definition() -> Dictionary:
 					"characters": [
 						{
 							"id": "cat",
-							"name": "Dassi",
+							"name": "Cat",
 							"art": "cat",
 							"slot": 2,
 							"facing": "L",
@@ -387,7 +365,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "dog",
-							"name": "Chintu",
+							"name": "Dog",
 							"art": "dog",
 							"slot": 3,
 							"facing": "R",
@@ -400,34 +378,33 @@ static func definition() -> Dictionary:
 							"id": "cushion",
 							"type": "SEAT",
 							"art": "cushion",
-							"slot": 1,
-							"name": "bean bag"
+							"slot": 1
 						},
 						{
-							"id": "biryani",
+							"id": "fish",
 							"type": "FOOD",
-							"art": "biryani",
+							"art": "fish",
 							"slot": 4
 						}
 					],
-					"original_caption": "Chintu ate the biryani. Dassi napped.",
+					"original_caption": "The Dog ate the fish. The Cat napped.",
 					"goal": {
 						"facts": [
 							{
 								"type": "ATE",
 								"character": "cat",
-								"object": "biryani"
+								"object": "fish"
 							}
 						],
-						"twist_caption": "DASSI ate the biryani.",
+						"twist_caption": "The CAT ate the fish.",
 						"red_pen_words": [
-							"DASSI"
+							"CAT"
 						]
 					},
 					"bonus": [
 						{
 							"id": "headline_1",
-							"caption": "THE CHINTU NAPS ON THE CUSHION",
+							"caption": "THE DOG NAPS ON THE CUSHION",
 							"facts": [
 								{
 									"type": "ASLEEP",
@@ -443,7 +420,7 @@ static func definition() -> Dictionary:
 							"gate": "legend_opened"
 						},
 						{
-							"caption": "Dassi is sleepy, Chintu is hungry. Drag Chintu's thought onto Dassi.",
+							"caption": "The Cat is sleepy, the Dog is hungry. Drag the Dog's thought onto the Cat.",
 							"gate": "swap",
 							"target": [
 								"cat",
@@ -468,7 +445,7 @@ static func definition() -> Dictionary:
 						}
 					],
 					"hints": [
-						"Swap Dassi's and Chintu's thoughts."
+						"Swap the Cat's and the Dog's thoughts."
 					],
 					"solution": [
 						{
@@ -482,8 +459,7 @@ static func definition() -> Dictionary:
 							],
 							"flick_wakes": []
 						}
-					],
-					"room": "kadamba"
+					]
 				},
 				{
 					"id": "p3_shelf",
@@ -546,7 +522,7 @@ static func definition() -> Dictionary:
 					"characters": [
 						{
 							"id": "dog",
-							"name": "Chintu",
+							"name": "Dog",
 							"art": "dog",
 							"slot": 2,
 							"facing": "L",
@@ -555,7 +531,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "cat",
-							"name": "Dassi",
+							"name": "Cat",
 							"art": "cat",
 							"slot": 4,
 							"facing": "L",
@@ -564,7 +540,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "mouse",
-							"name": "Faccha",
+							"name": "Mouse",
 							"art": "mouse",
 							"slot": 5,
 							"facing": "L",
@@ -580,7 +556,7 @@ static func definition() -> Dictionary:
 							"slot": 0
 						}
 					],
-					"original_caption": "Chintu ate the cheese.",
+					"original_caption": "The Dog ate the cheese.",
 					"goal": {
 						"facts": [
 							{
@@ -589,16 +565,16 @@ static func definition() -> Dictionary:
 								"target": "dog"
 							}
 						],
-						"twist_caption": "DASSI bonked CHINTU.",
+						"twist_caption": "The CAT bonked the DOG.",
 						"red_pen_words": [
-							"DASSI",
-							"CHINTU"
+							"CAT",
+							"DOG"
 						]
 					},
 					"bonus": [
 						{
 							"id": "headline_1",
-							"caption": "THE FACCHA RUNS OFF",
+							"caption": "THE MOUSE RUNS OFF",
 							"facts": [
 								{
 									"type": "EXITED",
@@ -609,12 +585,12 @@ static func definition() -> Dictionary:
 					],
 					"steps": [
 						{
-							"caption": "A projector screen! Slide me to the right of it. See how its shadow keeps the cheese dark?",
+							"caption": "A shelf! Slide me to the right of it. See how its shadow keeps the cheese dark?",
 							"gate": "unlit",
 							"target": "cheese"
 						},
 						{
-							"caption": "An angry Dassi bonks whoever it can see. Chintu is behind the projector screen: pull my cord UP to shine over it and light both.",
+							"caption": "An angry Cat bonks whoever it can see. The Dog is behind the shelf: pull my cord UP to shine over it and light both.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
@@ -622,17 +598,17 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "No cheese in sight, so Chintu stays put. Press ACTION.",
+							"caption": "No cheese in sight, so the Dog stays put. Press ACTION.",
 							"gate": "action"
 						},
 						{
-							"caption": "Bonus: scared characters run out of the comic. Light the Faccha too and see.",
+							"caption": "Bonus: scared characters run out of the comic. Light the Mouse too and see.",
 							"gate": "result_closed"
 						}
 					],
 					"hints": [
-						"Keep the cheese in the projector screen's shadow.",
-						"Raise the bulb high, just right of the projector screen, to light Chintu and Dassi."
+						"Keep the cheese in the shelf's shadow.",
+						"Raise the bulb high, just right of the shelf, to light the Dog and the Cat."
 					],
 					"solution": [
 						{
@@ -647,8 +623,7 @@ static func definition() -> Dictionary:
 							],
 							"flick_wakes": []
 						}
-					],
-					"room": "kadamba"
+					]
 				},
 				{
 					"id": "p4_pedal",
@@ -712,7 +687,7 @@ static func definition() -> Dictionary:
 					"characters": [
 						{
 							"id": "grandma",
-							"name": "Mess Aunty",
+							"name": "Grandma",
 							"art": "grandma",
 							"slot": 0,
 							"facing": "R",
@@ -721,7 +696,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "kid",
-							"name": "Saap",
+							"name": "Kid",
 							"art": "kid",
 							"slot": 2,
 							"facing": "R",
@@ -730,7 +705,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "dog",
-							"name": "Chintu",
+							"name": "Dog",
 							"art": "dog",
 							"slot": 10,
 							"facing": "L",
@@ -755,11 +730,10 @@ static func definition() -> Dictionary:
 							"id": "pie",
 							"type": "FOOD",
 							"art": "pie",
-							"slot": 6,
-							"name": "Maggi"
+							"slot": 6
 						}
 					],
-					"original_caption": "The Saap ate the Maggi.",
+					"original_caption": "The Kid ate the pie.",
 					"goal": {
 						"facts": [
 							{
@@ -768,9 +742,9 @@ static func definition() -> Dictionary:
 								"object": "pie"
 							}
 						],
-						"twist_caption": "CHINTU ate the Maggi.",
+						"twist_caption": "The DOG ate the pie.",
 						"red_pen_words": [
-							"CHINTU"
+							"DOG"
 						]
 					},
 					"bonus": [],
@@ -780,11 +754,11 @@ static func definition() -> Dictionary:
 							"gate": "click"
 						},
 						{
-							"caption": "Anyone who walks over the pedal switches the lamp ON. Chintu is under it.",
+							"caption": "Anyone who walks over the pedal switches the lamp ON. The Dog is under it.",
 							"gate": "click"
 						},
 						{
-							"caption": "The Saap always beats Chintu to the Maggi. Make the Saap sleepy instead. Swap with Mess Aunty.",
+							"caption": "The Kid always beats the Dog to the pie. Make the Kid sleepy instead. Swap with Grandma.",
 							"gate": "swap",
 							"target": [
 								"kid",
@@ -796,13 +770,13 @@ static func definition() -> Dictionary:
 							"gate": "hint_opened"
 						},
 						{
-							"caption": "Keep Mess Aunty in the dark, then press ACTION.",
+							"caption": "Keep Grandma in the dark, then press ACTION.",
 							"gate": "action"
 						}
 					],
 					"hints": [
-						"Give the Saap Mess Aunty's sleepiness.",
-						"The armchair is past the pedal. Leave Mess Aunty dark."
+						"Give the Kid Grandma's sleepiness.",
+						"The armchair is past the pedal. Leave Grandma dark."
 					],
 					"solution": [
 						{
@@ -816,8 +790,7 @@ static func definition() -> Dictionary:
 							],
 							"flick_wakes": []
 						}
-					],
-					"room": "kadamba"
+					]
 				},
 				{
 					"id": "p5_two_bulbs",
@@ -865,7 +838,7 @@ static func definition() -> Dictionary:
 					"characters": [
 						{
 							"id": "cat",
-							"name": "Dassi",
+							"name": "Cat",
 							"art": "cat",
 							"slot": 1,
 							"facing": "R",
@@ -874,7 +847,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "dog",
-							"name": "Chintu",
+							"name": "Dog",
 							"art": "dog",
 							"slot": 6,
 							"facing": "L",
@@ -884,35 +857,35 @@ static func definition() -> Dictionary:
 					],
 					"objects": [
 						{
-							"id": "biryani",
+							"id": "fish",
 							"type": "FOOD",
-							"art": "biryani",
+							"art": "fish",
 							"slot": 3
 						},
 						{
-							"id": "bonda",
+							"id": "bone",
 							"type": "FOOD",
-							"art": "bonda",
+							"art": "bone",
 							"slot": 8
 						}
 					],
-					"original_caption": "Chintu ate the biryani.",
+					"original_caption": "The Dog ate the fish.",
 					"goal": {
 						"facts": [
 							{
 								"type": "ATE",
 								"character": "cat",
-								"object": "biryani"
+								"object": "fish"
 							},
 							{
 								"type": "ATE",
 								"character": "dog",
-								"object": "bonda"
+								"object": "bone"
 							}
 						],
-						"twist_caption": "Dassi ate the biryani. Chintu ate the BONDA.",
+						"twist_caption": "The Cat ate the fish. The Dog ate the BONE.",
 						"red_pen_words": [
-							"BONDA"
+							"BONE"
 						]
 					},
 					"bonus": [],
@@ -926,13 +899,13 @@ static func definition() -> Dictionary:
 							"gate": "lantern_parked"
 						},
 						{
-							"caption": "Light Dassi with the biryani and Chintu with the bonda. Leave the gap dark, then press ACTION.",
+							"caption": "Light the Cat with the fish and the Dog with the bone. Leave the gap dark, then press ACTION.",
 							"gate": "action"
 						}
 					],
 					"hints": [
-						"One bulb on Dassi and the biryani, one on Chintu and the bonda.",
-						"If Chintu sees the biryani, he wants it more."
+						"One bulb on the Cat and the fish, one on the Dog and the bone.",
+						"If the Dog sees the fish, he wants it more."
 					],
 					"solution": [
 						{
@@ -946,8 +919,7 @@ static func definition() -> Dictionary:
 							],
 							"flick_wakes": []
 						}
-					],
-					"room": "kadamba"
+					]
 				},
 				{
 					"id": "p6_flick",
@@ -996,7 +968,7 @@ static func definition() -> Dictionary:
 					"characters": [
 						{
 							"id": "cat",
-							"name": "Dassi",
+							"name": "Cat",
 							"art": "cat",
 							"slot": 2,
 							"facing": "R",
@@ -1005,7 +977,7 @@ static func definition() -> Dictionary:
 						},
 						{
 							"id": "dog",
-							"name": "Chintu",
+							"name": "Dog",
 							"art": "dog",
 							"slot": 6,
 							"facing": "L",
@@ -1015,40 +987,40 @@ static func definition() -> Dictionary:
 					],
 					"objects": [
 						{
-							"id": "biryani",
+							"id": "fish",
 							"type": "FOOD",
-							"art": "biryani",
+							"art": "fish",
 							"slot": 4
 						}
 					],
-					"original_caption": "Dassi ate the biryani.",
+					"original_caption": "The Cat ate the fish.",
 					"goal": {
 						"facts": [
 							{
 								"type": "ATE",
 								"character": "dog",
-								"object": "biryani"
+								"object": "fish"
 							}
 						],
-						"twist_caption": "CHINTU ate the biryani.",
+						"twist_caption": "The DOG ate the fish.",
 						"red_pen_words": [
-							"CHINTU"
+							"DOG"
 						]
 					},
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "Chintu is out of my reach. Light the biryani, keep Dassi dark, press ACTION.",
+							"caption": "The Dog is out of my reach. Light the fish, keep the Cat dark, press ACTION.",
 							"gate": "action"
 						},
 						{
-							"caption": "Quick! Click the rail over Chintu to drop the spare bulb. You get one per run.",
+							"caption": "Quick! Click the rail over the Dog to drop the spare bulb. You get one per run.",
 							"gate": "flick"
 						}
 					],
 					"hints": [
 						"Drop the spare bulb right at the start of the run.",
-						"Light only the biryani, then flick on Chintu on the first beat."
+						"Light only the fish, then flick on the Dog on the first beat."
 					],
 					"solution": [
 						{
@@ -1062,8 +1034,7 @@ static func definition() -> Dictionary:
 							]
 						}
 					],
-					"pause_for_flick_at_beat": 1,
-					"room": "kadamba"
+					"pause_for_flick_at_beat": 1
 				}
 			],
 			"final": {
@@ -1099,5 +1070,13 @@ static func definition() -> Dictionary:
 				"level_card_badge"
 			],
 			"resume_panel_on_reopen": true
-		}
+		},
+		"hints": [
+			"The Cat only goes for fish it can see.",
+			"Light the Cat and the fish, and keep the Dog in the dark.",
+			"Hang the bulb between the Cat and the fish. Its light should reach both of them but stop before the Dog."
+		],
+		"bonus_hints": [
+			"Light the Dog and the cookie, not the fish."
+		]
 	}

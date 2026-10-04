@@ -142,13 +142,38 @@ static func _event_caption(page: Dictionary, event: Dictionary) -> String:
 	return ""
 
 
+## Display names for the current page (set by the game on page load).
+static var names: Dictionary = {}
+static var object_names: Dictionary = {}
+## Names that read with "the" in front: the Saap, the Prof, the Cat.
+const WITH_ARTICLE := ["Saap", "Kassi", "Prof", "Faccha", "Cat", "Dog", "Kid", "Boss", "Intern", "Mouse"]
+
+
+static func set_page(page: Dictionary) -> void:
+	names.clear()
+	object_names.clear()
+	for character in page.get("characters", []):
+		if character.has("name"):
+			names[str(character.id)] = str(character.name)
+	for object in page.get("objects", []):
+		if object.has("name"):
+			object_names[str(object.id)] = str(object.name)
+
+
 static func _character_name(id: String, subject := false) -> String:
+	if names.has(id):
+		var name: String = names[id]
+		if name in WITH_ARTICLE:
+			return ("The " if subject else "the ") + name
+		return name
 	if id == "grandma":
 		return "Grandma"
 	return ("The " if subject else "the ") + id.capitalize()
 
 
 static func _object_name(id: String) -> String:
+	if object_names.has(id):
+		return str(object_names[id])
 	return id.replace("_", " ").to_lower()
 
 

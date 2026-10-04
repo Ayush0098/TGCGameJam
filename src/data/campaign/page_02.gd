@@ -1,17 +1,16 @@
 extends RefCounted
-## Level 2/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
-## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
+## Page 2 "Eat Your Pappu", IIIT-H story rev 4 (design/story_proposal.md, design/build_p1_3/spec.md).
+## Star ladder verified by the solver (design/levels_solver/ladder), 0.2 and 0.02 lantern grids.
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_02",
 		"number": 2,
-		"room": "kitchen",
-		"narration_key": "greens",
-		"title": "Eat Your Greens",
-		"voice": "greens",
+		"title": "Eat Your Pappu",
 		"difficulty": "green",
+		"room": "kadamba",
+		"voice": "page_02",
 		"width": 11,
 		"rail_span": [
 			0,
@@ -52,16 +51,16 @@ static func definition() -> Dictionary:
 		"characters": [
 			{
 				"id": "kid",
-				"name": "Kid",
+				"name": "Saap",
 				"art": "kid",
-				"slot": 4,
+				"slot": 6,
 				"facing": "R",
-				"thought": "HUNGRY",
+				"thought": "SCARED",
 				"contradiction": false
 			},
 			{
 				"id": "dog",
-				"name": "Dog",
+				"name": "Chintu",
 				"art": "dog",
 				"slot": 8,
 				"facing": "L",
@@ -70,121 +69,153 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "grandma",
-				"name": "Grandma",
+				"name": "Mess Aunty",
 				"art": "grandma",
-				"slot": 10,
+				"slot": 9,
 				"facing": "L",
-				"thought": "SLEEPY",
+				"thought": "SCARED",
 				"contradiction": true
+			},
+			{
+				"id": "prompt",
+				"name": "Prompt Bhai",
+				"art": "kid",
+				"slot": 4,
+				"facing": "R",
+				"thought": "SCARED",
+				"contradiction": false,
+				"phone_glow": true
 			}
 		],
 		"objects": [
 			{
-				"id": "armchair",
+				"id": "mess_bench",
 				"type": "SEAT",
 				"art": "armchair",
 				"slot": 0
 			},
 			{
-				"id": "cookie",
+				"id": "bonda",
 				"type": "FOOD",
-				"art": "cookie",
+				"art": "bonda",
 				"slot": 2
 			},
 			{
-				"id": "broccoli",
+				"id": "pappu",
 				"type": "FOOD",
-				"art": "broccoli",
+				"art": "prop_tomato_pappu",
 				"slot": 7
 			}
 		],
-		"original_caption": "The Kid ate the cookie.",
-		"endings_total": 5,
-		"bonus": [
-			{
-				"id": "headline_1",
-				"caption": "THE DOG GOES VEGAN",
-				"facts": [
-					{
-						"type": "ATE",
-						"character": "dog",
-						"object": "broccoli"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "GRANDMA EATS THE BROCCOLI. NOBODY ASKS WHY.",
-				"facts": [
-					{
-						"type": "ATE",
-						"character": "grandma",
-						"object": "broccoli"
-					}
-				]
-			}
-		],
+		"original_caption": "Nobody ate anything.",
+		"endings_total": 21,
 		"goal": {
 			"facts": [
 				{
 					"type": "ATE",
 					"character": "kid",
-					"object": "broccoli"
+					"object": "pappu"
 				}
 			],
-			"twist_caption": "The Kid ate the BROCCOLI.",
+			"twist_caption": "The SAAP ate the PAPPU.",
 			"red_pen_words": [
-				"BROCCOLI"
+				"SAAP",
+				"PAPPU"
 			]
 		},
+		"ladder": [
+			{
+				"id": "star_2",
+				"caption": "…and Chintu fled the mess.",
+				"facts": [
+					{
+						"type": "EXITED",
+						"character": "dog"
+					}
+				]
+			},
+			{
+				"id": "star_3",
+				"caption": "…and so did Mess Aunty.",
+				"facts": [
+					{
+						"type": "EXITED",
+						"character": "grandma"
+					}
+				]
+			}
+		],
 		"narration": {
-			"intro": "Page two. A boy. A cookie. And a head of broccoli that has sat on that table, untouched, since 2009. The broccoli is decorative.",
-			"original": "The Kid ate the cookie. Of course he did. He's a child, not a rabbit.",
-			"twist": "The Kid ate the BROCCOLI.",
-			"win": "A child. Ate broccoli. On purpose. Nobody is going to believe this. I'm not sure I believe this. Somebody check him for a fever.",
-			"fail": "The broccoli survives another day. It has survived worse.",
-			"fail_alt": [
-				"The cookie wins. The cookie always wins.",
-				"The broccoli remains decorative."
+			"intro": "Monday. Today's Kadamba menu: Tomato Pappu. Also Dal Pappu, Palak Pappu, Pappu Rice, and for dessert, a sweet Pappu. One bowl of Tomato Pappu has sat on that counter since 2009. Everyone is scared of the Pappu. The Pappu is scared of nobody. Also new this week: Prompt Bhai, registered for all fourteen Infinium events. ChatGPT filled in the form. The quiz and the hackathon start at the same time. He's in both.",
+			"original": "Nobody ate anything. Everyone stared at the Pappu. The Pappu stared back. I call this suspense.",
+			"twist": "The Saap ate the PAPPU.",
+			"win": "The Saap ate the Pappu. Voluntarily. And now he says he 'didn't even eat that much'. Somebody check him for a fever. Somebody check the PAPPU for a fever.",
+			"stars": [
+				"And Chintu fled the mess. The one dog who eats everything has drawn a line. The line is Pappu.",
+				"And Mess Aunty fled her own mess. She made it. She knows."
+			],
+			"fails": [
+				"The Pappu survives another semester.",
+				"The Pappu remains uneaten. As it has since 2009.",
+				"Wrong Answer on test 2. The Pappu thanks you."
+			],
+			"hidden": [
+				{
+					"facts": [
+						{
+							"type": "EXITED",
+							"character": "prompt"
+						}
+					],
+					"line": "Prompt Bhai fled too. He asked Claude what was in the Pappu. Claude asked for more context. There is no more context. It's Pappu."
+				}
 			]
 		},
 		"dialogue": [
 			{
 				"character": "kid",
 				"when": "lit",
-				"line": "Cookie! Cookie! COOKIE!"
+				"line": "Bro, I'm not scared of Pappu. I just didn't study the Pappu."
 			},
 			{
-				"character": "dog",
-				"when": "lit",
-				"line": "Is someone... not eating that?"
-			},
-			{
-				"character": "grandma",
-				"when": "lit",
-				"line": "Eat your greens, dear. I'm watching."
+				"character": "kid",
+				"when": "gets_HUNGRY",
+				"line": "Fine. I'll eat it. I won't even like it. I'll top it."
 			},
 			{
 				"character": "kid",
 				"when": "win",
-				"line": "Mum? I think I'm... healthy?"
+				"line": "Bro, it was mid. Ten on ten. Mid."
+			},
+			{
+				"character": "prompt",
+				"when": "lit",
+				"line": "Let me ask ChatGPT what's in this. …It says 'Pappu'. Thanks, ChatGPT."
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Bonda? Bonda! BONDA!"
+			},
+			{
+				"character": "dog",
+				"when": "gets_SCARED",
+				"line": "The Pappu just gave me a 👌. I'm out."
 			},
 			{
 				"character": "grandma",
-				"when": "win",
-				"line": "I am so proud I could bonk someone."
+				"when": "lit",
+				"line": "Beta, even I don't eat my Pappu. And I put it in everything."
 			}
 		],
-		"tutorial": [
-			"Pull the bulb down for a wider light."
-		],
+		"stickers": [],
 		"hints": [
-			"If the Kid can see the cookie, he picks the cookie.",
-			"Light only the Kid and the broccoli. The cookie and the Dog stay dark.",
-			"Hang the bulb between the Kid and the broccoli and pull it low, so the light covers just those two."
+			"The Saap is scared of the Pappu. Chintu is the hungry one.",
+			"Light the Saap and Chintu together and swap their thoughts.",
+			"After the swap, light the Saap and the Pappu, and press ACTION."
 		],
-		"bonus_hints": [
-			"Leave the Kid dark. Light the Dog with the broccoli.",
-			"Swap Grandma's and the Dog's thoughts so Grandma is hungry, then light Grandma, the Dog and the broccoli."
+		"star_hints": [
+			"Keep Chintu lit after the swap. Scared characters run out of the comic.",
+			"Stretch the light from the Saap to Mess Aunty, so Chintu and Mess Aunty are both lit. Keep Prompt Bhai in the dark."
 		]
 	}

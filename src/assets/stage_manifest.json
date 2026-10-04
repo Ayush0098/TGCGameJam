@@ -69,7 +69,13 @@
     "cushion": "res://assets/props/cushion.svg",
     "slice": "res://assets/props/pie.svg",
     "slice_empty": "res://assets/props/pie_empty.svg",
-    "coffin": "res://assets/props/coffin.svg"
+    "coffin": "res://assets/props/coffin.svg",
+    "biryani": "res://assets/props/biryani.svg",
+    "biryani_empty": "res://assets/props/biryani_empty.svg",
+    "bonda": "res://assets/props/bonda.svg",
+    "bonda_empty": "res://assets/props/bonda_empty.svg",
+    "prop_tomato_pappu": "res://assets/props/prop_tomato_pappu.svg",
+    "prop_tomato_pappu_empty": "res://assets/props/prop_tomato_pappu_empty.svg"
   },
   "thoughts": {
     "hungry": "res://assets/thoughts/hungry.svg",

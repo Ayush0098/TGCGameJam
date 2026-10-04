@@ -20,7 +20,7 @@ func run(check: Callable) -> bool:
 	game._front.hide()
 	var nap := 0
 	for index in game.PAGE_SCRIPTS.size():
-		if game.PAGE_SCRIPTS[index].definition().title == "Nap Time":
+		if game.PAGE_SCRIPTS[index].definition().title == "Office Hours":
 			nap = index
 	game._load_page(nap)
 	game._finish_run()
@@ -33,9 +33,9 @@ func run(check: Callable) -> bool:
 	check.call(game.plan.lanterns[0].x < start, "Key 2 on a one-bulb page keeps the bulb movable")
 	_key(game, KEY_D)
 	_key(game, KEY_D, true)
-	game._move_lantern(0, Vector2(5.4, 0.0), true)
+	game._move_lantern(0, Vector2(6.0, 0.0), true)
 	var lit: Array = game._lit_ids()
-	check.call("dog" in lit and "boss" in lit, "Bulb lights the Dog and the Boss")
+	check.call("dog" in lit and "boss" in lit, "Bulb lights Chintu and the Prof")
 	_key(game, KEY_TAB)
 	var first: String = game._stage.key_cursor
 	_key(game, KEY_ENTER)
@@ -53,13 +53,10 @@ func run(check: Callable) -> bool:
 	_key(game, KEY_ENTER)
 	if game.mode == "RESULT":
 		_key(game, KEY_ENTER)
-	check.call(game.mode == "PLAN" or game.page_index != nap, "Enter leaves the result (retry or next page)")
+	check.call(game.mode == "PLAN" or game.page_index != nap or game._front.visible, "Enter leaves the result (retry, next page or the levels screen)")
 	# Live goal check during playback uses the player's lanterns (SHY HIDING).
-	var stage_fright := -1
-	for index in game.PAGE_SCRIPTS.size():
-		if game.PAGE_SCRIPTS[index].definition().title == "Stage Fright":
-			stage_fright = index
-	game._load_page(stage_fright)
+	var stage_fright: Dictionary = game.VALIDATOR.new().validate(load("res://data/campaign/page_11.gd").definition()).page
+	game._load_page(0, stage_fright)
 	var lit_plan: Dictionary = game.plan.to_data()
 	var world: Dictionary = game.RULES.initial_world(game.page, lit_plan)
 	var hiding := {"type": "HIDING", "character": "kid"}

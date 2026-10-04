@@ -228,7 +228,7 @@ func configure(page: Dictionary) -> void:
 			_prop_sprites[record.id] = sprite
 	# Each page names its room; a room without a painting yet uses the living room.
 	var painting: String = _manifest.background.texture
-	var room_path: String = _manifest.get("rooms", {}).get(str(page.get("room", "")), "")
+	var room_path: String = _manifest.get("rooms", {}).get(str(page.get("room", "")).trim_prefix("room_"), "")
 	if not room_path.is_empty() and ResourceLoader.exists(room_path):
 		painting = room_path
 	_room.material.set_shader_parameter("painting", load(painting))
@@ -701,6 +701,7 @@ func _draw() -> void:
 					if step != 0:
 						draw_circle(Vector2(_x(actor.slot + step), FLOOR_Y + 4), 5, Color("c68b3f"))
 					_label(self, positions[actor.id] + Vector2(-25, 46), str(decision.type).to_lower() + (" >" if step > 0 else (" <" if step < 0 else "")), MEMORY, 14)
+	_draw_phone_glows(world, positions)
 	_draw_name_plates(world, positions)
 	_draw_object_tags(world)
 	var bubbles := _bubble_layout(world, positions)
@@ -1303,7 +1304,29 @@ func _draw_screen(start: Vector2, end: Vector2) -> void:
 	draw_line(Vector2(top.x - 24, bottom.y), Vector2(top.x + 24, bottom.y), INK, 3)
 
 
-const OBJECT_NAMES := {"dog_bed": "DOG BED", "office_chair": "CHAIR", "pedal": "SWITCH", "rocker": "ROCKING CHAIR", "armchair": "ARMCHAIR"}
+const OBJECT_NAMES := {"dog_bed": "DOG BED", "office_chair": "CHAIR", "pedal": "SWITCH", "rocker": "ROCKING CHAIR", "armchair": "ARMCHAIR", "prop_tomato_pappu": "TOMATO PAPPU", "biryani": "BIRYANI", "bonda": "BONDA"}
+## Object ids that name themselves differently from their art.
+const OBJECT_ID_NAMES := {"mess_bench": "MESS BENCH", "chintu_bed": "CHINTU'S BED", "pappu": "TOMATO PAPPU"}
+
+## Prompt Bhai's phone lights his face blue, even in the dark.
+func _draw_phone_glows(world: Dictionary, positions: Dictionary) -> void:
+	for actor in world.get("characters", []):
+		if actor.status == "EXITED" or not positions.has(actor.id):
+			continue
+		var authored := {}
+		for record in _page.get("characters", []):
+			if record.id == actor.id:
+				authored = record
+		if not authored.get("phone_glow", false):
+			continue
+		var face: Vector2 = positions[actor.id] - Vector2(-14, _figure_height(str(actor.art)) - 48.0)
+		var flicker := 0.85 + 0.15 * sin(Time.get_ticks_msec() * 0.006)
+		for ring in [[46.0, 0.10], [30.0, 0.16], [16.0, 0.22]]:
+			draw_circle(face, ring[0], Color(0.45, 0.75, 1.0, ring[1] * flicker))
+		draw_rect(Rect2(face + Vector2(10, 18), Vector2(10, 16)), Color("1b2433"))
+		draw_rect(Rect2(face + Vector2(11, 19), Vector2(8, 14)), Color(0.6, 0.85, 1.0, flicker))
+	queue_redraw()
+
 
 func _draw_object_tags(world: Dictionary) -> void:
 	# Lit food, seats and switches get a small tag, like characters' names.
@@ -1311,7 +1334,7 @@ func _draw_object_tags(world: Dictionary) -> void:
 		if not object.get("present", true) or not _lit(object.slot, world):
 			continue
 		var key := str(object.get("art", object.id))
-		var name := str(OBJECT_NAMES.get(key, object.get("name", key))).replace("_", " ").to_upper()
+		var name := str(object.get("name", OBJECT_ID_NAMES.get(str(object.id), OBJECT_NAMES.get(key, key)))).replace("_", " ").to_upper()
 		var height := 40.0
 		if _prop_sprites.has(object.id) and _prop_sprites[object.id].texture != null:
 			height = _prop_sprites[object.id].texture.get_height()

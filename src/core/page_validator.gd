@@ -100,6 +100,16 @@ func validate(content: Variant) -> Dictionary:
 					_error("bonus", bonus, "expected {id, caption, facts}")
 					continue
 				_validate_goal({"twist_caption": bonus.caption, "red_pen_words": ["BONUS"], "facts": bonus.get("facts")}, cast, props)
+	# Star ladder: each step adds one fact to the twist (stars 2 and 3).
+	if page.has("ladder"):
+		if not page.ladder is Array or page.ladder.size() > 2:
+			_error("ladder", page.ladder, "expected up to 2 ladder steps")
+		else:
+			for step in page.ladder:
+				if not step is Dictionary or not step.get("id") is String or not step.get("caption") is String:
+					_error("ladder", step, "expected {id, caption, facts}")
+					continue
+				_validate_goal({"twist_caption": step.caption, "red_pen_words": ["STAR"], "facts": step.get("facts")}, cast, props)
 	if page.has("hints") and (not page.hints is Array or page.hints.size() > 3 or not page.hints.all(func(hint): return hint is String)):
 		_error("hints", page.hints, "expected up to 3 hint strings")
 	if page.has("flick") and (not page.flick is int or page.flick < 0 or page.flick > 1):

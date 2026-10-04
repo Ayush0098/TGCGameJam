@@ -1,16 +1,11 @@
 extends Control
 ## MVP flow: recorded simulation -> playback -> result -> exact-plan retry.
 
-## The fifteen-page campaign in story order (design/story.md, levels.md §7).
+## The IIIT-H story, pages 1-3 only for Ayush's review (design/build_p1_3).
+## The fifteen-page set stays in data/campaign and data/story15 for later.
 const CAMPAIGN = [
 	preload("res://data/campaign/page_01.gd"), preload("res://data/campaign/page_02.gd"),
-	preload("res://data/campaign/page_03.gd"), preload("res://data/campaign/page_04.gd"),
-	preload("res://data/campaign/page_11.gd"), preload("res://data/campaign/page_05.gd"),
-	preload("res://data/campaign/page_06.gd"), preload("res://data/campaign/page_12.gd"),
-	preload("res://data/campaign/page_07.gd"), preload("res://data/campaign/page_13.gd"),
-	preload("res://data/campaign/page_08.gd"), preload("res://data/campaign/page_09.gd"),
-	preload("res://data/campaign/page_15.gd"), preload("res://data/campaign/page_14.gd"),
-	preload("res://data/campaign/page_10.gd"),
+	preload("res://data/campaign/page_03.gd"),
 ]
 ## Integration tests swap in the original MVP fixture pages before instancing.
 static var page_override: Array = []
@@ -480,6 +475,7 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 		_update_buttons()
 		return
 	page = validated.page
+	GOALS.set_page(page)
 	_lanterns_useful = _needs_lanterns(page)
 	plan = PLAN.from_page(page)
 	knowledge.clear()
@@ -746,12 +742,15 @@ func _show_facts(result: Dictionary) -> void:
 		labels.append(mark + GOALS.fact_text(fact))
 	# Bonus goals are always visible on their own line of the goal card.
 	var bonus_lines: Array[String] = []
-	for bonus in page.get("bonus", []):
+	var ladder := page.has("ladder")
+	for bonus in _star_steps(page):
 		var done: bool = bonus.id in bonus_done.get(page.id, [])
-		bonus_lines.append(_icon("star_on" if done else "star_off") + _sentence_case(str(bonus.caption)))
+		var caption := str(bonus.caption) if ladder else _sentence_case(str(bonus.caption))
+		bonus_lines.append(_icon("star_on" if done else "star_off") + ("[color=#6f6a5e][i]%s[/i][/color]" % caption if ladder else caption))
 	_facts.text = "   /   ".join(labels)
 	if is_instance_valid(_bonus_line):
-		_bonus_line.text = ("[b]Bonus stars:[/b]  " + "     ".join(bonus_lines)) if not bonus_lines.is_empty() else ""
+		var heading := "[b]Fine-tunes:[/b]  " if ladder else "[b]Bonus stars:[/b]  "
+		_bonus_line.text = (heading + "     ".join(bonus_lines)) if not bonus_lines.is_empty() else ""
 	_facts.mouse_filter = Control.MOUSE_FILTER_PASS
 	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else INK)
 
@@ -822,6 +821,8 @@ func _swap(first: String, second: String) -> void:
 		_tutorial_event("swap")
 		_play_effect("SWAP")
 		_say_scripted("swap", [first, second])
+		for id in [first, second]:
+			_say_scripted("gets_" + str(plan.thoughts.get(id, "")), [id])
 
 
 func _preview(first: String, second: String) -> void:
@@ -1266,7 +1267,7 @@ func _progress() -> Array:
 			"caption": definition.goal.twist_caption,
 			"tier": _tier(index),
 			"stars": _stars(definition),
-			"max_stars": 1 + definition.get("bonus", []).size(),
+			"max_stars": 1 + _star_steps(definition).size(),
 			"endings": endings_found.get(definition.id, []).size(),
 			"max_endings": maxi(int(definition.get("endings_total", 0)), endings_found.get(definition.id, []).size()),
 		})
@@ -1281,7 +1282,7 @@ func _update_star_total() -> void:
 	for script in PAGE_SCRIPTS:
 		var definition: Dictionary = script.definition()
 		stars += _stars(definition)
-		total += 1 + definition.get("bonus", []).size()
+		total += 1 + _star_steps(definition).size()
 	_front.set_star_total(stars, total)
 
 
@@ -1418,7 +1419,7 @@ func _record_progress(result: Dictionary) -> Array[String]:
 		endings_found[page.id] = found
 		rewards.append("NEW ENDING! (%d / %d)" % [found.size(), maxi(int(page.get("endings_total", 0)), found.size())])
 	var done: Array = bonus_done.get(page.id, [])
-	for bonus in page.get("bonus", []):
+	for bonus in _star_steps(page):
 		if bonus.id in done:
 			continue
 		var challenge := page.duplicate()
@@ -1434,7 +1435,7 @@ func _record_progress(result: Dictionary) -> Array[String]:
 func _update_progress_label() -> void:
 	if not is_instance_valid(_progress_label) or page.is_empty():
 		return
-	var total: int = 1 + page.get("bonus", []).size()
+	var total: int = 1 + _star_steps(page).size()
 	var stars := _stars(page)
 	var found: int = endings_found.get(page.id, []).size()
 	if _tutorial_panel >= 0:
@@ -1771,20 +1772,28 @@ func _narrate(moment: String) -> void:
 		var line := ""
 		key = ""
 		if moment.begins_with("fail_"):
-			var fails: Array = [written.get("fail", "")] + Array(written.get("fail_alt", []))
+			var fails: Array = Array(written.get("fails", [])) if written.has("fails") else [written.get("fail", "")] + Array(written.get("fail_alt", []))
 			fails = fails.filter(func(entry): return not str(entry).is_empty())
 			if not fails.is_empty():
-				line = str(fails[(_fail_count - 1) % fails.size()])
-			key = "narr15_fail_%d" % (1 + (_fail_count - 1) % 4)
+				var index := (_fail_count - 1) % fails.size()
+				line = str(fails[index])
+				# Story pages voice their own fail lines, so caption and voice match.
+				key = "%s_fails_%d" % [slug, index + 1] if written.has("fails") else "narr15_fail_%d" % (1 + (_fail_count - 1) % 4)
 		else:
 			var field: String = {"intro": "intro", "original": "original", "redpen": "twist", "twist": "win"}.get(moment, moment)
 			line = str(written.get(field, ""))
+			var prefix := "%s_" % slug if slug.begins_with("page_") else "narr15_%s_" % slug
 			if not slug.is_empty():
-				key = "narr15_%s_%s" % [slug, field]
+				key = prefix + field
 				if moment == "twist":
-					# "TWIST?!" first, then the win line.
+					# "TWIST?!" first, then the win line, then one line per star earned.
 					queue.append(key)
 					key = "narr15_twist_stamp"
+			if moment == "twist":
+				var extra := _win_extras(prefix)
+				for item in extra:
+					line += "  " + str(item[0])
+					queue.append(str(item[1]))
 		text = _spoken_text(line)
 	if text.is_empty():
 		return
@@ -2130,12 +2139,21 @@ func _show_result_card(result: Dictionary) -> void:
 	_result_caption.text = str(page.goal.twist_caption) if won else str(result.caption)
 	_caption.text = ""
 	var lines: Array[String] = []
-	for item in result.facts:
-		lines.append((_icon("check") if item.met else _icon("cross")) + ("Twist: " if lines.is_empty() else "") + GOALS.fact_text(item.fact))
-	for bonus in page.get("bonus", []):
-		var done: bool = bonus.id in bonus_done.get(page.id, [])
-		lines.append(_icon("star_on" if done else "star_off") + str(bonus.caption))
+	if page.has("ladder"):
+		# The TA marks the answer sheet: Q1 twist, Q2/Q3 the fine-tunes.
+		lines.append("[b]Q1[/b]  " + (_icon("check") if won else _icon("cross")) + str(page.goal.twist_caption))
+		var level := _run_star_level()
+		var steps: Array = page.get("ladder", [])
+		for i in steps.size():
+			lines.append("[b]Q%d[/b]  " % (i + 2) + (_icon("check") if level >= i + 2 else "[color=#8c8a80]–[/color]  ") + str(steps[i].caption))
+	else:
+		for item in result.facts:
+			lines.append((_icon("check") if item.met else _icon("cross")) + ("Twist: " if lines.is_empty() else "") + GOALS.fact_text(item.fact))
+		for bonus in _star_steps(page):
+			var done: bool = bonus.id in bonus_done.get(page.id, [])
+			lines.append(_icon("star_on" if done else "star_off") + str(bonus.caption))
 	_result_facts.text = "\n".join(lines)
+	_show_stickers("result")
 	_rewind.text = "REPLAY" if won else "RETRY"
 	_next.visible = won
 	_result_restart.visible = not won
@@ -3033,7 +3051,7 @@ func _gag_lines(result: Dictionary) -> Array[String]:
 	var places: Array = _story().get("exit_places", [])
 	for event in _run.get("events", []):
 		if event.type == "EXIT" and not places.is_empty():
-			lines.append("Last seen in: %s." % places[int(gags.get("exit", 0)) % places.size()])
+			lines.append("Last seen at: %s." % places[int(gags.get("exit", 0)) % places.size()])
 			gags.exit = int(gags.get("exit", 0)) + 1
 			break
 	var titles: Array = _story().get("dog_titles", [])
@@ -3041,7 +3059,7 @@ func _gag_lines(result: Dictionary) -> Array[String]:
 		for event in _run.get("events", []):
 			if event.type == "EAT" and event.actor == "dog" and _object_art(str(event.object)) in ["cake", "slice", "pie"]:
 				var index := mini(int(gags.get("dog", 0)), titles.size() - 1)
-				lines.append("The Dog has been promoted to %s!" % titles[index])
+				lines.append("%s has been promoted to %s!" % [GOALS._character_name("dog", true), titles[index]])
 				gags.dog = int(gags.get("dog", 0)) + 1
 				break
 	if not lines.is_empty():
@@ -3105,7 +3123,7 @@ func _show_star_award(before: int, after: int, won: bool) -> void:
 			_play_effect("SWAP"))
 	_star_award.position = _stage.position
 	_star_award.size = _stage.size
-	var total: int = 1 + page.get("bonus", []).size()
+	var total: int = 1 + _star_steps(page).size()
 	var title := "PERFECT PAGE!" if after == total else ("PAGE CLEAR!" if won else "BONUS STAR!")
 	_star_award.play(before, after, total, title, COMIC_FONT, _motion.button_pressed)
 
@@ -3416,3 +3434,86 @@ func _update_narration_line() -> void:
 		var tween := create_tween().set_parallel(true)
 		tween.tween_property(_narration, "position:y", rect.position.y, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		tween.tween_property(_narration, "modulate:a", 1.0, 0.2)
+
+
+
+# ------------------------------------------------------------ star ladder (IIIT-H story)
+## Stars after the twist. Ladder pages: each step adds its fact to the twist and
+## the steps before it (cumulative). Older pages: independent bonus headlines.
+func _star_steps(definition: Dictionary) -> Array:
+	if not definition.has("ladder"):
+		return definition.get("bonus", [])
+	var steps: Array = []
+	var facts: Array = Array(definition.get("goal", {}).get("facts", [])).duplicate(true)
+	for step in definition.get("ladder", []):
+		facts = facts + Array(step.get("facts", [])).duplicate(true)
+		steps.append({"id": step.id, "caption": step.caption, "facts": facts.duplicate(true)})
+	return steps
+
+
+## How many stars this run earned on its own (0 = twist missed).
+func _run_star_level() -> int:
+	if _run.is_empty() or not GOALS.evaluate(page, _run).won:
+		return 0
+	var level := 1
+	for step in _star_steps(page):
+		var challenge := page.duplicate()
+		challenge.goal = {"facts": step.facts, "twist_caption": step.caption}
+		if not GOALS.evaluate(challenge, _run).won:
+			break
+		level += 1
+	return level
+
+
+## Star lines and hidden lines read after the win line: [[text, voice key], ...].
+func _win_extras(prefix: String) -> Array:
+	var written: Dictionary = page.get("narration", {})
+	var extras: Array = []
+	var level := _run_star_level()
+	var stars: Array = written.get("stars", written.get("star_lines", []))
+	for i in range(mini(level - 1, stars.size())):
+		extras.append([stars[i], prefix + "stars_%d" % (i + 1)])
+	var hidden: Array = written.get("hidden", [])
+	for i in hidden.size():
+		var entry: Variant = hidden[i]
+		if not entry is Dictionary:
+			continue
+		var challenge := page.duplicate()
+		challenge.goal = {"facts": entry.get("facts", []), "twist_caption": ""}
+		if GOALS.evaluate(challenge, _run).won:
+			extras.append([str(entry.get("line", "")), prefix + "hidden_%d" % (i + 1)])
+	return extras
+
+
+# ------------------------------------------------------------ margin stickers
+var _sticker: Control
+
+
+func _show_stickers(when: String) -> void:
+	if is_instance_valid(_sticker):
+		_sticker.queue_free()
+	for entry in page.get("stickers", []):
+		if not entry is Dictionary or str(entry.get("when", "result")) != when:
+			continue
+		var text := str(entry.get("text", "")).replace("✗", "")
+		var card := _paper_panel(Rect2(0, 0, 250, 74), 0.0)
+		var box: StyleBoxFlat = card.get_theme_stylebox("panel").duplicate()
+		box.bg_color = Color("ffe9a8")
+		box.shadow_offset = Vector2(3, 3)
+		card.add_theme_stylebox_override("panel", box)
+		var label := _rich(15)
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.position = Vector2(12, 8)
+		label.size = Vector2(226, 60)
+		label.text = text.strip_edges() + ("  " + _icon("cross", 18) if "✗" in str(entry.get("text", "")) else "")
+		card.add_child(label)
+		card.position = Vector2(-150, -26)
+		card.rotation = -0.09
+		card.z_index = 2
+		_result_card.add_child(card)
+		_sticker = card
+		if not _motion.button_pressed:
+			card.scale = Vector2.ONE * 1.6
+			card.pivot_offset = card.size * 0.5
+			card.create_tween().tween_property(card, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.6)
+		break

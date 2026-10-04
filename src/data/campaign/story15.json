@@ -36,9 +36,9 @@
  "acts": [
   {
    "number": 1,
-   "title": "ACT ONE: A Perfectly Normal Week",
+   "title": "ACT ONE: ORIENTATION WEEK",
    "first_page": 1,
-   "card": "Good evening. I am the Narrator. I have narrated four thousand comics, and not one of them has ever had a twist. Please keep your hands, paws and lamps inside the margins."
+   "card": "Dear all, Greetings from the Office of the Official Narrator. This is to inform you that the Official Campus Comic has run for four thousand pages without a single twist, with the continuous support of the institute. Freshers are reminded of the 11 PM induction curfew. Nobody will follow it. P.S. The TAs of this comic (me) requested a salary hike. Management has replied: no. That's fine. I'm fine. What could possibly go wrong? Regards. Bonda!"
   },
   {
    "number": 2,
@@ -54,25 +54,29 @@
   }
  ],
  "exit_places": [
-  "a cookbook",
-  "the weather report",
-  "somebody's tax return",
-  "a romance novel",
-  "the classifieds",
-  "a different, better comic",
-  "7 Down in the crossword",
-  "a takeaway menu",
-  "the instructions for a fridge",
-  "the horoscopes. He's a Scorpio now"
+  "Vindhya, floor 2.5, which doesn't exist",
+  "JC at 1 AM, ordering an Oreo shake",
+  "Devid's Bakery, the only place open past 2 AM",
+  "the Bakul toilet queue, minute 125",
+  "a Kalakshetra paint shift",
+  "Goa, with the fourth years",
+  "an HSME he didn't choose",
+  "the MOSS report, page 4 of 9",
+  "KCIS, which he stormed (the washrooms are lovely)",
+  "year 7 of a dual degree",
+  "the R&D Showcase, as a poster",
+  "the IIIT Junction flyover diversion, expected back Apr–May 2027",
+  "Vindhya again. Different floor. Same floor."
  ],
  "dog_titles": [
-  "Employee of the Month",
-  "Assistant to the Regional Manager",
-  "Regional Manager",
-  "Vice President of Cake",
-  "Chief Executive Dog",
-  "Supreme Chancellor of Snacks",
-  "Emperor of Dessert",
+  "Honorary Faccha",
+  "Dean's List",
+  "TA for Data Structures",
+  "Bond. CP Bond.",
+  "Kadamba Quality Control",
+  "B.Tech (Hons), zero attendance",
+  "MS by Research, thesis: \"Cake\"",
+  "Don of the Bakul Gang",
   "a minor god"
  ]
 }

@@ -11,14 +11,14 @@ func run(check: Callable) -> bool:
 	game._stop_voice()
 	var birthday := 0
 	for index in game.PAGE_SCRIPTS.size():
-		if game.PAGE_SCRIPTS[index].definition().title == "The Boss's Birthday":
+		if game.PAGE_SCRIPTS[index].definition().title == "Office Hours":
 			birthday = index
 	game.tutorial_done = true
 	game._load_page(birthday)
 	game._finish_run()
 	game._process(0.7)
-	game._move_lantern(0, Vector2(3.0, -0.6))
-	game._swap("grandma", "boss")
+	game._move_lantern(0, Vector2(6.0, 0.0))
+	game._swap("dog", "boss")
 	game._start_action()
 	game._anticipation = 0.0
 	var last: Dictionary = {}
