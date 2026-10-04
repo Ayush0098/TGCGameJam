@@ -180,6 +180,12 @@ func configure(page: Dictionary) -> void:
 			sprite.material = light_material
 			_props.add_child(sprite)
 			_prop_sprites[record.id] = sprite
+	# Each page names its room; a room without a painting yet uses the living room.
+	var painting: String = _manifest.background.texture
+	var room_path: String = _manifest.get("rooms", {}).get(str(page.get("room", "")), "")
+	if not room_path.is_empty() and ResourceLoader.exists(room_path):
+		painting = room_path
+	_room.material.set_shader_parameter("painting", load(painting))
 	_room.visible = _art
 	_props.visible = _art
 	clear_preview()

@@ -6,6 +6,7 @@ extends RefCounted
 static func definition() -> Dictionary:
 	return {
 		"id": "page_02",
+		"room": "living_room",
 		"title": "Nap Time",
 		"width": 11,
 		"rail_span": [

@@ -71,5 +71,10 @@
     "angry": "res://assets/thoughts/angry.svg",
     "scared": "res://assets/thoughts/scared.svg"
   },
-  "dialogue": "res://assets/audio/reference/cues.json"
+  "dialogue": "res://assets/audio/reference/cues.json",
+  "rooms": {
+    "living_room": "res://assets/backgrounds/living_room_stage.png",
+    "kitchen": "res://assets/backgrounds/kitchen_stage.png",
+    "office": "res://assets/backgrounds/office_stage.png"
+  }
 }
