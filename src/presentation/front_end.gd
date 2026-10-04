@@ -353,17 +353,24 @@ func _build_credits() -> void:
 		"Made in 100 hours for the TGC Game Jam, Infinium 2026.",
 		"Themes: COMIC  ·  TWIST  ·  LIGHT",
 		"",
-		"Game by Ayush Raj and team.",
+		"A PROJECT NAP game",
+		"Made by Ayush Raj",
+		"",
+		"Testing and ideation: Ayush Pattanayak, Pranshu Porwal, Adiraj Jain",
 		"",
 		"Printed with Godot Engine 4 (MIT licence).",
 		"Type: Bangers and Comic Neue (SIL Open Font Licence).",
 		"Characters, props, icons and sound effects: original work.",
 		"Room paintings: AI image generation (see THIRD_PARTY.md).",
 		"Narration: synthetic voices (see THIRD_PARTY.md).",
+		"Music and jingles: original, composed in code.",
 		"",
 		"Thanks for reading the Sunday funnies.",
 	]), 18)
 	body.position = Vector2(30, 88)
+	var small := _label("Team member: Kancharla Nagapranav Reddy", 12, MUTED)
+	small.position = Vector2(30, 540)
+	box.add_child(small)
 	body.size = Vector2(620, 420)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(body)
