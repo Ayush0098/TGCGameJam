@@ -5,6 +5,12 @@ Masters and authoring scripts live here. Godot imports only game-ready copies in
 
 ## Current library
 
+- `art/backgrounds/kitchen_stage.png` and `office_stage.png`: companion playable
+  paintings,1672×941 each, empty vintage architectural shells. Exact source prompts
+  and living-room reference provenance: `production/kitchen_stage.json` and
+  `production/office_stage.json`. Native crop/night lighting checked; user review
+  pending. Runtime copies use existing page room assignments.
+
 - `art/backgrounds/living_room_stage.png`: current playable room,1672×941; painted
   vintage cool interior/fine paper grain, no halftone/props/baked light pools.
   Source crop20–84%, actual seam near stage331. Original reference painting stays

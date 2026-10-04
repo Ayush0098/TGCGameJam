@@ -1,5 +1,11 @@
 # Runtime assets
 
+Kitchen and office stage paintings are now available in `backgrounds/`,1672×941
+each. Existing `stage_manifest.json` room mappings resolve them for campaign
+kitchen/office pages. Same crop and runtime lighting as living room; native
+integration inspected, user visual approval pending. Masters/provenance live in
+root `assets/`; no production generator is shipped with these textures.
+
 Put assets referenced by Godot here: `res://assets/` resolves inside `src/`.
 The repository's root `assets/` directory is available for source artwork and
 production files; files outside `src/` are not imported into the Godot project.

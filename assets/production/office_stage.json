@@ -1,0 +1,19 @@
+{
+  "asset_id": "background.office.stage",
+  "master": "assets/art/backgrounds/office_stage.png",
+  "runtime": "src/assets/backgrounds/office_stage.png",
+  "generator": "OpenAI image generation (ChatGPT), requested by Ayush",
+  "generated_date": "2026-10-04",
+  "native_width": 1672,
+  "native_height": 941,
+  "source_crop_uv": [
+    0,
+    0.2,
+    1,
+    0.64
+  ],
+  "brief": "docs/review/2026-10-04_build/room_painting_requests.md (local)",
+  "review": "Claude 2026-10-04: seam ~0.66, gameplay lane plain, no painted light sources, no readable text, style matches living room under night grading.",
+  "runtime_processing": "Runtime copy identical to master.",
+  "terms": "Generated output; no stock art supplied. No open-source output license asserted. See THIRD_PARTY.md."
+}

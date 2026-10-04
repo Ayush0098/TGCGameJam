@@ -1,0 +1,20 @@
+{
+  "asset_id": "background.kitchen.stage",
+  "master": "assets/art/backgrounds/kitchen_stage.png",
+  "runtime": "src/assets/backgrounds/kitchen_stage.png",
+  "generator": "Built-in image_gen",
+  "generated_date": "2026-10-04",
+  "native_width": 1672,
+  "native_height": 941,
+  "source_crop_uv": [
+    0,
+    0.2,
+    1,
+    0.64
+  ],
+  "wall_floor_seam_source_y": 0.665,
+  "reference": "assets/art/backgrounds/living_room_stage.png (style and composition only)",
+  "inspection": "Inspected generated output and native game capture: clear lower action lane, no furniture/puzzle props/baked light sources, subdued opaque windows, matching painted grain. Seam around66-67% source height. Existing y20-84% crop and deep-midnight/runtime warm local lighting checked. User visual approval pending.",
+  "prompt": "Use case: illustration-story.\nAsset type: production background painting for a 2D side-on storybook puzzle game, LIGHTBULB MOMENT. Create one high-resolution 16:9 landscape image, 2048 by 1152 pixels or higher, at least 1672 by 941 pixels.\n\nPrimary request: an empty cosy vintage family KITCHEN architectural shell, exquisitely hand-painted gouache with soft edges and fine natural paper grain. Subdued cool palette: pale sage and muted duck-egg blue walls, a band of soft cream square tiles along the lower wall, desaturated honey wood trim and a worn checkerboard or plank floor in muted tones. It should feel like a lovingly illustrated storybook, with quiet character and tasteful detail, and must match a companion living-room painting in the same style. It will receive a deep-midnight lighting treatment in the game.\n\nComposition: straight-on side-on theatre stage with NO perspective vanishing point. Front wall across the entire image and floor stretching full width. Horizontal wall/floor seam EXACTLY around 67 percent of source-image height. We will display only the image area from 20 percent down to 84 percent down; frame this crop as the intended scene. Architecture is continuous, almost orthographic. Keep the middle 94 percent of width clear of projecting furniture or obstructions. Gameplay happens in the lower part of that crop, source y 52 to 76 percent. This entire gameplay lane must stay plain and visually quiet, suitable for small animated characters and separate props.\n\nDecorations (upper wall only, above source y 50 percent): a high narrow shelf with a few plain ceramic jars and hanging copper pans at the FAR LEFT and FAR RIGHT edges only; a small high window with cool, dim, opaque blue glass at one outer side, never brightly lit; a subtle stencilled border under the ceiling cornice. Sparse and subtle, with no readable text.\n\nLighting: EVEN cool neutral mid-value ambient paint. No drawn pools of light, no bloom, no radiating beams, no directional shadows, no glowing windows. The game adds illumination later, so keep shadow texture soft and neutral. Preserve readable painted surfaces rather than blacking out the image.\n\nConstraints: no people, no animals, no table, no chairs, no stove, no oven, no fridge, no sink, no counters or cabinets at floor level, no food on the floor, no lamps, no light bulbs, no candles, no switches, no puzzle blockers, no text, no logos, no watermark. No halftone dots, no stipple dot overlay, no pencil sketch, no photorealism, no 3D render. Fine paper grain only. The centre lower wall and floor are spacious empty negative space. This is a finished background painting, not a mockup; no borders, no annotations, no guide lines.",
+  "prompt_suffix": "Input image: living_room_stage.png is a STYLE AND STAGE COMPOSITION reference only. Generate the kitchen as its companion; match paint texture, restraint and seam height. Produce only the kitchen."
+}

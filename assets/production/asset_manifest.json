@@ -79,6 +79,42 @@
         "WHIFF",
         "LAMP_ON"
       ]
+    },
+    "kitchen_stage": {
+      "runtime": "res://assets/backgrounds/kitchen_stage.png",
+      "method": "built-in imagegen",
+      "provenance": "assets/production/kitchen_stage.json",
+      "native_size": [
+        1672,
+        941
+      ],
+      "status": "runtime_checked_awaiting_visual_review",
+      "master": "assets/art/backgrounds/kitchen_stage.png",
+      "crop_uv": [
+        0,
+        0.2,
+        1,
+        0.64
+      ],
+      "revision": 2
+    },
+    "office_stage": {
+      "runtime": "res://assets/backgrounds/office_stage.png",
+      "method": "built-in imagegen",
+      "provenance": "assets/production/office_stage.json",
+      "native_size": [
+        1672,
+        941
+      ],
+      "status": "runtime_checked_awaiting_visual_review",
+      "master": "assets/art/backgrounds/office_stage.png",
+      "crop_uv": [
+        0,
+        0.2,
+        1,
+        0.64
+      ],
+      "revision": 2
     }
   },
   "planned": {

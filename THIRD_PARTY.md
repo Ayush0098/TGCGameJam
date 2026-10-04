@@ -14,12 +14,16 @@ Do not list planned resources as used. Recheck this inventory before release.
 
 ## Used resources
 
+Kitchen/office painting revision2 uses the project's original generated paintings
+as edit inputs (2026-10-04), with exact prompts in their existing provenance files.
+Initial masters are archived; no external reference art was introduced.
+
 | Resource | Publisher / source | License / notices | Actual use |
 |---|---|---|---|
 | Godot Engine 4.7.2 stable, standard edition, and matching Web export templates | Godot contributors; [official release](https://godotengine.org/download/archive/4.7.2-stable/) | MIT. The license is stored in [GODOT-LICENSE.txt](src/licenses/GODOT-LICENSE.txt). Engine dependency notices are stored in [GODOT-COPYRIGHT.txt](src/licenses/GODOT-COPYRIGHT.txt). Both files are included in the game export. | Project editor, runtime and Web build. Local binary reports `4.7.2.stable.official.ed1daf0bf`. |
 | Node.js v24.20.0, existing local installation | Node.js contributors; [source and license](https://github.com/nodejs/node/blob/v24.20.0/LICENSE) | MIT with bundled dependency notices in the linked LICENSE. | Development only: the local preview server uses built-in modules. Node.js and the server are not shipped in the game export. |
 
-| OpenAI built-in image generation | OpenAI; [service terms](https://openai.com/policies/service-terms/) | Generated output; no stock image or third-party reference was supplied. No open-source license is asserted for this output. | Original reference room and new playable vintage living room in `assets/art/backgrounds/`, copied to runtime assets. Provenance: `assets/production/background_reference.json` and `assets/production/living_room_stage.json` (2026-10-04,1672×941). |
+| OpenAI built-in image generation | OpenAI; [service terms](https://openai.com/policies/service-terms/) | Generated output; no stock image or third-party reference was supplied. Kitchen/office use the project's generated living room as style reference. No open-source license is asserted for this output. | Original reference room and playable living room, kitchen and office in `assets/art/backgrounds/`, copied to runtime assets. Provenance: `assets/production/background_reference.json`, `living_room_stage.json`, `kitchen_stage.json` and `office_stage.json` (stage paintings:2026-10-04,1672×941). |
 | Bangers (font) | The Bangers Project Authors; [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/bangers) | SIL Open Font License 1.1, stored in [Bangers-OFL.txt](src/licenses/Bangers-OFL.txt) | Title, stamps, onomatopoeia and comic headings. `src/assets/fonts/Bangers-Regular.ttf`, added 2026-10-04. |
 | Comic Neue Bold (font) | The Comic Neue Project Authors; [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/comicneue) | SIL Open Font License 1.1, stored in [ComicNeue-OFL.txt](src/licenses/ComicNeue-OFL.txt) | UI text, captions, bubbles. `src/assets/fonts/ComicNeue-Bold.ttf`, added 2026-10-04. |
 | Kokoro ONNX wrapper 0.6.1 | thewh1teagle; [source/license](https://github.com/thewh1teagle/kokoro-onnx) | MIT | Offline voice production only, `assets/audio/generate_reference.py`. |
