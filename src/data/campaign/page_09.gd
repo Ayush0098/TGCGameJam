@@ -135,23 +135,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE CAT NAPS, THE DOG GETS THE PIE",
-				"facts": [
-					{
-						"type": "ASLEEP",
-						"character": "cat",
-						"object": "armchair"
-					},
-					{
-						"type": "ATE",
-						"character": "dog",
-						"object": "pie"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "THE BOSS NAPS, THE CAT GETS THE CAKE",
+				"caption": "THE BOSS NAPS, THE INTERN BONKS THE MOUSE",
 				"facts": [
 					{
 						"type": "ASLEEP",
@@ -159,8 +143,23 @@ static func definition() -> Dictionary:
 						"object": "armchair"
 					},
 					{
+						"type": "BONKED",
+						"character": "intern",
+						"target": "mouse"
+					}
+				]
+			},
+			{
+				"id": "headline_2",
+				"caption": "THE BOSS FLEES, THE MOUSE GETS THE CAKE",
+				"facts": [
+					{
+						"type": "EXITED",
+						"character": "boss"
+					},
+					{
 						"type": "ATE",
-						"character": "cat",
+						"character": "mouse",
 						"object": "cake"
 					}
 				]

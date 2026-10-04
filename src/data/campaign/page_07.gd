@@ -46,7 +46,6 @@ static func definition() -> Dictionary:
 		"obstacles": [
 			{
 				"id": "screen",
-				"art": "screen",
 				"from": [
 					3.5,
 					-0.45

@@ -17,7 +17,7 @@ static func definition() -> Dictionary:
 			10
 		],
 		"spotlights": {
-			"count": 2,
+			"count": 1,
 			"default_centres": [
 				3
 			]
@@ -30,7 +30,7 @@ static func definition() -> Dictionary:
 				10.0,
 				0.6
 			],
-			"count": 2,
+			"count": 1,
 			"defaults": [
 				{
 					"x": 3.0,
@@ -98,27 +98,27 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Kid ate the cookie.",
-		"endings_total": 18,
+		"endings_total": 5,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE DOG NAPS IN THE ARMCHAIR",
+				"caption": "THE DOG EATS HIS GREENS",
 				"facts": [
 					{
-						"type": "ASLEEP",
+						"type": "ATE",
 						"character": "dog",
-						"object": "armchair"
+						"object": "broccoli"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE KID NAPS INSTEAD",
+				"caption": "GRANDMA EATS THE BROCCOLI",
 				"facts": [
 					{
-						"type": "ASLEEP",
-						"character": "kid",
-						"object": "armchair"
+						"type": "ATE",
+						"character": "grandma",
+						"object": "broccoli"
 					}
 				]
 			}
@@ -164,11 +164,11 @@ static func definition() -> Dictionary:
 			}
 		],
 		"tutorial": [
-			"You have a second bulb. Two lights can overlap."
+			"Pull the bulb down for a wider light."
 		],
 		"hints": [
 			"If the Kid can see the cookie, he picks the cookie.",
-			"Keep the cookie and the Dog in the dark. You have two bulbs.",
-			"ghost: bulbs at x 4 and x 6"
+			"Light only the Kid and the broccoli. Pull the bulb down to reach both.",
+			"ghost: lantern at x 5.5, pulled all the way down"
 		]
 	}

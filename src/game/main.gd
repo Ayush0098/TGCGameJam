@@ -1542,7 +1542,8 @@ func _narrate(moment: String) -> void:
 	var text: String = _lines.get("narrator", {}).get(key, "")
 	# Level data owns the written narration; the voice file keys stay the same.
 	var written: Variant = page.get("narration")
-	if written is Dictionary:
+	# A recorded line keeps its own words so the caption matches the voice.
+	if written is Dictionary and _voice_path("narrator/" + key).is_empty():
 		var field: String = str({"intro": "intro", "twist": "win"}.get(moment, "fail" if moment.begins_with("fail_") else ""))
 		if not str(field).is_empty() and written.has(field):
 			text = str(written[field])

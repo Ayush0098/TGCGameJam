@@ -9,7 +9,6 @@ static func definition() -> Dictionary:
 		"number": 10,
 		"room": "office",
 		"narration_key": "finale",
-		"finale": true,
 		"title": "Lightbulb Moment",
 		"difficulty": "red",
 		"width": 12,
@@ -146,8 +145,12 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE DOG GETS THE CAKE",
+				"caption": "GRANDMA RUNS OFF, THE DOG GETS THE CAKE",
 				"facts": [
+					{
+						"type": "EXITED",
+						"character": "grandma"
+					},
 					{
 						"type": "ATE",
 						"character": "dog",
@@ -220,5 +223,6 @@ static func definition() -> Dictionary:
 			"Each lamp needs someone to walk over its pedal.",
 			"Somebody has to cross the room, and your spare bulb can give them a reason.",
 			"ghost: swaps Intern-Dog then Boss-Intern, lantern at x 4, spare bulb on the Boss at beat 1"
-		]
+		],
+		"finale": true
 	}

@@ -16,7 +16,7 @@ const FLICK_BEATS := 8
 
 
 func _initialize() -> void:
-	var only := OS.get_cmdline_user_args()
+	var only := Array(OS.get_cmdline_user_args()).filter(func(arg): return arg != "dump")
 	for script in MAIN.CAMPAIGN:
 		var checked: Dictionary = VALIDATOR.new().validate(script.definition())
 		if not checked.errors.is_empty():
@@ -171,5 +171,10 @@ func _audit(page: Dictionary) -> void:
 	print("== %s %s: %d lit configs x %d arrangements x %d flick options = %d plans; wins %d (%.1f%%), wins without flick %d, winning arrangements %d; endings %d (endings_total %s); nothing %d; original wins: %s; %d ms" % [
 		page.id, page.title, configs.size(), arrangements.size(), flicks.size(), plans, wins, 100.0 * wins / maxf(1, plans), plain_wins, win_arrangements.size(), endings.size(), str(page.get("endings_total", "-")), nothing, str(original_won), Time.get_ticks_msec() - start])
 	print("   twist: %d ideas" % star_ideas.twist.size())
+	if "dump" in OS.get_cmdline_user_args():
+		var captions := endings.keys()
+		captions.sort()
+		for caption in captions:
+			print("   ENDING x%d: %s" % [endings[caption], caption])
 	for bonus in page.get("bonus", []):
 		print("   bonus %s: %d plans, %d ideas" % [bonus.id, bonus_hits.get(bonus.id, 0), star_ideas.get(bonus.id, {}).size()])

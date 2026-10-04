@@ -14,6 +14,15 @@ Do not list planned resources as used. Recheck this inventory before release.
 
 ## Used resources
 
+Voice-file batch (2026-10-04):115 requested MP3s in assets/audio/voice/ generated
+with the existing Kokoro/ONNX/SoundFile stack listed below, no new downloads or
+dependencies. Additional profiles:bf_lily,af_sky,am_puck,am_santa,af_nicole;
+af_heart/bm_george retained. MP3 encoding uses existing SoundFile/libsndfile.
+Exact model hashes/profiles/production metadata:assets/audio/voice/manifest.json.
+Four nonverbal animal cues and12 animal blips are original NumPy synthesis,
+not externally sourced recordings. These files are production deliverables;
+runtime integration is pending.
+
 Kitchen/office painting revision2 uses the project's original generated paintings
 as edit inputs (2026-10-04), with exact prompts in their existing provenance files.
 Initial masters are archived; no external reference art was introduced.
@@ -27,7 +36,7 @@ Initial masters are archived; no external reference art was introduced.
 | Bangers (font) | The Bangers Project Authors; [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/bangers) | SIL Open Font License 1.1, stored in [Bangers-OFL.txt](src/licenses/Bangers-OFL.txt) | Title, stamps, onomatopoeia and comic headings. `src/assets/fonts/Bangers-Regular.ttf`, added 2026-10-04. |
 | Comic Neue Bold (font) | The Comic Neue Project Authors; [Google Fonts source](https://github.com/google/fonts/tree/main/ofl/comicneue) | SIL Open Font License 1.1, stored in [ComicNeue-OFL.txt](src/licenses/ComicNeue-OFL.txt) | UI text, captions, bubbles. `src/assets/fonts/ComicNeue-Bold.ttf`, added 2026-10-04. |
 | Kokoro ONNX wrapper 0.6.1 | thewh1teagle; [source/license](https://github.com/thewh1teagle/kokoro-onnx) | MIT | Offline voice production only, `assets/audio/generate_reference.py`. |
-| Kokoro v1.0 ONNX model and voices-v1.0 bank | hexgrad; [model/license](https://huggingface.co/hexgrad/Kokoro-82M); [ONNX release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1) | Apache-2.0 model; upstream voice production resources | Three audition clips from original scripts: af_heart narrator and bm_george Boss. Model/voice bank local only; checksums pinned in generator. |
+| Kokoro v1.0 ONNX model and voices-v1.0 bank | hexgrad; [model/license](https://huggingface.co/hexgrad/Kokoro-82M); [ONNX release](https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.1) | Apache-2.0 model; upstream voice production resources | All game voices: 31 narrator lines and 56 character reactions from original scripts (assets/audio/voice, generated locally, see its README and manifest.json); also the three earlier auditions. Model/voice bank local only; checksums pinned in the generators. Animal noises and 12 babble syllables are original synthesis (assets/audio/animal_vocals.py). |
 | ONNX Runtime 1.30.0 | Microsoft; [source/license](https://github.com/microsoft/onnxruntime) | MIT with upstream dependency notices | Offline CPU inference only. |
 | NumPy 2.5.3 | NumPy contributors; [source/license](https://github.com/numpy/numpy) | BSD-3-Clause plus bundled wheel notices | Offline waveform processing only. |
 | SoundFile 0.13.1 / bundled libsndfile | [SoundFile](https://github.com/bastibe/python-soundfile); [libsndfile](https://github.com/libsndfile/libsndfile) | SoundFile BSD-3-Clause; libsndfile LGPL-2.1-or-later and bundled codec notices | Offline WAV masters, Vorbis encoding and waveform checks. |

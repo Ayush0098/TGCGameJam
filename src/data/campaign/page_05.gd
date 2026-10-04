@@ -105,12 +105,11 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "GRANDMA NAPS, THE MOUSE BONKS THE DOG",
+				"caption": "GRANDMA RUNS OFF, THE MOUSE BONKS THE DOG",
 				"facts": [
 					{
-						"type": "ASLEEP",
-						"character": "grandma",
-						"object": "rocker"
+						"type": "EXITED",
+						"character": "grandma"
 					},
 					{
 						"type": "BONKED",
@@ -139,8 +138,9 @@ static func definition() -> Dictionary:
 		"goal": {
 			"facts": [
 				{
-					"type": "EXITED",
-					"character": "cat"
+					"type": "BONKED",
+					"character": "mouse",
+					"target": "cat"
 				},
 				{
 					"type": "ATE",
@@ -148,7 +148,7 @@ static func definition() -> Dictionary:
 					"object": "cheese"
 				}
 			],
-			"twist_caption": "The MOUSE chased the CAT out of the comic. The DOG got the cheese.",
+			"twist_caption": "The MOUSE bonked the CAT. The DOG got the cheese.",
 			"red_pen_words": [
 				"MOUSE",
 				"CAT",
@@ -157,7 +157,7 @@ static func definition() -> Dictionary:
 		},
 		"narration": {
 			"intro": "Every day the Cat chases the Mouse off the page. Today, you have a spare bulb.",
-			"win": "The Mouse chased the Cat out of the comic, and the Dog got the cheese. Small, but furious.",
+			"win": "The Mouse bonked the Cat, and the Dog got the cheese. Small, but furious.",
 			"fail": "The chase went the usual way."
 		},
 		"dialogue": [
@@ -179,7 +179,7 @@ static func definition() -> Dictionary:
 			{
 				"character": "cat",
 				"when": "swap",
-				"line": "Nope nope nope."
+				"line": "Is it nap time already?"
 			},
 			{
 				"character": "dog",
@@ -196,8 +196,8 @@ static func definition() -> Dictionary:
 			"During ACTION, click the rail once to drop your spare bulb. It lights the spot from that moment on."
 		],
 		"hints": [
-			"What if the Mouse was the angry one?",
-			"Swap the Cat and the Mouse, then wake the Dog with your spare bulb.",
-			"ghost: swap Cat and Mouse, spare bulb on x 8 at beat 2"
+			"What if the Mouse was the angry one? A scared Cat just runs away.",
+			"Mouse angry, Cat sleepy: a three-way swap with Grandma. Then wake the Dog with your spare bulb.",
+			"ghost: swap Cat-Mouse, then Cat-Grandma, lantern at x 3.5, spare bulb on x 8 at beat 1"
 		]
 	}

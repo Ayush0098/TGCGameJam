@@ -21,4 +21,17 @@ func run(check: Callable) -> bool:
 		check.call(art, "%s has art for every cast member and prop" % page.id)
 		var original: Dictionary = SIM.run(page, PLAN.from_page(page).to_data())
 		check.call(not GOALS.evaluate(page, original).won, "%s Original does not already satisfy its twist" % page.id)
+	var lines: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/voice/lines.json"))
+	var missing: Array = []
+	for key in lines.narrator:
+		if not ResourceLoader.exists("res://assets/audio/voice/narrator/%s.mp3" % key):
+			missing.append(key)
+	for art in lines.characters:
+		for moment in lines.characters[art]:
+			if not ResourceLoader.exists("res://assets/audio/voice/characters/%s_%s.mp3" % [art, moment]):
+				missing.append(art + "_" + moment)
+		for n in range(1, 5):
+			if not ResourceLoader.exists("res://assets/audio/voice/characters/%s_blip_%d.mp3" % [art, n]):
+				missing.append("%s_blip_%d" % [art, n])
+	check.call(missing.is_empty(), "Every scripted voice line and babble syllable has its audio file %s" % str(missing))
 	return true

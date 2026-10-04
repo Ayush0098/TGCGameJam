@@ -271,8 +271,14 @@ static func definition() -> Dictionary:
 					],
 					"solution": [
 						{
-							"swaps": [],
-							"needs_flick": false
+							"thoughts": {
+								"Cat": "HUNGRY",
+								"Dog": "HUNGRY"
+							},
+							"lit": [
+								"cat"
+							],
+							"flick_wakes": []
 						}
 					]
 				},
@@ -409,17 +415,15 @@ static func definition() -> Dictionary:
 					],
 					"solution": [
 						{
-							"swaps": [
-								[
-									"Cat",
-									"HUNGRY"
-								],
-								[
-									"Dog",
-									"SLEEPY"
-								]
+							"thoughts": {
+								"Cat": "HUNGRY",
+								"Dog": "SLEEPY"
+							},
+							"lit": [
+								"cat",
+								"dog"
 							],
-							"needs_flick": false
+							"flick_wakes": []
 						}
 					]
 				},
@@ -574,17 +578,15 @@ static func definition() -> Dictionary:
 					],
 					"solution": [
 						{
-							"swaps": [
-								[
-									"Grandma",
-									"HUNGRY"
-								],
-								[
-									"Kid",
-									"SLEEPY"
-								]
+							"thoughts": {
+								"Dog": "HUNGRY",
+								"Grandma": "HUNGRY",
+								"Kid": "SLEEPY"
+							},
+							"lit": [
+								"kid"
 							],
-							"needs_flick": false
+							"flick_wakes": []
 						}
 					]
 				},
@@ -705,8 +707,15 @@ static func definition() -> Dictionary:
 					],
 					"solution": [
 						{
-							"swaps": [],
-							"needs_flick": false
+							"thoughts": {
+								"Cat": "HUNGRY",
+								"Dog": "HUNGRY"
+							},
+							"lit": [
+								"cat",
+								"dog"
+							],
+							"flick_wakes": []
 						}
 					]
 				},
@@ -717,10 +726,10 @@ static func definition() -> Dictionary:
 						"the spare bulb (FLICK) during ACTION",
 						"timing"
 					],
-					"width": 10,
+					"width": 9,
 					"rail_span": [
 						0,
-						9
+						8
 					],
 					"spotlights": {
 						"count": 1,
@@ -733,14 +742,14 @@ static func definition() -> Dictionary:
 						"bounds": [
 							0.0,
 							-1.2,
-							5.0,
+							4.0,
 							0.6
 						],
 						"count": 1,
 						"defaults": [
 							{
-								"x": 3.5,
-								"y": -0.3,
+								"x": 3.0,
+								"y": -0.6,
 								"enabled": true
 							},
 							{
@@ -768,7 +777,7 @@ static func definition() -> Dictionary:
 							"id": "dog",
 							"name": "Dog",
 							"art": "dog",
-							"slot": 7,
+							"slot": 6,
 							"facing": "L",
 							"thought": "HUNGRY",
 							"contradiction": false
@@ -779,7 +788,7 @@ static func definition() -> Dictionary:
 							"id": "fish",
 							"type": "FOOD",
 							"art": "fish",
-							"slot": 5
+							"slot": 4
 						}
 					],
 					"original_caption": "The Cat ate the fish.",
@@ -813,8 +822,14 @@ static func definition() -> Dictionary:
 					],
 					"solution": [
 						{
-							"swaps": [],
-							"needs_flick": true
+							"thoughts": {
+								"Cat": "HUNGRY",
+								"Dog": "HUNGRY"
+							},
+							"lit": [],
+							"flick_wakes": [
+								"dog"
+							]
 						}
 					],
 					"pause_for_flick_at_beat": 1
