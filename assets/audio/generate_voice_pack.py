@@ -65,7 +65,7 @@ def parse_request(path):
 def speakable(text):
     # The phonemizer spells short all-caps words as letters (CAT -> C-A-T).
     # Real acronyms stay; everything else is read as a word.
-    return re.sub(r"[A-Z][A-Z']+", lambda m: m[0] if m[0] in {'HR'} else m[0].capitalize(), text)
+    return re.sub(r"\b[A-Z][A-Z']+\b", lambda m: m[0] if m[0] in {'HR'} else m[0].capitalize(), text)
 
 def resample(samples, old_rate, pitch=1.0):
     # Linear-phase windowed sinc interpolation, also handles deliberate cartoon pitch.
