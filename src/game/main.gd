@@ -530,7 +530,7 @@ func _process(delta: float) -> void:
 		_narrator_hold = false
 	if _read_hold > 0.0 and not _screen_covered():
 		_read_hold = maxf(0.0, _read_hold - delta)
-	if not _story_queue.is_empty() and not (is_instance_valid(_front) and _front.visible) and not (is_instance_valid(_intro_card) and _intro_card.visible) and not (is_instance_valid(_story_card) and _story_card.visible):
+	if not _story_queue.is_empty() and not (_title_voice and _voice_busy()) and not (is_instance_valid(_front) and _front.visible) and not (is_instance_valid(_intro_card) and _intro_card.visible) and not (is_instance_valid(_story_card) and _story_card.visible):
 		_show_story_card(_story_queue.pop_front())
 	if not _active_cue.is_empty():
 		_voice_elapsed += delta
@@ -1241,6 +1241,12 @@ func _on_front_start() -> void:
 	if _story_waiting:
 		_replay_voice()
 	_front.hide()
+	# The Narrator introduces the show once per session; the page waits for him.
+	if not _title_said and page_override.is_empty():
+		_title_said = true
+		_title_voice = _play_voice_file("narrator/narr15_title", _voice)
+		if _title_voice:
+			_stage.set_caption("The Bulb Family Funnies! Narrated by me. Obviously.", _voice_length() + 0.5)
 	_update_buttons()
 
 
@@ -1753,8 +1759,14 @@ var _pending_narration := ""
 var _read_hold := 0.0
 
 
+var _title_said := false
+var _title_voice := false
+
+
 func _screen_covered() -> bool:
-	return (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or _intro_pending or (is_instance_valid(_story_card) and _story_card.visible) or not _story_queue.is_empty()
+	if _title_voice and not _voice_busy():
+		_title_voice = false
+	return _title_voice or (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or _intro_pending or (is_instance_valid(_story_card) and _story_card.visible) or not _story_queue.is_empty()
 
 
 func _voice_busy() -> bool:
