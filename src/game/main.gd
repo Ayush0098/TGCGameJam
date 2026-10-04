@@ -643,7 +643,7 @@ func _finish_run() -> void:
 		_narrate("fail_%d" % (1 + _fail_count % 2))
 	for view in [_stage, _result_stage]:
 		view.set_mood("win" if result.won else "fail")
-	if page.id == "page_02" and result.won:
+	if page.id == "page_02" and result.won and not page.has("narration"):
 		_play_voice("narrator_success")
 	_update_buttons()
 
@@ -799,7 +799,7 @@ func _update_buttons() -> void:
 	_fast_button.text = "1x" if _fast else "FAST"
 	_skip_run.disabled = not playing
 	_next.disabled = mode != "RESULT" or not _won_current
-	_next.text = "ALL PAGES" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
+	_next.text = "THE END" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
 	_skip_page.disabled = failures < 3 or mode not in ["PLAN", "RESULT"]
 	var hints: Array = page.get("hints", [])
 	_hint_button.visible = not hints.is_empty() and failures >= 2 and _hints_shown < hints.size()
