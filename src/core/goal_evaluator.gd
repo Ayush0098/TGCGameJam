@@ -116,3 +116,25 @@ static func _character_name(id: String, subject := false) -> String:
 
 static func _object_name(id: String) -> String:
 	return id.replace("_", " ").to_lower()
+
+
+## Player-facing wording for one goal fact (goal card and result checklist).
+static func fact_text(fact: Dictionary) -> String:
+	var who := _character_name(str(fact.get("character", "")), true)
+	var what := _object_name(str(fact.get("object", "")))
+	match fact.get("type"):
+		"ATE":
+			return "%s eats the %s" % [who, what]
+		"ASLEEP":
+			return ("%s naps in the %s" % [who, what]) if fact.has("object") else "%s falls asleep" % who
+		"BONKED":
+			return "%s bonks %s" % [who, _character_name(str(fact.get("target", "")))]
+		"KO":
+			return "%s gets knocked out" % who
+		"EXITED":
+			return "%s runs out of the comic" % who
+		"UNEATEN":
+			return "Nobody eats the %s" % what
+		"ALL_ACTIVATED":
+			return "Everyone gets a bright idea"
+	return str(fact.get("type", ""))

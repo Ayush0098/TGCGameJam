@@ -75,6 +75,9 @@ var _instructions: Label
 var _pages_button: Button
 var _lanterns_useful := true
 var skipped: Dictionary = {}
+var _stamp: Label
+var _stamp_tween: Tween
+var _missing: Label
 const BEAT_SECONDS := 0.4
 const RECOVERY_SECONDS := 0.45
 const PHASE_TIME := {"DECIDE": 0.04, "MOVE": 0.26, "SWITCHES": 0.27, "BONKS": 0.31, "CLAIMS": 0.35}
@@ -201,6 +204,27 @@ func _build_ui() -> void:
 			_result_stage = view
 			_twist_caption = caption
 	_comparison.hide()
+	_stamp = _label("", 64)
+	_stamp.name = "Stamp"
+	_stamp.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_stamp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_stamp.size = Vector2(420, 96)
+	_stamp.position = Vector2(745, 168)
+	_stamp.pivot_offset = _stamp.size * 0.5
+	_stamp.add_theme_constant_override("outline_size", 12)
+	_stamp.z_index = 150
+	_stamp.hide()
+	_ui.add_child(_stamp)
+	_missing = _label("", 18)
+	_missing.name = "Missing"
+	_missing.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_missing.position = Vector2(16, 462)
+	_missing.size = Vector2(1248, 56)
+	_missing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_missing.add_theme_color_override("font_color", Color("a4383e"))
+	_missing.z_index = 150
+	_missing.hide()
+	_ui.add_child(_missing)
 	_pop = _label("", 15)
 	_pop.hide()
 	_ui.add_child(_pop)
@@ -456,6 +480,7 @@ func _finish_run() -> void:
 	_result_stage.pose(_run.snapshots.back(), _run.plan, knowledge, false)
 	_stage.hide()
 	_comparison.show()
+	_show_payoff(result)
 	if page.id == "page_02" and result.won:
 		_play_voice("narrator_success")
 	_update_buttons()
@@ -465,8 +490,8 @@ func _show_facts(result: Dictionary) -> void:
 	var labels: Array[String] = []
 	for item in result.facts:
 		var fact: Dictionary = item.fact
-		var mark := "[OK] " if item.met else ("[X] " if mode == "RESULT" else "[ ] ")
-		labels.append(mark + str(fact.get("character", "" )).capitalize() + " " + fact.type + " " + str(fact.get("object", fact.get("target", ""))).replace("_", " "))
+		var mark := "✔ " if item.met else ("✘ " if mode == "RESULT" else "☐ ")
+		labels.append(mark + GOALS.fact_text(fact))
 	_facts.text = "   /   ".join(labels)
 	_facts.add_theme_color_override("font_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
 
@@ -595,6 +620,9 @@ func _update_buttons() -> void:
 	if completed.size() == PAGE_SCRIPTS.size():
 		_status.text = "Every page solved. Try for different endings!"
 	_update_instructions()
+	_emphasise(_action, mode == "PLAN")
+	_emphasise(_next, mode == "RESULT" and _won_current)
+	_emphasise(_rewind, mode == "RESULT" and not _won_current)
 
 
 func _input(event: InputEvent) -> void:
@@ -666,6 +694,7 @@ func _ding(frequency: float) -> void:
 
 func _cancel_presentation() -> void:
 	_hook_drag = -1
+	_hide_payoff()
 	_stop_voice()
 	for player in _players:
 		player.stop()
@@ -872,3 +901,77 @@ func _on_front_page(index: int) -> void:
 	if _story_waiting:
 		_replay_voice()
 	_update_buttons()
+
+
+func _show_payoff(result: Dictionary) -> void:
+	# Win: TWIST! stamp slams onto the strip. Fail: THE END...? plus what is missing.
+	var won: bool = result.won
+	_stamp.text = "TWIST!" if won else "THE END...?"
+	_stamp.add_theme_font_size_override("font_size", 72 if won else 56)
+	_stamp.add_theme_color_override("font_color", Color("e0453a") if won else Color("f3ead8"))
+	_stamp.add_theme_color_override("font_outline_color", Color("243043"))
+	_stamp.rotation = -0.12 if won else 0.06
+	_stamp.show()
+	var missing: Array[String] = []
+	for item in result.facts:
+		if not item.met:
+			missing.append(GOALS.fact_text(item.fact))
+	if won:
+		_missing.text = ""
+		_missing.hide()
+	else:
+		_missing.text = "Still needed:  " + "   •   ".join(missing) + "\nREWIND keeps your plan so you can adjust it."
+		_missing.show()
+	if is_instance_valid(_stamp_tween):
+		_stamp_tween.kill()
+	if _motion.button_pressed:
+		_stamp.scale = Vector2.ONE
+		_stamp.modulate.a = 1.0
+	else:
+		_stamp.scale = Vector2.ONE * (2.2 if won else 1.5)
+		_stamp.modulate.a = 0.0
+		_stamp_tween = create_tween().set_parallel(true)
+		_stamp_tween.tween_property(_stamp, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_stamp_tween.tween_property(_stamp, "modulate:a", 1.0, 0.12)
+		if won:
+			var home := _ui.position
+			var shake := create_tween()
+			shake.tween_interval(0.2)
+			for offset in [Vector2(7, -4), Vector2(-6, 5), Vector2(4, 2), Vector2.ZERO]:
+				shake.tween_property(_ui, "position", home + offset, 0.04)
+	if won:
+		for frequency in [523.25, 659.25, 783.99]:
+			_ding(frequency)
+	else:
+		_play_effect("WHIFF")
+
+
+func _hide_payoff() -> void:
+	if is_instance_valid(_stamp_tween):
+		_stamp_tween.kill()
+	if is_instance_valid(_stamp):
+		_stamp.hide()
+	if is_instance_valid(_missing):
+		_missing.hide()
+
+
+func _emphasise(button: Button, primary: bool) -> void:
+	if not is_instance_valid(button):
+		return
+	if not primary:
+		for state in ["normal", "hover", "pressed", "focus"]:
+			button.remove_theme_stylebox_override(state)
+		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+			button.remove_theme_color_override(state)
+		return
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = Color("c0392b").lightened(0.1 if state == "hover" else 0.0)
+		box.border_color = Color("243043")
+		box.set_border_width_all(2)
+		box.set_corner_radius_all(3)
+		box.content_margin_left = 14
+		box.content_margin_right = 14
+		button.add_theme_stylebox_override(state, box)
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(state, Color.WHITE)
