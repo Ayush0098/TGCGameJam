@@ -101,7 +101,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Cat chased the Mouse out of the comic.",
-		"endings_total": 131,
+		"endings_total": 132,
 		"bonus": [
 			{
 				"id": "headline_1",

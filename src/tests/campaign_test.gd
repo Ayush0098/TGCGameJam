@@ -24,6 +24,8 @@ func run(check: Callable) -> bool:
 	var lines: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/voice/lines.json"))
 	var missing: Array = []
 	for key in lines.narrator:
+		if key in lines.get("pending_recordings", []):
+			continue
 		if not ResourceLoader.exists("res://assets/audio/voice/narrator/%s.mp3" % key):
 			missing.append(key)
 	for art in lines.characters:

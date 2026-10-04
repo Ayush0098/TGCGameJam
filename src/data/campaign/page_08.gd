@@ -117,7 +117,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "Grandma bonked the Dog.",
-		"endings_total": 55,
+		"endings_total": 58,
 		"bonus": [
 			{
 				"id": "headline_1",

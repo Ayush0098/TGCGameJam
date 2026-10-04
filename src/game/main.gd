@@ -138,6 +138,7 @@ func _ready() -> void:
 	PAGE_SCRIPTS = page_override if not page_override.is_empty() else CAMPAIGN
 	_build_ui()
 	_load_settings()
+	_setup_music()
 	_load_progress()
 	_load_page(0)
 	_front = FRONT.new()
@@ -480,6 +481,7 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_update_music(delta)
 	if not _active_cue.is_empty():
 		_voice_elapsed += delta
 		# A suspended/unavailable audio device cannot hold gameplay forever.
@@ -632,6 +634,10 @@ func _finish_run() -> void:
 	if result.won:
 		_narrate("twist")
 		_say_scripted("win", [])
+		if page.get("finale", false):
+			get_tree().create_timer(3.5).timeout.connect(func():
+				if mode == "RESULT":
+					_narrate_key("narr_finale_end"))
 	else:
 		_fail_count += 1
 		_narrate("fail_%d" % (1 + _fail_count % 2))
@@ -1204,6 +1210,7 @@ func _show_payoff(result: Dictionary, rewards: Array[String] = []) -> void:
 			_ding(frequency)
 	else:
 		_play_effect("WHIFF")
+	_play_sting(won)
 
 
 func _hide_payoff() -> void:
@@ -1543,7 +1550,7 @@ func _narrate(moment: String) -> void:
 	# Level data owns the written narration; the voice file keys stay the same.
 	var written: Variant = page.get("narration")
 	# A recorded line keeps its own words so the caption matches the voice.
-	if written is Dictionary and _voice_path("narrator/" + key).is_empty():
+	if written is Dictionary and (_voice_path("narrator/" + key).is_empty() or moment.begins_with("fail_")):
 		var field: String = str({"intro": "intro", "twist": "win"}.get(moment, "fail" if moment.begins_with("fail_") else ""))
 		if not str(field).is_empty() and written.has(field):
 			text = str(written[field])
@@ -2203,3 +2210,76 @@ func _replay_tutorial() -> void:
 	if is_instance_valid(_front):
 		_front.hide()
 	_load_page(0)
+
+
+
+# ------------------------------------------------------------ music
+## Original procedural jazz (assets/audio/generate_music.py): a PLAN layer and an
+## ACTION layer of the same length play in sync and crossfade; narration ducks them.
+var _music_plan: AudioStreamPlayer
+var _music_action: AudioStreamPlayer
+var _sting: AudioStreamPlayer
+const MUSIC_DB := -9.0
+const SILENT_DB := -60.0
+
+
+func _loop_stream(path: String) -> AudioStream:
+	var stream: Variant = load(path)
+	if stream is AudioStreamWAV:
+		stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		stream.loop_begin = 0
+		stream.loop_end = stream.data.size() / 2
+	return stream
+
+
+func _setup_music() -> void:
+	if not ResourceLoader.exists("res://assets/audio/music/plan_loop.wav"):
+		return
+	_music_plan = AudioStreamPlayer.new()
+	_music_plan.stream = _loop_stream("res://assets/audio/music/plan_loop.wav")
+	_music_action = AudioStreamPlayer.new()
+	_music_action.stream = _loop_stream("res://assets/audio/music/action_loop.wav")
+	_sting = AudioStreamPlayer.new()
+	for player in [_music_plan, _music_action]:
+		player.bus = "Music"
+		player.volume_db = SILENT_DB
+		add_child(player)
+	_sting.bus = "Music"
+	add_child(_sting)
+
+
+func _update_music(delta: float) -> void:
+	if not is_instance_valid(_music_plan):
+		return
+	var allowed: bool = _sound.button_pressed and DisplayServer.get_name() != "headless" and not (is_instance_valid(_front) and _front.visible and _story_waiting)
+	if not allowed:
+		if _music_plan.playing:
+			_music_plan.stop()
+			_music_action.stop()
+		return
+	if not _music_plan.playing:
+		# Start both layers together so they stay in phase.
+		_music_plan.play()
+		_music_action.play()
+	var duck := -6.0 if is_instance_valid(_voice) and _voice.playing else 0.0
+	var action := mode == "PLAY"
+	var plan_target := MUSIC_DB + duck if not action else SILENT_DB
+	var action_target := MUSIC_DB + duck if action else SILENT_DB
+	var rate := clampf(delta / 0.3, 0.0, 1.0)
+	_music_plan.volume_db = lerpf(_music_plan.volume_db, plan_target, rate)
+	_music_action.volume_db = lerpf(_music_action.volume_db, action_target, rate)
+
+
+func _play_sting(won: bool) -> void:
+	if not is_instance_valid(_sting) or not _sound.button_pressed or DisplayServer.get_name() == "headless":
+		return
+	_sting.stream = load("res://assets/audio/music/%s_sting.wav" % ("win" if won else "fail"))
+	_sting.volume_db = -4.0
+	_sting.play()
+
+
+func _narrate_key(key: String) -> void:
+	var text: String = _lines.get("narrator", {}).get(key, "")
+	if not text.is_empty():
+		_stage.set_caption(text, 0.0)
+		_play_voice_file("narrator/" + key, _voice)

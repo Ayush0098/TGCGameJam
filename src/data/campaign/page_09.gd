@@ -8,6 +8,7 @@ static func definition() -> Dictionary:
 		"id": "page_09",
 		"number": 9,
 		"room": "office",
+		"narration_key": "powercut",
 		"title": "Power Cut",
 		"difficulty": "red",
 		"width": 11,
@@ -131,7 +132,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Mouse ran out of the comic.",
-		"endings_total": 135,
+		"endings_total": 113,
 		"bonus": [
 			{
 				"id": "headline_1",

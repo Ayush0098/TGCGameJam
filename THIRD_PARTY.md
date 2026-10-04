@@ -54,6 +54,6 @@ Boss/Dog/Grandma/Kid/Intern/Cat/Mouse SVG cutouts (`assets/art/build_reference.p
 `assets/art/build_cast.py`), thought icons, all prop SVGs, Bulby,
 rig code, greybox shapes, frame/binary lighting shaders, light masks, comic effects,
 prototype DING and procedural action sounds are original project work. No external
-sound library is used for those effects. No external character art or music has been
+sound library is used for those effects. Music and stingers are original procedural compositions (`assets/audio/generate_music.py`). No external character art or music has been
 added. The only external fonts are Bangers and Comic Neue (OFL, listed above);
 Godot's default font and dependencies are covered by the included engine notices. The preview server has no npm dependencies.

@@ -8,6 +8,7 @@ static func definition() -> Dictionary:
 		"id": "page_07",
 		"number": 7,
 		"room": "living_room",
+		"narration_key": "shadow",
 		"title": "Shadow Play",
 		"difficulty": "yellow",
 		"width": 11,
@@ -127,7 +128,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "Grandma bonked the Kid.",
-		"endings_total": 29,
+		"endings_total": 28,
 		"bonus": [
 			{
 				"id": "headline_1",
