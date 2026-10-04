@@ -91,7 +91,7 @@ func _build_title() -> void:
 	_scene.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var scene_material := ShaderMaterial.new()
 	scene_material.shader = TITLE_SHADER
-	scene_material.set_shader_parameter("painting", load("res://assets/backgrounds/living_room_stage.png"))
+	scene_material.set_shader_parameter("painting", load("res://assets/art/rooms/room_kadamba.png"))
 	_scene.material = scene_material
 	_title_panel.add_child(_scene)
 	_motes = _Motes.new()
@@ -113,7 +113,7 @@ func _build_title() -> void:
 	_logo.size = Vector2(1000, 100)
 	_logo.pivot_offset = _logo.size * 0.5
 	_title_panel.add_child(_logo)
-	var tagline := _label("Shine a light into the comic. Swap what they're thinking. Twist the punchline.", 22, Color("f2e8cf"))
+	var tagline := _label("The Official Campus Comic (Approved). Shine a light, swap a thought, twist the punchline.", 22, Color("f4e9d2"))
 	tagline.add_theme_constant_override("outline_size", 6)
 	tagline.add_theme_color_override("font_outline_color", Color(INK, 0.9))
 	tagline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -156,7 +156,7 @@ func _build_title() -> void:
 	_star_total.size = Vector2(280, 30)
 	_star_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_title_panel.add_child(_star_total)
-	var masthead := _label("THE DAILY BULB  ·  VOL. 1  ·  TGC GAME JAM, INFINIUM 2026", 16, Color("c9c2b0"))
+	var masthead := _label("IIIT HYDERABAD  ·  INFINIUM 2026  ·  TGC GAME JAM", 16, Color("d8cbb0"))
 	masthead.position = Vector2(20, 24)
 	_title_panel.add_child(masthead)
 	_build_credits()
@@ -173,13 +173,13 @@ func _build_edition() -> void:
 	_edition_panel.size = size
 	_edition_panel.hide()
 	add_child(_edition_panel)
-	var masthead := _label("THE DAILY BULB", 64)
+	var masthead := _label("THE CAMPUS COMIC", 64)
 	masthead.add_theme_font_override("font", COMIC_FONT)
 	masthead.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	masthead.position = Vector2(0, 26)
 	masthead.size = Vector2(1280, 64)
 	_edition_panel.add_child(masthead)
-	var sub := _label("SUNDAY EDITION  —  every page a little different", 18, MUTED)
+	var sub := _label("ORIENTATION WEEK  —  every page a little different", 18, MUTED)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.position = Vector2(0, 92)
 	sub.size = Vector2(1280, 26)
@@ -423,7 +423,7 @@ func _build_credits() -> void:
 	box.size = Vector2(680, 580)
 	_credits_panel.add_child(box)
 	# Team name and maker get the main focus; everyone else follows smaller.
-	var kicker := _label("THE DAILY BULB  ·  STAFF", 16, MUTED)
+	var kicker := _label("THE OFFICIAL CAMPUS COMIC  ·  STAFF", 16, MUTED)
 	kicker.position = Vector2(0, 22)
 	kicker.size = Vector2(680, 20)
 	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -450,7 +450,7 @@ func _build_credits() -> void:
 		[348, "Printed with Godot Engine 4 (MIT licence)  ·  Type: Bangers and Comic Neue (SIL OFL)", 14, MUTED],
 		[372, "Characters, props, icons, sound effects and music: original work", 14, MUTED],
 		[396, "Room paintings: AI image generation  ·  Voices: synthetic (see THIRD_PARTY.md)", 14, MUTED],
-		[440, "Thanks for reading the Sunday funnies.", 16, RED],
+		[440, "Thanks for reading the Official Campus Comic. In memory of Oreo, Queen of IIITH.", 16, RED],
 	]
 	for entry in lines:
 		var line := _label(str(entry[1]), int(entry[2]), entry[3])

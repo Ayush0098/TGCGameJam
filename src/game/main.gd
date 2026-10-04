@@ -1426,7 +1426,9 @@ func _record_progress(result: Dictionary) -> Array[String]:
 		challenge.goal = {"facts": bonus.facts, "twist_caption": bonus.caption}
 		if GOALS.evaluate(challenge, _run).won:
 			done.append(bonus.id)
-			rewards.append("BONUS STAR! " + str(bonus.caption))
+			# Ladder pages show their stars on the answer sheet and the star award.
+			if not page.has("ladder"):
+				rewards.append("BONUS STAR! " + str(bonus.caption))
 	bonus_done[page.id] = done
 	_save_progress()
 	return rewards
@@ -1949,14 +1951,19 @@ func _restyle_hud() -> void:
 	_pause_button = _icon_button(_ui, "pause", "Pause menu (Esc)", _open_pause, Vector2(48, 48))
 	_pause_button.position = Vector2(14, 2)
 	# A translucent round emblem instead of a boxed button.
+	_pause_button.icon = _icon_texture("menu")
 	for state in ["normal", "hover", "pressed", "focus"]:
 		var emblem := StyleBoxFlat.new()
-		emblem.bg_color = Color(UI_LIGHT, {"normal": 0.18, "hover": 0.34, "pressed": 0.45, "focus": 0.34}[state])
-		emblem.border_color = Color(UI_LIGHT, 0.75)
+		# A warm ink-ringed badge with a little bulb: the menu, in the comic's own style.
+		emblem.bg_color = Color("e08a3c").lerp(Color("ffd27a"), {"normal": 0.0, "hover": 0.35, "pressed": 0.5, "focus": 0.35}[state])
+		emblem.shadow_color = Color(0, 0, 0, 0.4)
+		emblem.shadow_size = 4
+		emblem.shadow_offset = Vector2(0, 2)
+		emblem.border_color = INK
 		emblem.set_border_width_all(2)
 		emblem.set_corner_radius_all(24)
 		_pause_button.add_theme_stylebox_override(state, emblem)
-	_pause_button.add_theme_color_override("icon_normal_color", UI_LIGHT)
+	_pause_button.add_theme_color_override("icon_normal_color", Color.WHITE)
 	_pause_button.add_theme_color_override("icon_hover_color", Color.WHITE)
 	_pause_button.add_theme_color_override("icon_focus_color", Color.WHITE)
 	_pause_button.add_theme_color_override("icon_pressed_color", Color.WHITE)
@@ -2170,7 +2177,8 @@ func _show_result_card(result: Dictionary) -> void:
 		_stage.set_caption("~~ " + GOALS.evaluate(page, _original_run).caption + " ~~", 0.0)
 		get_tree().create_timer(1.3).timeout.connect(func():
 			if mode == "RESULT":
-				_show_tab(true, _voice_busy())
+				# The narrator's win line (and star lines) stay up; tabs can still be clicked.
+				_show_tab(true, _voice_busy() or page.get("narration") is Dictionary)
 				_stage.celebrate())
 	else:
 		_show_tab(true)
@@ -2478,8 +2486,16 @@ func _say_scripted(when: String, ids: Array) -> void:
 		if when == "lit" and _said_scripted.has(key):
 			continue
 		_said_scripted[key] = true
-		_stage.say(id, str(entry.get("line", "")), 2.2)
-		_blip(id, str(entry.get("line", "")))
+		var life := 2.2
+		var slug := str(page.get("voice", ""))
+		# Story pages voice their balloons: <page>_dialogue_<character>_<when>.
+		if slug.begins_with("page_") and _play_voice_file("characters/%s_dialogue_%s_%s" % [slug, id, when]):
+			var player: AudioStreamPlayer = _character_players[(_character_index - 1) % _character_players.size()]
+			if player.stream != null:
+				life = maxf(life, player.stream.get_length() + 0.3)
+		else:
+			_blip(id, str(entry.get("line", "")))
+		_stage.say(id, str(entry.get("line", "")), life)
 
 
 
@@ -2730,11 +2746,11 @@ func _intro_pages() -> Array:
 	var tick := _icon("star_on")
 	return [
 		["THE STORY", "\n".join([
-			"It's blackout night at the Bulb house, and the [b]Daily Bulb[/b] comic is printing the same tired ending again.",
-			"",
 			line.call(0),
 			"",
-			"You're [b]Bulby[/b], the last lightbulb still shining inside the comic. Tonight, you rewrite the punchline.",
+			"It is narrated by the [b]Official Narrator[/b], who talks like an institute circular and has never allowed a twist in four thousand pages.",
+			"",
+			"Tonight, the only working bulb in OBH falls into his comic. That's you.",
 		])],
 		["HOW IT WORKS", "\n".join([
 			line.call(1),
@@ -2744,19 +2760,19 @@ func _intro_pages() -> Array:
 			"",
 			"In the dark, characters do nothing and their thoughts stay secret. Drag one lit thought onto another lit character to [b]swap[/b] what they're thinking.",
 			"",
-			"Later in the story, three new feelings turn up: [b]SHY[/b], [b]IN LOVE[/b] and [b]JEALOUS[/b]. Chaos follows.",
+
 		])],
 		["THE GOAL", "\n".join([
 			line.call(2),
 			"",
-			"The red line at the top of the page is the [color=#a4383e][b]TWIST[/b][/color]. Set up your light and thoughts, press [b]ACTION![/b] and watch it play out.",
+			"The red line at the top is the [color=#a4383e][b]TWIST[/b][/color]; the grey pencil lines under it are the [i]fine-tunes[/i]. Set up your light and thoughts, press [b]ACTION![/b] and watch it play out.",
 			"",
 			"Not right? Retry as often as you like. Every attempt is free.",
 		])],
 		["STARS & ENDINGS", "\n".join([
 			line.call(3),
 			"",
-			"This tutorial is [b]%d short panels[/b], one idea each, then the real Dinner Time page. You can skip it any time and replay it from Settings." % panels,
+			"This tutorial is [b]%d short panels[/b], one idea each, then the real Biryani Sunday page. You can skip it any time and replay it from Settings." % panels,
 		])],
 	]
 
@@ -3018,7 +3034,7 @@ func _show_story_card(card: Dictionary) -> void:
 		_play_effect("REVEAL_" + str(card.thought))
 	else:
 		_play_sting(true)
-	var card_voice := {"act_1": "narr15_act1", "act_2": "narr15_act2", "act_3": "narr15_act3", "feeling_SHY": "narr15_new_shy", "feeling_IN_LOVE": "narr15_new_love", "feeling_JEALOUS": "narr15_new_jealous"}
+	var card_voice := {"act_1": "story_act1", "act_2": "narr15_act2", "act_3": "narr15_act3", "feeling_SHY": "narr15_new_shy", "feeling_IN_LOVE": "narr15_new_love", "feeling_JEALOUS": "narr15_new_jealous"}
 	if card_voice.has(card.id):
 		_play_voice_file("narrator/" + card_voice[card.id], _voice)
 	var body := _rich(22)
@@ -3507,7 +3523,7 @@ func _show_stickers(when: String) -> void:
 		label.size = Vector2(226, 60)
 		label.text = text.strip_edges() + ("  " + _icon("cross", 18) if "✗" in str(entry.get("text", "")) else "")
 		card.add_child(label)
-		card.position = Vector2(-150, -26)
+		card.position = Vector2(-236, 70)
 		card.rotation = -0.09
 		card.z_index = 2
 		_result_card.add_child(card)

@@ -217,6 +217,9 @@ func configure(page: Dictionary) -> void:
 			rig.z_index = -40
 			_root.add_child(rig)
 			rig.configure(record.art)
+			if record.get("phone_glow", false):
+				# Prompt Bhai shares a rig for now: a cool phone-lit tint tells him apart.
+				rig.modulate = Color(0.82, 0.95, 1.18)
 			_rigs[record.id] = rig
 		for record in page.objects:
 			var sprite := Sprite2D.new()
