@@ -1302,7 +1302,7 @@ func _on_front_start() -> void:
 	# The Narrator introduces the show once per session; the page waits for him.
 	if not _title_said and page_override.is_empty():
 		_title_said = true
-		_title_voice = _play_voice_file("narrator/narr15_title", _voice)
+		_title_voice = _play_voice_file("narrator/" + _first_voice(["v_title", "narr15_title"]), _voice)
 		if _title_voice:
 			_stage.set_caption("The Bulb Family Funnies! Narrated by me. Obviously.", _voice_length() + 0.5)
 	_update_buttons()
@@ -1790,7 +1790,7 @@ func _narrate(moment: String) -> void:
 				if moment == "twist":
 					# "TWIST?!" first, then the win line, then one line per star earned.
 					queue.append(key)
-					key = "narr15_twist_stamp"
+					key = _first_voice(["v_twist_stamp", "narr15_twist_stamp"])
 			if moment == "twist":
 				_voice_texts.clear()
 				_voice_texts[prefix + field] = _spoken_text(line)
@@ -2864,6 +2864,8 @@ func _fill_intro_card() -> void:
 	_intro_heading.text = pages[_intro_page][0]
 	_intro_body.text = pages[_intro_page][1]
 	_intro_dots.text = "%d / %d" % [_intro_page + 1, pages.size()]
+	if _voice_path("narrator/v_tut_%d" % (_intro_page + 1)) != "":
+		_play_voice_file("narrator/v_tut_%d" % (_intro_page + 1), _voice)
 	_intro_next.text = "LET'S GO!" if _intro_page == pages.size() - 1 else "NEXT"
 	_intro_back.visible = _intro_page > 0
 
@@ -3043,7 +3045,7 @@ func _show_story_card(card: Dictionary) -> void:
 		_play_effect("REVEAL_" + str(card.thought))
 	else:
 		_play_sting(true)
-	var card_voice := {"act_1": "story_act1", "act_2": "narr15_act2", "act_3": "narr15_act3", "feeling_SHY": "narr15_new_shy", "feeling_IN_LOVE": "narr15_new_love", "feeling_JEALOUS": "narr15_new_jealous"}
+	var card_voice := {"act_1": _first_voice(["v_act1", "story_act1"]), "act_2": "narr15_act2", "act_3": "narr15_act3", "feeling_SHY": "narr15_new_shy", "feeling_IN_LOVE": "narr15_new_love", "feeling_JEALOUS": "narr15_new_jealous"}
 	if card_voice.has(card.id):
 		_play_voice_file("narrator/" + card_voice[card.id], _voice)
 	var body := _rich(22)
@@ -3543,3 +3545,12 @@ func _show_stickers(when: String) -> void:
 			card.pivot_offset = card.size * 0.5
 			card.create_tween().tween_property(card, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.6)
 		break
+
+
+
+## The first recorded narrator file that exists (new Hinglish takes win over old ones).
+func _first_voice(keys: Array) -> String:
+	for key in keys:
+		if _voice_path("narrator/" + str(key)) != "":
+			return str(key)
+	return str(keys.back())
