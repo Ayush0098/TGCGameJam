@@ -82,6 +82,11 @@ var _missing: Label
 var bonus_done: Dictionary = {}
 var endings_found: Dictionary = {}
 var _progress_label: Label
+# Hitstop: impact frames pause the playback clock (not Engine.time_scale).
+var _hitstop := 0.0
+const HITSTOP := {"BONK": 0.12, "CLASH": 0.12, "EXIT": 0.1, "EAT": 0.08}
+const INK := Color("243043")
+const PAPER := Color("f2e8cf")
 const SAVE_PATH := "user://lightbulb_progress.json"
 const BEAT_SECONDS := 0.4
 const RECOVERY_SECONDS := 0.45
@@ -115,12 +120,13 @@ func _exit_tree() -> void:
 
 func _build_ui() -> void:
 	var background := ColorRect.new()
-	background.color = Color("e9e7df")
+	background.color = PAPER
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	_ui = Control.new()
 	_ui.size = Vector2(1280, 720)
+	_ui.theme = _comic_theme()
 	add_child(_ui)
 	resized.connect(_layout_ui)
 	get_window().focus_exited.connect(func(): _hook_drag = -1)
@@ -359,6 +365,7 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 	_is_original = original
 	mode = "INTRO" if original else "PLAY"
 	_cursor = 0
+	_hitstop = 0.0
 	_frame_cursor = 0
 	_playback_world = _run.snapshots[0]
 	_clock = 0.0
@@ -395,6 +402,9 @@ func _process(delta: float) -> void:
 	if _is_original and _active_cue == "narrator_intro":
 		return
 	var elapsed := delta * (3.0 if _fast else 1.0)
+	if _hitstop > 0.0:
+		_hitstop = maxf(0.0, _hitstop - delta)
+		return
 	if _anticipation > 0:
 		_anticipation -= elapsed
 		return
@@ -453,6 +463,8 @@ func _events_at(beat: int, phase: String = "ACTIVATE") -> void:
 		events.append_array(_run.events.filter(func(event): return event.beat == beat and event.type == "MOVE"))
 	_stage.present_events(events, 3.0 if _fast else 1.0, _motion.button_pressed)
 	for event in events:
+		if HITSTOP.has(event.type) and not _fast:
+			_hitstop = maxf(_hitstop, float(HITSTOP[event.type]))
 		if event.type == "DING":
 			_ding(480.0 * pow(1.12, _ding_count))
 			_ding_count += 1
@@ -1064,3 +1076,33 @@ func _load_progress() -> void:
 		bonus_done = data.bonus
 	if data.get("endings") is Dictionary:
 		endings_found = data.endings
+
+
+func _comic_theme() -> Theme:
+	# Printed-comic buttons: paper, ink border, hard offset shadow (no blur).
+	var theme := Theme.new()
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = PAPER if state != "hover" else Color("fff4d6")
+		box.border_color = INK if state != "disabled" else Color("a9a28f")
+		box.set_border_width_all(3 if state != "disabled" else 2)
+		box.set_corner_radius_all(2)
+		box.shadow_color = INK if state != "disabled" else Color(0, 0, 0, 0)
+		box.shadow_size = 0
+		box.shadow_offset = Vector2(1, 1) if state == "pressed" else Vector2(4, 4)
+		box.content_margin_left = 12
+		box.content_margin_right = 12
+		box.content_margin_top = 4
+		box.content_margin_bottom = 4
+		if state == "focus":
+			box.bg_color = Color(0, 0, 0, 0)
+			box.shadow_color = Color(0, 0, 0, 0)
+			box.border_color = Color("c8102e")
+		theme.set_stylebox(state, "Button", box)
+	theme.set_color("font_color", "Button", INK)
+	theme.set_color("font_hover_color", "Button", INK)
+	theme.set_color("font_pressed_color", "Button", INK)
+	theme.set_color("font_focus_color", "Button", INK)
+	theme.set_color("font_disabled_color", "Button", Color("a9a28f"))
+	theme.set_color("font_color", "Label", INK)
+	return theme

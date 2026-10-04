@@ -55,6 +55,12 @@ var _prop_sprites: Dictionary = {}
 var _actions: Dictionary = {}
 var _textures: Dictionary = {}
 var _effects: Array[Dictionary] = []
+# Comic juice: screen shake (trauma 0..1, decays) applied to the panel root only.
+var _trauma := 0.0
+var _shake_time := 0.0
+const EFFECT_LIFE := 0.85
+const WORD_COLOURS := {"DING": Color("ffd27a"), "EAT": Color("f28c28"), "BONK": Color("d7263d"), "CLASH": Color("d7263d"), "STARTLE": Color("8e5cc9"), "EXIT": Color("8e5cc9"), "SIT": Color("4a90d9"), "LAMP_ON": Color("f2e8cf"), "WHIFF": Color("f2e8cf")}
+const WORD_TRAUMA := {"BONK": 0.5, "CLASH": 0.55, "EXIT": 0.4, "EAT": 0.22, "STARTLE": 0.12}
 var _manifest: Dictionary = {}
 
 class PropLayer extends Node2D:
@@ -357,6 +363,9 @@ func cancel_presentation() -> void:
 	_drag_bulb = -1
 	_target = ""
 	_effects.clear()
+	_trauma = 0.0
+	if is_instance_valid(_root):
+		_root.position = _offset()
 	_blend = 1.0
 	if is_instance_valid(_room):
 		_room.material.set_shader_parameter("blend", 1.0)
@@ -389,16 +398,27 @@ func present_events(events: Array, speed: float = 1.0, reduced_motion: bool = fa
 			_play(str(event.get("target", "")), "ko")
 		if words.has(event.type):
 			var slot := float(event.get("to", 4))
+			var anchor_x := -1.0
 			for record in _world.get("characters", []):
 				if record.id == id:
 					slot = record.slot
+					anchor_x = _actor_position(record).x
 			if event.type == "LAMP_ON":
 				for lamp in _world.get("lamps", []):
 					if lamp.id == event.get("object", ""):
 						for object in _world.get("objects", []):
 							if object.id == lamp.switch_id:
 								slot = object.slot
-			_effects.append({"text": words[event.type], "at": Vector2(clampf(_x(slot), 75, 1205), 255), "age": 0.0, "colour": COLOURS.get("HUNGRY" if event.type == "EAT" else "ANGRY", Color("edce76"))})
+			var height := 255.0
+			if event.type == "DING":
+				# The idea bulb pops above the head; the word sits a little higher.
+				for record in _world.get("characters", []):
+					if record.id == id:
+						height = FLOOR_Y - (205.0 if record.get("art", "") != "dog" else 140.0)
+			var wobble := float((str(event.type).hash() + int(slot) * 7) % 7 - 3) * 0.05
+			_effects.append({"text": words[event.type], "kind": str(event.type), "at": Vector2(clampf(anchor_x if anchor_x >= 0.0 and event.type != "LAMP_ON" else _x(slot), 75, 1205), height), "age": 0.0, "rot": wobble, "colour": WORD_COLOURS.get(event.type, Color("ffd27a"))})
+			if not reduced_motion:
+				_trauma = minf(1.0, _trauma + float(WORD_TRAUMA.get(event.type, 0.0)))
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -407,7 +427,15 @@ func _process(delta: float) -> void:
 		_room.material.set_shader_parameter("blend", _blend)
 	for effect in _effects:
 		effect.age += delta * _playback_speed
-	_effects = _effects.filter(func(effect): return effect.age < 0.65)
+	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
+	if _trauma > 0.0 and is_instance_valid(_root):
+		_shake_time += delta
+		_trauma = maxf(0.0, _trauma - delta * 1.6)
+		var amount := 9.0 * _trauma * _trauma
+		_root.position = _offset() + Vector2(sin(_shake_time * 71.0), cos(_shake_time * 53.0)) * amount
+		if _trauma == 0.0:
+			_root.position = _offset()
+		queue_redraw()
 	for id in _actions.keys():
 		if _actions[id] in ["eat", "sit", "bonk", "startle"] and not _rigs[id].animation_player.is_playing():
 			_actions[id] = ""
@@ -543,14 +571,55 @@ func _draw() -> void:
 		if actor.id == _target:
 			draw_rect(rect.grow(5), Color("42a88c"), false, 3)
 	for effect in _effects:
-		var offset := Vector2(0, 0 if _reduced_motion else -effect.age * 18)
-		var at: Vector2 = effect.at + offset
-		var alpha := minf(1, (0.65 - effect.age) * 5)
-		_label(self, at + Vector2(-39, 2), effect.text, Color(INK, alpha), 31)
-		_label(self, at + Vector2(-41, 0), effect.text, Color(effect.colour, alpha), 31)
+		_draw_word(effect)
 	if _drag_bubble != "":
 		draw_circle(_mouse, 18, Color(1, 0.85, 0.3, 0.7))
+	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
 	draw_rect(Rect2(3, 3, 1274, 454), INK, false, 6)
+
+func _draw_word(effect: Dictionary) -> void:
+	# Onomatopoeia: an inked starburst with an outlined word; pops in, drifts, fades.
+	var age: float = effect.age
+	var scale := 1.0
+	if not _reduced_motion:
+		if age < 0.1:
+			scale = lerpf(0.2, 1.25, age / 0.1)
+		elif age < 0.18:
+			scale = lerpf(1.25, 1.0, (age - 0.1) / 0.08)
+	var alpha := clampf((EFFECT_LIFE - age) * 5.0, 0.0, 1.0)
+	var at: Vector2 = effect.at + Vector2(0, 0 if _reduced_motion else -age * 14.0)
+	var font := ThemeDB.fallback_font
+	var kind := str(effect.get("kind", ""))
+	var size := 26 if kind in ["DING", "SIT"] else 34
+	var width := font.get_string_size(effect.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	draw_set_transform(_offset() + at * _fit(), float(effect.get("rot", 0.0)), Vector2.ONE * scale * _fit())
+	if kind == "DING":
+		# Idea bulb pop with a flash ring.
+		var ring := 14.0 + age * 60.0
+		draw_arc(Vector2(0, 26), ring, 0, TAU, 32, Color(1, 0.95, 0.75, alpha * 0.6), 3, true)
+		draw_circle(Vector2(0, 26), 11, Color(1, 0.84, 0.48, alpha))
+		draw_arc(Vector2(0, 26), 11, 0, TAU, 20, Color(INK, alpha), 2, true)
+		draw_rect(Rect2(-5, 36, 10, 6), Color(INK, alpha))
+	elif kind != "SIT":
+		var points := PackedVector2Array()
+		var spikes := 14
+		var rx := width * 0.5 + 26.0
+		var ry := size * 0.95
+		for k in spikes * 2:
+			var angle := TAU * k / (spikes * 2)
+			var radius := 1.0 if k % 2 == 0 else 0.72
+			radius *= 1.0 + 0.08 * sin(k * 2.3)
+			points.append(Vector2(cos(angle) * rx, sin(angle) * ry - size * 0.32) * radius)
+		var fill: Color = Color("fff4d6") if kind not in ["LAMP_ON", "WHIFF"] else Color("ffd27a")
+		draw_colored_polygon(points, Color(fill, alpha))
+		points.append(points[0])
+		draw_polyline(points, Color(INK, alpha), 2.5, true)
+	var origin := Vector2(-width * 0.5, size * 0.35 - size * 0.32)
+	if kind == "DING":
+		origin.y = 0
+	draw_string_outline(font, origin, effect.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 7, Color(INK, alpha))
+	draw_string(font, origin, effect.text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(effect.colour, alpha))
+	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
 
 func _bubble_style(colour: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
