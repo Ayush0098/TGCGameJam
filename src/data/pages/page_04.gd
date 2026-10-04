@@ -23,6 +23,12 @@ static func definition() -> Dictionary:
 			{"id": "pie", "type": "FOOD", "art": "pie", "slot": 6},
 		],
 		"original_caption": "The Kid ate the pie.",
+		# Ending count from the solution-space audit (lower bound; display grows if exceeded).
+		"endings_total": 6,
+		"bonus": [
+			{"id": "grandma_pie", "caption": "Grandma gets the pie.", "facts": [{"type": "ATE", "character": "grandma", "object": "pie"}]},
+			{"id": "dog_pie_grandma_naps", "caption": "The Dog gets the pie while Grandma naps.", "facts": [{"type": "ATE", "character": "dog", "object": "pie"}, {"type": "ASLEEP", "character": "grandma"}]},
+		],
 		"goal": {
 			"facts": [{"type": "ATE", "character": "dog", "object": "pie"}],
 			"twist_caption": "The DOG ate the pie.", "red_pen_words": ["DOG"],

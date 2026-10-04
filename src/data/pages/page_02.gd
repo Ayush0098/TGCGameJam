@@ -20,6 +20,7 @@ static func definition() -> Dictionary:
 			{"id": "dog_bed", "type": "SEAT", "art": "dog_bed", "slot": 8},
 		],
 		"original_caption": "The Boss ate the cake. The Dog napped.",
+		"endings_total": 2,
 		"goal": {
 			"facts": [
 				{"type": "ATE", "character": "dog", "object": "cake"},

@@ -78,6 +78,11 @@ var skipped: Dictionary = {}
 var _stamp: Label
 var _stamp_tween: Tween
 var _missing: Label
+# Stars (main twist + bonus challenges) and the endings collection, per page id.
+var bonus_done: Dictionary = {}
+var endings_found: Dictionary = {}
+var _progress_label: Label
+const SAVE_PATH := "user://lightbulb_progress.json"
 const BEAT_SECONDS := 0.4
 const RECOVERY_SECONDS := 0.45
 const PHASE_TIME := {"DECIDE": 0.04, "MOVE": 0.26, "SWITCHES": 0.27, "BONKS": 0.31, "CLAIMS": 0.35}
@@ -88,6 +93,7 @@ func _ready() -> void:
 		get_tree().change_scene_to_file.call_deferred("res://scenes/production_reference.tscn")
 		return
 	_build_ui()
+	_load_progress()
 	_load_page(0)
 	_front = FRONT.new()
 	_front.name = "FrontEnd"
@@ -97,7 +103,7 @@ func _ready() -> void:
 	_front.start_requested.connect(_on_front_start)
 	_front.page_requested.connect(_on_front_page)
 	_front.closed.connect(_update_buttons)
-	_front.show_title(false)
+	_front.show_title(not completed.is_empty())
 
 
 func _exit_tree() -> void:
@@ -149,6 +155,12 @@ func _build_ui() -> void:
 	_goal.size = Vector2(1248, 26)
 	_goal.add_theme_color_override("font_color", Color("a4383e"))
 	_ui.add_child(_goal)
+	_progress_label = _label("", 18)
+	_progress_label.name = "Progress"
+	_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_progress_label.position = Vector2(860, 48)
+	_progress_label.size = Vector2(404, 26)
+	_ui.add_child(_progress_label)
 	_facts = _label("", 15)
 	_facts.position = Vector2(16, 75)
 	_facts.size = Vector2(1248, 22)
@@ -480,7 +492,7 @@ func _finish_run() -> void:
 	_result_stage.pose(_run.snapshots.back(), _run.plan, knowledge, false)
 	_stage.hide()
 	_comparison.show()
-	_show_payoff(result)
+	_show_payoff(result, _record_progress(result))
 	if page.id == "page_02" and result.won:
 		_play_voice("narrator_success")
 	_update_buttons()
@@ -492,6 +504,9 @@ func _show_facts(result: Dictionary) -> void:
 		var fact: Dictionary = item.fact
 		var mark := "✔ " if item.met else ("✘ " if mode == "RESULT" else "☐ ")
 		labels.append(mark + GOALS.fact_text(fact))
+	for bonus in page.get("bonus", []):
+		var done: bool = bonus.id in bonus_done.get(page.id, [])
+		labels.append(("★ " if done else "☆ ") + "Bonus: " + str(bonus.caption).trim_suffix("."))
 	_facts.text = "   /   ".join(labels)
 	_facts.add_theme_color_override("font_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
 
@@ -519,7 +534,7 @@ func _return_to_plan() -> void:
 
 func _refresh_plan() -> void:
 	_display(RULES.initial_world(page, plan.to_data()), true)
-	_facts.text = "Goal facts become true during ACTION."
+	_show_facts({"facts": page.goal.facts.map(func(fact): return {"fact": fact, "met": false})})
 	_facts.add_theme_color_override("font_color", Color("243043"))
 	_update_hooks()
 	_update_instructions()
@@ -597,6 +612,7 @@ func _skip_current_page() -> void:
 	if failures < 3 or mode not in ["PLAN", "RESULT"]:
 		return
 	skipped[page.id] = true
+	_save_progress()
 	if page_index < PAGE_SCRIPTS.size() - 1:
 		_load_page(page_index + 1)
 	else:
@@ -620,6 +636,7 @@ func _update_buttons() -> void:
 	if completed.size() == PAGE_SCRIPTS.size():
 		_status.text = "Every page solved. Try for different endings!"
 	_update_instructions()
+	_update_progress_label()
 	_emphasise(_action, mode == "PLAN")
 	_emphasise(_next, mode == "RESULT" and _won_current)
 	_emphasise(_rewind, mode == "RESULT" and not _won_current)
@@ -875,6 +892,10 @@ func _progress() -> Array:
 			"unlocked": previous_done or index == page_index or completed.has(definition.id),
 			"current": index == page_index,
 			"caption": definition.goal.twist_caption,
+			"stars": _stars(definition),
+			"max_stars": 1 + definition.get("bonus", []).size(),
+			"endings": endings_found.get(definition.id, []).size(),
+			"max_endings": maxi(int(definition.get("endings_total", 0)), endings_found.get(definition.id, []).size()),
 		})
 	return pages
 
@@ -903,7 +924,7 @@ func _on_front_page(index: int) -> void:
 	_update_buttons()
 
 
-func _show_payoff(result: Dictionary) -> void:
+func _show_payoff(result: Dictionary, rewards: Array[String] = []) -> void:
 	# Win: TWIST! stamp slams onto the strip. Fail: THE END...? plus what is missing.
 	var won: bool = result.won
 	_stamp.text = "TWIST!" if won else "THE END...?"
@@ -917,11 +938,14 @@ func _show_payoff(result: Dictionary) -> void:
 		if not item.met:
 			missing.append(GOALS.fact_text(item.fact))
 	if won:
-		_missing.text = ""
-		_missing.hide()
+		_missing.text = "   ".join(rewards)
+		_missing.add_theme_color_override("font_color", Color("9a6b00"))
 	else:
-		_missing.text = "Still needed:  " + "   •   ".join(missing) + "\nREWIND keeps your plan so you can adjust it."
-		_missing.show()
+		var lines: Array[String] = ["Still needed:  " + "   •   ".join(missing)]
+		lines.append("   ".join(rewards) if not rewards.is_empty() else "REWIND keeps your plan so you can adjust it.")
+		_missing.text = "\n".join(lines)
+		_missing.add_theme_color_override("font_color", Color("a4383e"))
+	_missing.visible = not _missing.text.is_empty()
 	if is_instance_valid(_stamp_tween):
 		_stamp_tween.kill()
 	if _motion.button_pressed:
@@ -975,3 +999,68 @@ func _emphasise(button: Button, primary: bool) -> void:
 		button.add_theme_stylebox_override(state, box)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		button.add_theme_color_override(state, Color.WHITE)
+
+
+func _stars(definition: Dictionary) -> int:
+	return (1 if completed.has(definition.id) else 0) + bonus_done.get(definition.id, []).size()
+
+
+func _record_progress(result: Dictionary) -> Array[String]:
+	# Every player run can find a new ending; any run can also earn bonus stars.
+	var rewards: Array[String] = []
+	var found: Array = endings_found.get(page.id, [])
+	if str(result.caption) not in found:
+		found.append(str(result.caption))
+		endings_found[page.id] = found
+		rewards.append("NEW ENDING! (%d / %d)" % [found.size(), maxi(int(page.get("endings_total", 0)), found.size())])
+	var done: Array = bonus_done.get(page.id, [])
+	for bonus in page.get("bonus", []):
+		if bonus.id in done:
+			continue
+		var challenge := page.duplicate()
+		challenge.goal = {"facts": bonus.facts, "twist_caption": bonus.caption}
+		if GOALS.evaluate(challenge, _run).won:
+			done.append(bonus.id)
+			rewards.append("★ BONUS: " + str(bonus.caption))
+	bonus_done[page.id] = done
+	_save_progress()
+	return rewards
+
+
+func _update_progress_label() -> void:
+	if not is_instance_valid(_progress_label) or page.is_empty():
+		return
+	var total: int = 1 + page.get("bonus", []).size()
+	var stars := _stars(page)
+	var found: int = endings_found.get(page.id, []).size()
+	_progress_label.text = "★".repeat(stars) + "☆".repeat(total - stars) + "     Endings %d / %d" % [found, maxi(int(page.get("endings_total", 0)), found)]
+
+
+func _persistent() -> bool:
+	# Headless test runs must start from a clean slate.
+	return DisplayServer.get_name() != "headless"
+
+
+func _save_progress() -> void:
+	if not _persistent():
+		return
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found}))
+
+
+func _load_progress() -> void:
+	if not _persistent() or not FileAccess.file_exists(SAVE_PATH):
+		return
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
+	if not data is Dictionary:
+		return
+	for id in data.get("completed", []):
+		completed[str(id)] = true
+	for id in data.get("skipped", []):
+		skipped[str(id)] = true
+	if data.get("bonus") is Dictionary:
+		bonus_done = data.bonus
+	if data.get("endings") is Dictionary:
+		endings_found = data.endings

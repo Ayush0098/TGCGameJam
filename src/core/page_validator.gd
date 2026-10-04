@@ -88,6 +88,18 @@ func validate(content: Variant) -> Dictionary:
 		if props[id].get("type") == "SWITCH" and not switches.has(id):
 			_error("objects." + id, id, "switch has no lamp")
 	_validate_goal(page.get("goal"), cast, props)
+	# Optional bonus challenges reuse the goal-fact vocabulary (stars).
+	if page.has("bonus"):
+		if not page.bonus is Array or page.bonus.size() > 2:
+			_error("bonus", page.bonus, "expected up to 2 bonus challenges")
+		else:
+			for bonus in page.bonus:
+				if not bonus is Dictionary or not bonus.get("id") is String or not bonus.get("caption") is String:
+					_error("bonus", bonus, "expected {id, caption, facts}")
+					continue
+				_validate_goal({"twist_caption": bonus.caption, "red_pen_words": ["BONUS"], "facts": bonus.get("facts")}, cast, props)
+	if page.has("endings_total") and (not page.endings_total is int or page.endings_total < 1):
+		_error("endings_total", page.endings_total, "expected a positive count")
 	return _result(page)
 
 

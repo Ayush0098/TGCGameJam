@@ -29,6 +29,11 @@ static func definition() -> Dictionary:
 			{"id": "pedal", "type": "SWITCH", "art": "pedal", "slot": 7},
 		],
 		"original_caption": "The Boss ate the birthday cake.",
+		"endings_total": 25,
+		"bonus": [
+			{"id": "grandma_bonks_boss", "caption": "Grandma bonks the Boss.", "facts": [{"type": "BONKED", "character": "grandma", "target": "boss"}]},
+			{"id": "cake_then_bonk", "caption": "The Boss gets his cake and Grandma bonks him.", "facts": [{"type": "ATE", "character": "boss", "object": "cake"}, {"type": "BONKED", "character": "grandma", "target": "boss"}]},
+		],
 		"goal": {
 			"facts": [{"type": "ATE", "character": "dog", "object": "cake"}],
 			"twist_caption": "The DOG ate the birthday cake.",

@@ -65,6 +65,7 @@ func _activation_checks(check: Callable) -> void:
 	page.objects = [{"id": "snack", "art": "cake", "slot": 6, "type": "FOOD"}]
 	page.lamps = []
 	page.lanterns.defaults = [{"x": 1.7, "y": 0.0, "enabled": true}, {"x": 6.0, "y": 0.0, "enabled": true}]
+	page.erase("bonus")
 	page.goal.facts = [{"type": "ATE", "character": "traveller", "object": "snack"}]
 	var plan: Dictionary = PLAN.from_page(page).to_data()
 	var run: Dictionary = SIMULATOR.run(page, plan)

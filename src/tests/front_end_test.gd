@@ -32,7 +32,9 @@ func run(check: Callable) -> bool:
 	game._swap("boss", "dog")
 	game._start_action()
 	game._finish_run()
-	check.call(game._stamp.visible and game._stamp.text == "TWIST!" and not game._missing.visible, "A win slams the TWIST! stamp")
+	check.call(game._stamp.visible and game._stamp.text == "TWIST!" and "Still needed" not in game._missing.text, "A win slams the TWIST! stamp")
+	check.call("NEW ENDING" in game._missing.text and game.endings_found.page_02.size() == 2, "Each distinct result caption is collected as an ending")
+	check.call("★☆" not in game._progress_label.text and game._progress_label.text.begins_with("★") and "Endings 2 / 2" in game._progress_label.text, "Nap Time shows its single star and both endings")
 	pages = game._progress()
 	check.call(pages[0].solved and pages[1].unlocked and not pages[2].unlocked, "Solving a page inks it and unlocks the next")
 	game._open_edition()
@@ -43,5 +45,12 @@ func run(check: Callable) -> bool:
 	check.call(game.page.id == "page_04" and not game._front.visible and game._hooks[0].visible, "Choosing a page loads it with lantern hooks")
 	game._move_lantern(0, Vector2(0.0, -0.6), false)
 	check.call(game._lit_ids().is_empty() and "Nobody is lit" in game._instructions.text and "nobody lit" in game._action.text, "Unlit plans warn before ACTION")
+	# Bonus challenge: a run where Grandma eats the pie earns its star once.
+	var world: Dictionary = game.RULES.initial_world(game.page, game.plan.to_data())
+	game._run = {"events": [{"beat": 1, "phase": "CLAIMS", "type": "EAT", "actor": "grandma", "object": "pie", "target": "", "from": 0, "to": 0}], "snapshots": [world], "end_beat": 1}
+	var rewards: Array[String] = game._record_progress({"caption": "Grandma ate the pie.", "won": false, "facts": []})
+	check.call(game.bonus_done.page_04 == ["grandma_pie"] and rewards.size() == 2, "A bonus challenge earns a star and a new ending on any run")
+	check.call(game._record_progress({"caption": "Grandma ate the pie.", "won": false, "facts": []}).is_empty(), "Repeated endings and bonuses are not re-awarded")
+	check.call(game._progress()[1].stars == 1 and game._progress()[1].max_stars == 3, "Sunday Edition reports stars per page")
 	game.free()
 	return true
