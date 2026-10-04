@@ -508,6 +508,10 @@ func _process(delta: float) -> void:
 	_update_music(delta)
 	if _intro_pending and not (is_instance_valid(_front) and _front.visible):
 		_show_intro_card()
+	if not _pending_narration.is_empty() and not _screen_covered() and page_index >= 0:
+		_narrate(_pending_narration)
+	if _narrator_hold and not _voice_busy():
+		_narrator_hold = false
 	if not _active_cue.is_empty():
 		_voice_elapsed += delta
 		# A suspended/unavailable audio device cannot hold gameplay forever.
@@ -517,13 +521,13 @@ func _process(delta: float) -> void:
 		return
 	if mode == "ORIGINAL_END":
 		_clock += delta
-		if _clock >= 0.6 and _active_cue.is_empty():
+		if _clock >= 0.6 and _active_cue.is_empty() and (not _voice_busy() or _clock >= 12.0):
 			_return_to_plan()
 		return
 	if mode not in ["INTRO", "PLAY"]:
 		return
 	# The story prologue finishes before the Original acts; skip voice is explicit.
-	if _is_original and _active_cue == "narrator_intro":
+	if _is_original and (_active_cue == "narrator_intro" or _screen_covered() or not _pending_narration.is_empty() or (_narrator_hold and _voice_busy())):
 		return
 	var elapsed := delta * (3.0 if _fast else 1.0)
 	var aim := _aim_slot()
@@ -558,7 +562,7 @@ func _process(delta: float) -> void:
 	if _flick_available():
 		end_time = maxf(end_time, float(FLICK_WINDOW_BEATS) * BEAT_SECONDS + RECOVERY_SECONDS)
 	if _clock >= end_time:
-		_finish_run()
+		_finish_run(true)
 		return
 	var positions: Dictionary = {}
 	var headings: Dictionary = {}
@@ -621,13 +625,13 @@ func _events_at(beat: int, phase: String = "ACTIVATE") -> void:
 			_play_effect(event.type)
 
 
-func _finish_run() -> void:
+func _finish_run(natural := false) -> void:
 	if mode == "ORIGINAL_END":
 		_return_to_plan()
 		return
 	if mode not in ["INTRO", "PLAY"]:
 		return
-	_cancel_presentation()
+	_cancel_presentation(natural)
 	_cursor = _run.snapshots.size() - 1
 	_display(_run.snapshots.back(), false)
 	if _is_original:
@@ -941,12 +945,16 @@ func _ding(frequency: float) -> void:
 	player.play()
 
 
-func _cancel_presentation() -> void:
+func _cancel_presentation(keep_audio := false) -> void:
 	_hook_drag = -1
 	_hide_payoff()
-	_stop_voice()
-	for player in _players + _character_players:
-		player.stop()
+	if not keep_audio:
+		_stop_voice()
+		for player in _players + _character_players:
+			if player in _character_players:
+				_fade_out(player, 0.15)
+			else:
+				player.stop()
 	for view in [_stage, _original_stage, _result_stage]:
 		if is_instance_valid(view):
 			view.cancel_presentation()
@@ -976,6 +984,7 @@ func _play_voice(id: String) -> void:
 	var cue: Dictionary = _cues[id]
 	_active_cue = id
 	_voice_elapsed = 0.0
+	_cancel_fade(_voice)
 	_voice.stream = load(cue.audio)
 	_subtitle.text = cue.speaker + ": " + cue.text
 	if DisplayServer.get_name() != "headless":
@@ -1001,9 +1010,12 @@ func _replay_voice() -> void:
 
 func _stop_voice() -> void:
 	_story_waiting = false
+	_narrator_hold = false
 	if is_instance_valid(_voice):
-		_voice.stop()
-		_voice.stream = null
+		if _voice.playing:
+			_fade_out(_voice)
+		else:
+			_voice.stream = null
 	_active_cue = ""
 	if is_instance_valid(_subtitle):
 		_subtitle.text = ""
@@ -1578,6 +1590,7 @@ func _play_voice_file(base: String, player: AudioStreamPlayer = null) -> bool:
 	if player == null:
 		player = _character_players[_character_index % _character_players.size()]
 		_character_index += 1
+	_cancel_fade(player)
 	player.stream = load(path)
 	player.play()
 	return true
@@ -1603,11 +1616,56 @@ func _narrate(moment: String) -> void:
 				key = "narr_" + moment
 	if text.is_empty():
 		return
+	if moment == "intro" and _screen_covered():
+		# Never narrate behind the title menu or the intro card: speak when they close.
+		_pending_narration = moment
+		return
+	_pending_narration = ""
 	_stage.set_caption(text, 4.5 if moment in ["intro", "original"] else 0.0)
 	if is_instance_valid(_result_stage):
 		_result_stage.set_caption(text if moment == "twist" or moment.begins_with("fail") else "", 0.0)
-	_play_voice_file("narrator/" + key, _voice)
+	_narrator_hold = _play_voice_file("narrator/" + key, _voice) and moment == "intro"
 
+
+
+## The Original waits while the intro is being read, so voice and pictures match.
+var _narrator_hold := false
+var _pending_narration := ""
+
+
+func _screen_covered() -> bool:
+	return (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or _intro_pending
+
+
+func _voice_busy() -> bool:
+	return is_instance_valid(_voice) and _voice.playing
+
+
+## Ends a sound with a short fade instead of a hard click.
+func _fade_out(player: AudioStreamPlayer, seconds := 0.25) -> void:
+	if not is_instance_valid(player) or not player.playing:
+		return
+	_cancel_fade(player)
+	var base := player.volume_db
+	var tween := create_tween()
+	player.set_meta("fade", tween)
+	player.set_meta("fade_base", base)
+	tween.tween_property(player, "volume_db", base - 30.0, seconds)
+	tween.tween_callback(func():
+		player.stop()
+		_cancel_fade(player))
+
+
+## A new sound on a fading player cancels the fade and restores its volume.
+func _cancel_fade(player: AudioStreamPlayer) -> void:
+	if not player.has_meta("fade"):
+		return
+	var tween: Tween = player.get_meta("fade")
+	if tween != null and tween.is_valid():
+		tween.kill()
+	player.volume_db = float(player.get_meta("fade_base"))
+	player.remove_meta("fade")
+	player.remove_meta("fade_base")
 
 
 func _icon_texture(name: String) -> Texture2D:
