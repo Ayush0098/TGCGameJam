@@ -152,6 +152,8 @@ func painting() -> Texture2D:
 
 ## Keyboard play: the character under the cursor and the thought picked to swap.
 var key_cursor := ""
+## The main game shows narration in its footer instead of on the stage.
+var external_caption := false
 var key_picked := ""
 
 
@@ -1247,7 +1249,7 @@ func set_caption(text: String, seconds: float = 0.0) -> void:
 	queue_redraw()
 
 func _draw_caption_box() -> void:
-	if _caption_text.is_empty():
+	if _caption_text.is_empty() or external_caption:
 		return
 	var width := 600.0
 	var lines := TEXT_FONT.get_multiline_string_size(_caption_text, HORIZONTAL_ALIGNMENT_LEFT, width - 24, 17).y
@@ -1314,7 +1316,7 @@ func _draw_object_tags(world: Dictionary) -> void:
 		if _prop_sprites.has(object.id) and _prop_sprites[object.id].texture != null:
 			height = _prop_sprites[object.id].texture.get_height()
 		var width := TEXT_FONT.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 10
-		var plate := Rect2(Vector2(_x(object.slot) - width * 0.5, FLOOR_Y - height - 18), Vector2(width, 15))
+		var plate := Rect2(Vector2(_x(object.slot) - width * 0.5, FLOOR_Y + 10), Vector2(width, 15))
 		draw_rect(plate, Color("fffaf0"))
 		draw_rect(plate, Color("8c8679"), false, 1.2)
 		draw_string(TEXT_FONT, plate.position + Vector2(5, 11.5), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("5a5448"))

@@ -110,7 +110,7 @@ var _compare_button: Button
 var _tab_bar: HBoxContainer
 var _tab_original: Button
 var _tab_twist: Button
-var _legend: Label
+var _legend: RichTextLabel
 var _tier_band: ColorRect
 var _bonus_line: RichTextLabel
 var _hint_hud: Button
@@ -555,6 +555,7 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 func _process(delta: float) -> void:
 	_update_music(delta)
+	_update_narration_line()
 	if _intro_pending and _tutorial_panel == 0 and not (is_instance_valid(_front) and _front.visible):
 		_show_intro_card()
 	if not _pending_narration.is_empty() and not _screen_covered() and page_index >= 0:
@@ -1237,10 +1238,10 @@ func _update_instructions() -> void:
 				text = "Nobody is lit. Drag the bulb into the room (or use the arrow keys) to reveal what someone is thinking."
 			elif lit.size() == 1:
 				text = "Light a second character to swap thoughts, or press ACTION!
-Keys: WASD bulb · Tab pick · Enter swap · Space go · H hint"
+WASD bulb · Tab pick · Enter swap · Space go · H hint"
 			else:
 				text = "Drag a lit thought onto another lit character to swap.
-Keys: WASD bulb · Tab pick · Enter swap · Space go · H hint"
+WASD bulb · Tab pick · Enter swap · Space go · H hint"
 	_instructions.text = text
 	if is_instance_valid(_action):
 		# The label never changes length (it must fit its button); a dark stage
@@ -1495,10 +1496,27 @@ func _comic_theme() -> Theme:
 		box.content_margin_top = 4
 		box.content_margin_bottom = 4
 		if state == "focus":
-			box.bg_color = Color(0, 0, 0, 0)
-			box.shadow_color = Color(0, 0, 0, 0)
-			box.border_color = Color("c8102e")
+			# Keyboard focus: a warm tint (and a small zoom from _juice_button).
+			box.bg_color = UI_FOCUS
 		theme.set_stylebox(state, "Button", box)
+	# Tooltips look like the game's speech balloons.
+	var tip := StyleBoxFlat.new()
+	tip.bg_color = Color("fffaf0")
+	tip.border_color = INK
+	tip.set_border_width_all(2)
+	tip.set_corner_radius_all(14)
+	tip.corner_radius_bottom_left = 2
+	tip.shadow_color = Color(0, 0, 0, 0.35)
+	tip.shadow_size = 6
+	tip.shadow_offset = Vector2(2, 3)
+	tip.content_margin_left = 12
+	tip.content_margin_right = 12
+	tip.content_margin_top = 7
+	tip.content_margin_bottom = 7
+	theme.set_stylebox("panel", "TooltipPanel", tip)
+	theme.set_color("font_color", "TooltipLabel", INK)
+	theme.set_font("font", "TooltipLabel", TEXT_FONT)
+	theme.set_font_size("font_size", "TooltipLabel", 15)
 	theme.set_color("font_color", "Button", INK)
 	theme.set_color("font_hover_color", "Button", INK)
 	theme.set_color("font_pressed_color", "Button", INK)
@@ -1909,15 +1927,32 @@ func _restyle_hud() -> void:
 	_title.size = Vector2(800, 44)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.add_theme_font_size_override("font_size", 34)
+	_title.add_theme_color_override("font_color", UI_LIGHT)
+	_title.add_theme_constant_override("outline_size", 10)
+	_title.add_theme_color_override("font_outline_color", INK)
+	_title.add_theme_constant_override("shadow_offset_y", 4)
+	_title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.45))
 	_tier_band = ColorRect.new()
 	_tier_band.position = Vector2(520, 46)
 	_tier_band.size = Vector2(240, 5)
 	_tier_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ui.add_child(_tier_band)
-	_pause_button = _icon_button(_ui, "pause", "Pause (Esc)", _open_pause, Vector2(52, 48))
-	_pause_button.position = Vector2(16, 4)
-	_progress_label.position = Vector2(930, 10)
-	_progress_label.size = Vector2(334, 34)
+	_pause_button = _icon_button(_ui, "pause", "Pause menu (Esc)", _open_pause, Vector2(48, 48))
+	_pause_button.position = Vector2(14, 2)
+	# A translucent round emblem instead of a boxed button.
+	for state in ["normal", "hover", "pressed", "focus"]:
+		var emblem := StyleBoxFlat.new()
+		emblem.bg_color = Color(UI_LIGHT, {"normal": 0.18, "hover": 0.34, "pressed": 0.45, "focus": 0.34}[state])
+		emblem.border_color = Color(UI_LIGHT, 0.75)
+		emblem.set_border_width_all(2)
+		emblem.set_corner_radius_all(24)
+		_pause_button.add_theme_stylebox_override(state, emblem)
+	_pause_button.add_theme_color_override("icon_normal_color", UI_LIGHT)
+	_pause_button.add_theme_color_override("icon_hover_color", Color.WHITE)
+	_pause_button.add_theme_color_override("icon_focus_color", Color.WHITE)
+	_pause_button.add_theme_color_override("icon_pressed_color", Color.WHITE)
+	_progress_label.position = Vector2(1012, 11)
+	_progress_label.size = Vector2(250, 30)
 	# Goal clipping: twist in red pen plus the headline (bonus) lines.
 	_goal_card = _paper_panel(Rect2(16, 56, 900, 86), 0.0)
 	_goal_card.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1948,27 +1983,32 @@ func _restyle_hud() -> void:
 	_stage.set_full_bleed(true)
 	_comparison.position = Vector2(16, 146)
 	# Floating HUD: translucent paper cards over the painting, readable ink on top.
-	for rect in [Rect2(8, 4, 1264, 46), Rect2(924, 56, 348, 86), Rect2(8, 610, 1264, 104)]:
+	for rect in [Rect2(924, 56, 348, 86), Rect2(1008, 6, 262, 38)]:
 		var card := _glass_panel(rect)
 		_ui.add_child(card)
 		_ui.move_child(card, 0)
 	_update_backdrop()
 	# Bottom bar: legend, narration line, ⟲ and ACTION.
-	_legend = _label(LEGEND_BASE, 14)
-	_legend.position = Vector2(16, 614)
+	_footer_shade = _build_footer_shade()
+	_ui.add_child(_footer_shade)
+	_ui.move_child(_footer_shade, 0)
+	_narration = _build_narration_label()
+	_ui.add_child(_narration)
+	_legend = _rich(14)
+	_legend.text = LEGEND_BASE
+	_legend.position = Vector2(16, 690)
 	_legend.mouse_filter = Control.MOUSE_FILTER_STOP
 	_legend.tooltip_text = "What each thought makes a character do"
 	_legend.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed:
 			_tutorial_click())
-	_legend.size = Vector2(900, 20)
-	_legend.add_theme_color_override("font_color", Color("6d6a62"))
+	_legend.size = Vector2(900, 26)
+	_legend.add_theme_color_override("default_color", UI_LIGHT)
 	_ui.add_child(_legend)
-	_caption.position = Vector2(16, 636)
-	_caption.size = Vector2(880, 24)
-	_subtitle.position = Vector2(16, 660)
-	_subtitle.size = Vector2(840, 56)
-	_subtitle.size = Vector2(880, 70)
+	# The narration line replaces the old caption/subtitle labels.
+	_caption.position = Vector2(-2000, 0)
+	_subtitle.position = Vector2(-2000, 0)
+	_stage.external_caption = true
 	_status.hide()
 	for node in [_voice_replay, _voice_skip]:
 		node.get_parent().hide()
@@ -2868,7 +2908,7 @@ func _all_hints() -> Array:
 
 
 # ------------------------------------------------------------ story: acts, new feelings, running gags
-const LEGEND_BASE := "HUNGRY > food   ·   SLEEPY > seat   ·   ANGRY > bonk   ·   SCARED > flee"
+const LEGEND_BASE := ""
 const NEW_FEELINGS := {
 	"SHY": ["SHY", "Hates being seen. In the light it scurries to the nearest dark spot and hides. Your light pushes it around!"],
 	"IN_LOVE": ["IN LOVE", "Walks to the nearest lit character and hugs them. Whoever gets hugged falls in love too and goes looking for someone else to hug!"],
@@ -2889,17 +2929,20 @@ func _story() -> Dictionary:
 
 
 func _legend_text() -> String:
-	var text := LEGEND_BASE
-	var present := {}
+	# One chip per feeling on this page: icon, name in its colour, what it does.
+	var present := {"HUNGRY": true, "SLEEPY": true, "ANGRY": true, "SCARED": true}
 	for character in page.get("characters", []):
 		present[str(character.thought)] = true
-	if present.has("SHY"):
-		text += "   ·   SHY > hides from light"
-	if present.has("IN_LOVE"):
-		text += "   ·   IN LOVE > hugs"
-	if present.has("JEALOUS"):
-		text += "   ·   JEALOUS > copies"
-	return text
+	var chips: Array[String] = []
+	for thought in ["HUNGRY", "SLEEPY", "ANGRY", "SCARED", "SHY", "IN_LOVE", "JEALOUS"]:
+		if not present.has(thought):
+			continue
+		var colour: Color = STAGE.COLOURS[thought].lightened(0.25)
+		chips.append("[img=18x18]res://assets/thoughts/%s.svg[/img] [color=#%s][b]%s[/b][/color] %s" % [thought.to_lower(), colour.to_html(false), thought.replace("_", " "), FEELING_VERBS[thought]])
+	return "      ".join(chips)
+
+
+const FEELING_VERBS := {"HUNGRY": "eats", "SLEEPY": "naps", "ANGRY": "bonks", "SCARED": "flees", "SHY": "hides", "IN_LOVE": "hugs", "JEALOUS": "copies"}
 
 
 ## Called after a campaign page loads: queue the act card and the NEW FEELING card.
@@ -3273,8 +3316,12 @@ func _juice_button(node: Node) -> void:
 		tween.tween_property(button, "scale", Vector2.ONE * target, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	button.mouse_entered.connect(func(): bounce.call(1.06, 0.12))
 	button.mouse_exited.connect(func(): bounce.call(1.0, 0.12))
-	button.focus_entered.connect(func(): bounce.call(1.05, 0.12))
-	button.focus_exited.connect(func(): bounce.call(1.0, 0.12))
+	button.focus_entered.connect(func():
+		bounce.call(1.07, 0.12)
+		button.self_modulate = Color(1.08, 1.04, 0.92))
+	button.focus_exited.connect(func():
+		bounce.call(1.0, 0.12)
+		button.self_modulate = Color.WHITE)
 	button.button_down.connect(func(): bounce.call(0.94, 0.06))
 	button.button_up.connect(func(): bounce.call(1.04, 0.1))
 
@@ -3299,3 +3346,73 @@ func _build_vignette() -> void:
 	_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_vignette)
 	move_child(_vignette, _ui.get_index())
+
+
+
+# ------------------------------------------------------------ HUD theme and footer
+## Shared HUD colours: the lore re-skin swaps these in one place.
+const UI_LIGHT := Color("f6eedc")
+const UI_FOCUS := Color("ffe9a8")
+const UI_SHADE := Color(0.03, 0.04, 0.09)
+var _footer_shade: TextureRect
+var _narration: Label
+var _narration_text := ""
+var _narration_centred := false
+
+
+func _build_footer_shade() -> TextureRect:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(UI_SHADE, 0.0))
+	gradient.set_color(1, Color(UI_SHADE, 0.88))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill_from = Vector2(0, 0)
+	texture.fill_to = Vector2(0, 1)
+	texture.width = 4
+	texture.height = 64
+	var shade := TextureRect.new()
+	shade.texture = texture
+	shade.stretch_mode = TextureRect.STRETCH_SCALE
+	shade.position = Vector2(0, 560)
+	shade.size = Vector2(1280, 160)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return shade
+
+
+func _build_narration_label() -> Label:
+	var label := _label("", 19)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_color_override("font_color", UI_LIGHT)
+	label.add_theme_constant_override("outline_size", 7)
+	label.add_theme_color_override("font_outline_color", Color(UI_SHADE, 0.95))
+	label.add_theme_constant_override("shadow_offset_y", 2)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.5))
+	label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.z_index = 170
+	return label
+
+
+## Narration subtitles: bottom-left, or bottom-centre while a card floats on screen.
+func _update_narration_line() -> void:
+	if not is_instance_valid(_narration) or not is_instance_valid(_stage):
+		return
+	var floating := (is_instance_valid(_result_card) and _result_card.visible) or (is_instance_valid(_story_card) and _story_card.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or is_instance_valid(_endings_book)
+	var text: String = _stage._caption_text
+	if text == _narration_text and floating == _narration_centred:
+		return
+	var changed := text != _narration_text
+	_narration_text = text
+	_narration_centred = floating
+	_narration.text = text
+	_narration.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if floating else HORIZONTAL_ALIGNMENT_LEFT
+	var rect := Rect2(360, 606, 540, 80) if floating else Rect2(20, 606, 860, 80)
+	_narration.size = rect.size
+	_narration.position = rect.position
+	if changed and not text.is_empty() and not _motion.button_pressed:
+		# New lines rise into place.
+		_narration.position.y += 14
+		_narration.modulate.a = 0.0
+		var tween := create_tween().set_parallel(true)
+		tween.tween_property(_narration, "position:y", rect.position.y, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.tween_property(_narration, "modulate:a", 1.0, 0.2)
