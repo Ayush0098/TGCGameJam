@@ -10,6 +10,7 @@ static func definition() -> Dictionary:
 		"room": "office",
 		"narration_key": "finale",
 		"title": "Lightbulb Moment",
+		"voice": "finale",
 		"difficulty": "red",
 		"width": 12,
 		"rail_span": [

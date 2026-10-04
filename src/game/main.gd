@@ -365,7 +365,7 @@ func _build_ui() -> void:
 		_character_players.append(player)
 	_voice = AudioStreamPlayer.new()
 	_voice.volume_db = NARRATOR_DB
-	_voice.finished.connect(_stop_voice)
+	_voice.finished.connect(_on_voice_finished)
 	add_child(_voice)
 	var lines: Variant = JSON.parse_string(FileAccess.get_file_as_string(VOICE_ROOT + "lines.json"))
 	if lines is Dictionary:
@@ -426,6 +426,11 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	_cancel_presentation()
 	# A tutorial welcome still waiting for the title menu belongs to page 1 only.
 	_intro_pending = false
+	_redpen_done = false
+	# Cards belong to the page that queued them.
+	_story_queue.clear()
+	if is_instance_valid(_story_card):
+		_story_card.queue_free()
 	if is_instance_valid(_stage):
 		_stage.set_caption("", 0.0)
 	_last_cue = ""
@@ -487,6 +492,7 @@ func _start_action() -> void:
 
 func _begin(recorded: Dictionary, original: bool) -> void:
 	_cancel_presentation()
+	_run_said.clear()
 	_last_cue = ""
 	_update_voice_buttons()
 	_run = recorded
@@ -713,7 +719,11 @@ func _show_facts(result: Dictionary) -> void:
 
 
 func _return_to_plan() -> void:
+	var from_original := mode == "ORIGINAL_END" or (mode == "INTRO" and _is_original)
 	_cancel_presentation()
+	if from_original and not _redpen_done:
+		_redpen_done = true
+		_narrate.call_deferred("redpen")
 	_last_cue = ""
 	_update_voice_buttons()
 	if mode == "ERROR":
@@ -1028,6 +1038,7 @@ func _replay_voice() -> void:
 func _stop_voice() -> void:
 	_story_waiting = false
 	_narrator_hold = false
+	_voice_queue.clear()
 	if is_instance_valid(_voice):
 		if _voice.playing:
 			_fade_out(_voice)
@@ -1541,6 +1552,16 @@ func _speak(events: Array) -> void:
 			"CLASH":
 				for actor in event.get("actors", [event.actor]):
 					pairs.append([str(actor), "clash"])
+			"HUG":
+				pairs.append([str(event.actor), "hug"])
+				pairs.append([str(event.get("target", "")), "hugged"])
+			"MOVE":
+				# A shy character ducking out of the light, a jealous one picking a target: once per run.
+				var thought := _thought_now(str(event.actor))
+				var moment: String = {"SHY": "hide", "JEALOUS": "jealous"}.get(thought, "")
+				if not moment.is_empty() and not _run_said.has(str(event.actor) + moment):
+					_run_said[str(event.actor) + moment] = true
+					pairs.append([str(event.actor), moment])
 			_:
 				if MOMENTS.has(str(event.type)):
 					pairs.append([str(event.actor), MOMENTS[str(event.type)]])
@@ -1558,6 +1579,19 @@ func _speak(events: Array) -> void:
 			if said.size() <= 2:
 				if not _play_voice_file("characters/%s_%s" % [art, pair[1]]):
 					_blip(speaker, line)
+
+
+var _run_said: Dictionary = {}
+
+
+func _thought_now(id: String) -> String:
+	for record in _playback_world.get("characters", []) if _playback_world is Dictionary else []:
+		if record.id == id:
+			return str(record.thought)
+	for record in page.get("characters", []):
+		if record.id == id:
+			return str(plan.thoughts.get(id, record.thought)) if plan != null else str(record.thought)
+	return ""
 
 
 func _art_of(id: String) -> String:
@@ -1640,22 +1674,30 @@ func _narrate(moment: String) -> void:
 	elif not voice_key.is_empty():
 		key = "narr_%s_%s" % [voice_key, moment]
 	var text: String = _lines.get("narrator", {}).get(key, "")
-	# The page's written script wins. A recording only plays when it says the
-	# same words, so voice and caption can never disagree.
+	var queue: Array[String] = []
+	# Story pages: the written script is the caption, voiced by the narr15 set
+	# (design/voice_request.md Part F: intro, original, red pen, TWIST stamp + win).
 	var written: Variant = page.get("narration")
 	if written is Dictionary:
+		var slug := str(page.get("voice", ""))
 		var line := ""
+		key = ""
 		if moment.begins_with("fail_"):
 			var fails: Array = [written.get("fail", "")] + Array(written.get("fail_alt", []))
 			fails = fails.filter(func(entry): return not str(entry).is_empty())
 			if not fails.is_empty():
 				line = str(fails[(_fail_count - 1) % fails.size()])
+			key = "narr15_fail_%d" % (1 + (_fail_count - 1) % 4)
 		else:
-			line = str(written.get({"intro": "intro", "original": "original", "twist": "win"}.get(moment, moment), ""))
-		if not line.is_empty():
-			if line != text:
-				key = ""
-			text = line
+			var field: String = {"intro": "intro", "original": "original", "redpen": "twist", "twist": "win"}.get(moment, moment)
+			line = str(written.get(field, ""))
+			if not slug.is_empty():
+				key = "narr15_%s_%s" % [slug, field]
+				if moment == "twist":
+					# "TWIST?!" first, then the win line.
+					queue.append(key)
+					key = "narr15_twist_stamp"
+		text = _spoken_text(line)
 	if text.is_empty():
 		return
 	if moment in ["intro", "original"] and _screen_covered():
@@ -1665,18 +1707,48 @@ func _narrate(moment: String) -> void:
 	_pending_narration = ""
 	# Without a recording, the comic waits long enough to read the line.
 	_read_hold = clampf(text.split(" ").size() / 3.2, 2.0, 9.0) if moment in ["intro", "original"] and DisplayServer.get_name() != "headless" else 0.0
-	_stage.set_caption(text, _read_hold + 1.5 if moment in ["intro", "original"] else 0.0)
+	var seconds := _read_hold + 1.5 if moment in ["intro", "original"] else (5.0 if moment == "redpen" else 0.0)
+	_stage.set_caption(text, seconds)
 	if is_instance_valid(_result_stage):
 		_result_stage.set_caption(text if moment == "twist" or moment.begins_with("fail") else "", 0.0)
 	var voiced := not key.is_empty() and _play_voice_file("narrator/" + key, _voice)
+	_voice_queue = queue if voiced else ([] as Array[String])
 	_narrator_hold = voiced and moment == "intro"
 	if voiced:
 		_read_hold = 0.0
+		if moment == "intro" or moment == "original":
+			# The recording sets the pace; keep its caption up while it plays.
+			_stage.set_caption(text, maxf(seconds, _voice_length() + 0.8))
+
+
+## Captions show the words only; [acting directions] are for the voice.
+func _spoken_text(line: String) -> String:
+	var regex := RegEx.create_from_string("\\s*\\[[^\\]]*\\]\\s*")
+	return regex.sub(line, " ", true).strip_edges().replace("  ", " ")
+
+
+func _voice_length() -> float:
+	if is_instance_valid(_voice) and _voice.stream != null:
+		return _voice.stream.get_length()
+	return 0.0
+
+
+## Narrator lines that follow each other (TWIST?! then the win line).
+var _voice_queue: Array[String] = []
+
+
+func _on_voice_finished() -> void:
+	if not _voice_queue.is_empty():
+		var next: String = _voice_queue.pop_front()
+		if _play_voice_file("narrator/" + next, _voice):
+			return
+	_stop_voice()
 
 
 
 ## The Original waits while the intro is being read, so voice and pictures match.
 var _narrator_hold := false
+var _redpen_done := false
 var _pending_narration := ""
 var _read_hold := 0.0
 
@@ -2711,7 +2783,7 @@ func _legend_text() -> String:
 
 ## Called after a campaign page loads: queue the act card and the NEW FEELING card.
 func _queue_story_cards() -> void:
-	if not page_override.is_empty() or _tutorial_panel >= 0 or DisplayServer.get_name() == "headless":
+	if not page_override.is_empty() or _tutorial_panel >= 0 or "_tutorial_" in str(page.get("id", "")) or DisplayServer.get_name() == "headless":
 		return
 	var number := int(page.get("number", page_index + 1))
 	for act in _story().get("acts", []):
@@ -2764,6 +2836,9 @@ func _show_story_card(card: Dictionary) -> void:
 		_play_effect("REVEAL_" + str(card.thought))
 	else:
 		_play_sting(true)
+	var card_voice := {"act_1": "narr15_act1", "act_2": "narr15_act2", "act_3": "narr15_act3", "feeling_SHY": "narr15_new_shy", "feeling_IN_LOVE": "narr15_new_love", "feeling_JEALOUS": "narr15_new_jealous"}
+	if card_voice.has(card.id):
+		_play_voice_file("narrator/" + card_voice[card.id], _voice)
 	var body := _rich(22)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.position = Vector2(60, top)

@@ -8,6 +8,7 @@ static func definition() -> Dictionary:
 		"id": "page_11",
 		"number": 5,
 		"title": "Stage Fright",
+		"voice": "stage",
 		"room": "living_room",
 		"difficulty": "green",
 		"width": 11,

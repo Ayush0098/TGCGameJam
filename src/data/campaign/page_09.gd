@@ -10,6 +10,7 @@ static func definition() -> Dictionary:
 		"room": "living_room",
 		"narration_key": "catmouse",
 		"title": "Cat & Mouse",
+		"voice": "catmouse",
 		"difficulty": "red",
 		"width": 11,
 		"rail_span": [

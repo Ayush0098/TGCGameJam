@@ -10,6 +10,7 @@ static func definition() -> Dictionary:
 		"room": "living_room",
 		"narration_key": "revenge",
 		"title": "Grandma's Revenge",
+		"voice": "revenge",
 		"difficulty": "yellow",
 		"width": 11,
 		"rail_span": [

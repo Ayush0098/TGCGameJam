@@ -10,6 +10,7 @@ static func definition() -> Dictionary:
 		"room": "office",
 		"narration_key": "birthday",
 		"title": "The Boss's Birthday",
+		"voice": "birthday",
 		"difficulty": "yellow",
 		"width": 11,
 		"rail_span": [

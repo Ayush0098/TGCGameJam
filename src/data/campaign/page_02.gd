@@ -10,6 +10,7 @@ static func definition() -> Dictionary:
 		"room": "kitchen",
 		"narration_key": "greens",
 		"title": "Eat Your Greens",
+		"voice": "greens",
 		"difficulty": "green",
 		"width": 11,
 		"rail_span": [

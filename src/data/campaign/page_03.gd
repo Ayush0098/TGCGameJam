@@ -10,6 +10,7 @@ static func definition() -> Dictionary:
 		"room": "living_room",
 		"narration_key": "nap",
 		"title": "Nap Time",
+		"voice": "nap",
 		"difficulty": "green",
 		"width": 11,
 		"rail_span": [
