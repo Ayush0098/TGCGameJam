@@ -101,6 +101,8 @@ var _tab_original: Button
 var _tab_twist: Button
 var _legend: Label
 var _tier_band: ColorRect
+var _bonus_line: RichTextLabel
+var _hint_hud: Button
 const TIER_COLOURS := [Color("3a8d4f"), Color("d9a521"), Color("c0392b")]
 var _hints_shown := 0
 var _stamp: Label
@@ -149,6 +151,7 @@ func _ready() -> void:
 	_front.start_requested.connect(_on_front_start)
 	_front.page_requested.connect(_on_front_page)
 	_front.closed.connect(_update_buttons)
+	_front.levels_requested.connect(_open_edition)
 	_front.settings_requested.connect(_open_settings)
 	_update_star_total()
 	_update_star_total()
@@ -654,18 +657,15 @@ func _show_facts(result: Dictionary) -> void:
 		var fact: Dictionary = item.fact
 		var mark := _icon("check") if item.met else (_icon("cross") if mode == "RESULT" else _icon("box"))
 		labels.append(mark + GOALS.fact_text(fact))
-	var bonus_icons := ""
-	var bonus_tips: Array[String] = []
+	# Bonus goals are always visible on their own line of the goal card.
+	var bonus_lines: Array[String] = []
 	for bonus in page.get("bonus", []):
 		var done: bool = bonus.id in bonus_done.get(page.id, [])
-		bonus_icons += _icon("star_on" if done else "star_off")
-		bonus_tips.append(("[done] " if done else "") + str(bonus.caption))
-	if not bonus_icons.is_empty():
-		labels.append("Bonus " + bonus_icons + "[i](hover)[/i]")
+		var words := str(bonus.caption).to_lower()
+		bonus_lines.append(_icon("star_on" if done else "star_off") + words.left(1).to_upper() + words.substr(1))
 	_facts.text = "   /   ".join(labels)
-	_facts.tooltip_text = "Bonus stars:
-" + "
-".join(bonus_tips) if not bonus_tips.is_empty() else ""
+	if is_instance_valid(_bonus_line):
+		_bonus_line.text = ("[b]Bonus stars:[/b]  " + "     ".join(bonus_lines)) if not bonus_lines.is_empty() else ""
 	_facts.mouse_filter = Control.MOUSE_FILTER_PASS
 	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
 
@@ -802,7 +802,11 @@ func _update_buttons() -> void:
 	_next.text = "THE END" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
 	_skip_page.disabled = failures < 3 or mode not in ["PLAN", "RESULT"]
 	var hints: Array = page.get("hints", [])
-	_hint_button.visible = not hints.is_empty() and failures >= 2 and _hints_shown < hints.size()
+	_hint_button.visible = not hints.is_empty() and _hints_shown < hints.size()
+	if is_instance_valid(_hint_hud):
+		_hint_hud.visible = mode == "PLAN" and not hints.is_empty()
+		_hint_hud.disabled = _hints_shown >= hints.size()
+		_hint_hud.tooltip_text = "Hint %d of %d" % [mini(_hints_shown + 1, hints.size()), hints.size()] if _hints_shown < hints.size() else "No more hints"
 	_hint_button.disabled = mode not in ["PLAN", "RESULT"]
 	_hint_button.text = "HINT %d/%d" % [_hints_shown + 1, hints.size()]
 	_status.text = "Page %d of %d   ·   Runs %d   ·   Pages solved %d / %d" % [page_index + 1, PAGE_SCRIPTS.size(), attempts, completed.size(), PAGE_SCRIPTS.size()]
@@ -840,7 +844,7 @@ func _input(event: InputEvent) -> void:
 			_open_pause()
 		get_viewport().set_input_as_handled()
 		return
-	if (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible):
+	if (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible) or (is_instance_valid(_intro_card) and _intro_card.visible):
 		return
 	if is_instance_valid(_front) and _front.visible:
 		# The title / Sunday Edition owns input; its buttons handle it via the GUI.
@@ -1106,7 +1110,10 @@ func _update_instructions() -> void:
 				text = "Drag a lit thought onto another lit character to swap. ACTION! = Space.   Keys: 1/2 lantern, arrows move, P park"
 	_instructions.text = text
 	if is_instance_valid(_action):
-		_action.text = "ACTION! (nobody lit)" if mode == "PLAN" and _lit_ids().is_empty() else "ACTION!"
+		# The label never changes length (it must fit its button); a dark stage
+		# is explained in the hint line and the tooltip instead.
+		_action.text = " ACTION!"
+		_action.tooltip_text = "Nobody is lit, so nothing will happen" if mode == "PLAN" and _lit_ids().is_empty() else "Play the scene (Space)"
 
 
 func _progress() -> Array:
@@ -1406,6 +1413,7 @@ func _show_hint() -> void:
 		text = "Try this: " + text
 	_hints_shown += 1
 	_subtitle.text = "Bulby whispers: " + text
+	_stage.set_caption("HINT %d/%d: %s" % [_hints_shown, hints.size(), text], 8.0)
 	_stage.set_mood("scheme", 1.5)
 	_play_effect("SWAP")
 	_update_buttons()
@@ -1623,7 +1631,7 @@ func _restyle_hud() -> void:
 	_progress_label.position = Vector2(930, 10)
 	_progress_label.size = Vector2(334, 34)
 	# Goal clipping: twist in red pen plus the headline (bonus) lines.
-	_goal_card = _paper_panel(Rect2(16, 56, 900, 62), 0.0)
+	_goal_card = _paper_panel(Rect2(16, 56, 900, 86), 0.0)
 	_goal_card.mouse_filter = Control.MOUSE_FILTER_STOP
 	_goal_card.tooltip_text = "Click to watch the Original strip"
 	_goal_card.gui_input.connect(func(event):
@@ -1635,6 +1643,10 @@ func _restyle_hud() -> void:
 	_goal.size = Vector2(880, 30)
 	_goal.add_theme_font_size_override("font_size", 22)
 	_facts.position = Vector2(30, 90)
+	_bonus_line = _rich(14)
+	_bonus_line.position = Vector2(30, 114)
+	_bonus_line.size = Vector2(880, 24)
+	_ui.add_child(_bonus_line)
 	_facts.size = Vector2(880, 24)
 	_instructions.position = Vector2(930, 56)
 	_instructions.size = Vector2(334, 62)
@@ -1643,12 +1655,12 @@ func _restyle_hud() -> void:
 	_instructions.add_theme_font_size_override("font_size", 14)
 	for hook in _hooks:
 		hook.position = Vector2(-400, -400)
-	_stage.position = Vector2(16, 124)
+	_stage.position = Vector2(16, 148)
 	_stage.size = Vector2(1248, 460)
 	_comparison.position = _stage.position
 	# Bottom bar: legend, narration line, ⟲ and ACTION.
 	_legend = _label("HUNGRY > food   ·   SLEEPY > seat   ·   ANGRY > bonk   ·   SCARED > flee", 14)
-	_legend.position = Vector2(16, 594)
+	_legend.position = Vector2(16, 614)
 	_legend.mouse_filter = Control.MOUSE_FILTER_STOP
 	_legend.tooltip_text = "What each thought makes a character do"
 	_legend.gui_input.connect(func(event):
@@ -1657,9 +1669,10 @@ func _restyle_hud() -> void:
 	_legend.size = Vector2(700, 20)
 	_legend.add_theme_color_override("font_color", Color("6d6a62"))
 	_ui.add_child(_legend)
-	_caption.position = Vector2(16, 616)
+	_caption.position = Vector2(16, 636)
 	_caption.size = Vector2(880, 24)
-	_subtitle.position = Vector2(16, 642)
+	_subtitle.position = Vector2(16, 660)
+	_subtitle.size = Vector2(840, 56)
 	_subtitle.size = Vector2(880, 70)
 	_status.hide()
 	for node in [_voice_replay, _voice_skip]:
@@ -1672,7 +1685,9 @@ func _restyle_hud() -> void:
 	_restart.icon = _icon_texture("restart")
 	_restart.expand_icon = true
 	_restart.tooltip_text = "Restart the page (clears your plan)"
-	_restart.position = Vector2(1000, 616)
+	_restart.position = Vector2(1000, 624)
+	_hint_hud = _icon_button(_ui, "hint", "Hint: reveals the next step of the solution", _show_hint, Vector2(64, 64))
+	_hint_hud.position = Vector2(920, 624)
 	_restart.size = Vector2(64, 64)
 	_restart.custom_minimum_size = Vector2(64, 64)
 	_action.icon = _icon_texture("play")
@@ -1680,20 +1695,21 @@ func _restyle_hud() -> void:
 	_action.add_theme_constant_override("icon_max_width", 30)
 	_action.add_theme_font_override("font", COMIC_FONT)
 	_action.add_theme_font_size_override("font_size", 30)
-	_action.position = Vector2(1080, 612)
+	_action.position = Vector2(1080, 620)
 	_action.size = Vector2(184, 72)
 	_action.custom_minimum_size = Vector2(184, 72)
+	_action.clip_text = true
 	_fast_button.text = ""
 	_fast_button.icon = _icon_texture("fast")
 	_fast_button.expand_icon = true
 	_fast_button.tooltip_text = "Fast forward"
-	_fast_button.position = Vector2(1080, 616)
+	_fast_button.position = Vector2(1080, 624)
 	_fast_button.size = Vector2(88, 64)
 	_skip_run.text = ""
 	_skip_run.icon = _icon_texture("skip")
 	_skip_run.expand_icon = true
 	_skip_run.tooltip_text = "Skip to the end (Space)"
-	_skip_run.position = Vector2(1176, 616)
+	_skip_run.position = Vector2(1176, 624)
 	_skip_run.size = Vector2(88, 64)
 	_build_result_card()
 	bar.hide()
@@ -1701,7 +1717,7 @@ func _restyle_hud() -> void:
 
 func _build_result_card() -> void:
 	# Completion popup (ui.md §7): pasted clipping over the stage's right side.
-	_result_card = _paper_panel(Rect2(724, 140, 520, 430), 0.012)
+	_result_card = _paper_panel(Rect2(724, 160, 520, 430), 0.012)
 	_result_card.z_index = 160
 	_result_card.hide()
 	_ui.add_child(_result_card)
@@ -1743,7 +1759,7 @@ func _build_result_card() -> void:
 		small.add_child(node)
 	# Original / Your Twist tabs replay on the one full-size stage.
 	_tab_bar = HBoxContainer.new()
-	_tab_bar.position = Vector2(16, 596)
+	_tab_bar.position = Vector2(16, 614)
 	_tab_bar.z_index = 150
 	_tab_bar.add_theme_constant_override("separation", 4)
 	_tab_bar.hide()
@@ -2106,14 +2122,17 @@ func _start_tutorial(index: int, panel: int = 0) -> void:
 	_title.text = "TUTORIAL %d/%d  ·  %s" % [panel + 1, panels.size(), str(definition.get("title", "")).to_upper()]
 	_ensure_skip_tab()
 	_show_tutorial_step()
+	if panel == 0:
+		_show_intro_card()
 
 
 func _ensure_skip_tab() -> void:
 	if not is_instance_valid(_tutorial_skip):
 		_tutorial_skip = Button.new()
 		_tutorial_skip.text = "SKIP TUTORIAL"
-		_tutorial_skip.position = Vector2(1100, 86)
-		_tutorial_skip.add_theme_font_size_override("font_size", 14)
+		_tutorial_skip.position = Vector2(770, 640)
+		_tutorial_skip.size = Vector2(140, 36)
+		_tutorial_skip.add_theme_font_size_override("font_size", 13)
 		_tutorial_skip.pressed.connect(func():
 			if _tutorial_skip.text == "SKIP TUTORIAL":
 				_tutorial_skip.text = "SURE? CLICK AGAIN"
@@ -2290,3 +2309,67 @@ func _narrate_key(key: String) -> void:
 	if not text.is_empty():
 		_stage.set_caption(text, 0.0)
 		_play_voice_file("narrator/" + key, _voice)
+
+
+
+# The tutorial opens with the big picture: story, objective, twist, rules.
+var _intro_card: Control
+
+
+func _show_intro_card() -> void:
+	if not is_instance_valid(_intro_card):
+		_intro_card = Control.new()
+		_intro_card.size = Vector2(1280, 720)
+		_intro_card.z_index = 230
+		_intro_card.mouse_filter = Control.MOUSE_FILTER_STOP
+		_ui.add_child(_intro_card)
+		var dim := ColorRect.new()
+		dim.color = Color(INK, 0.6)
+		dim.size = Vector2(1280, 720)
+		_intro_card.add_child(dim)
+		var card := _paper_panel(Rect2(200, 50, 880, 620), -0.008)
+		_intro_card.add_child(card)
+		var heading := _label("WELCOME TO THE DAILY BULB", 44)
+		heading.add_theme_font_override("font", COMIC_FONT)
+		heading.position = Vector2(0, 18)
+		heading.size = Vector2(880, 56)
+		heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(heading)
+		var body := _rich(18)
+		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		body.position = Vector2(40, 84)
+		body.size = Vector2(800, 440)
+		body.text = "
+".join([
+			"[b]The story.[/b] It's blackout night at the Bulb house. Every night the comic prints the same tired ending. That printed ending is [b]THE ORIGINAL[/b].",
+			"",
+			"[b]You are Bulby[/b], the last lightbulb still shining inside the comic. Your job: rewrite tonight's punchline.",
+			"",
+			"[b]The goal.[/b] The red line at the top is the [color=#a4383e][b]TWIST[/b][/color]: the ending you must make happen. Bonus lines under it earn extra stars.",
+			"",
+			"[b]How it works[/b]",
+			"  " + _icon("star_on") + "Only characters in your light get an idea and act. In the dark they do nothing, and their thoughts stay secret.",
+			"  " + _icon("star_on") + "HUNGRY eats food   ·   SLEEPY sits on a seat   ·   ANGRY bonks someone   ·   SCARED runs away.",
+			"  " + _icon("star_on") + "Drag one lit thought onto another lit character to [b]swap[/b] what they're thinking.",
+			"  " + _icon("star_on") + "Press [b]ACTION![/b] and watch the story play out. Not right? Retry as often as you like.",
+		])
+		card.add_child(body)
+		var go := Button.new()
+		go.text = "LET'S GO!"
+		go.add_theme_font_override("font", COMIC_FONT)
+		go.add_theme_font_size_override("font_size", 28)
+		go.position = Vector2(480, 540)
+		go.size = Vector2(220, 60)
+		_emphasise(go, true)
+		go.pressed.connect(func(): _intro_card.hide())
+		card.add_child(go)
+		var skip := Button.new()
+		skip.text = "SKIP TUTORIAL"
+		skip.add_theme_font_size_override("font_size", 16)
+		skip.position = Vector2(180, 552)
+		skip.size = Vector2(200, 44)
+		skip.pressed.connect(func():
+			_intro_card.hide()
+			_finish_tutorial())
+		card.add_child(skip)
+	_intro_card.show()

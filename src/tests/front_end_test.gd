@@ -46,7 +46,7 @@ func run(check: Callable) -> bool:
 	game._process(0.7)
 	check.call(game.page.id == "page_04" and not game._front.visible and game._hooks[0].visible, "Choosing a page loads it with lantern hooks")
 	game._move_lantern(0, Vector2(0.0, -0.6), false)
-	check.call(game._lit_ids().is_empty() and "Nobody is lit" in game._instructions.text and "nobody lit" in game._action.text, "Unlit plans warn before ACTION")
+	check.call(game._lit_ids().is_empty() and "Nobody is lit" in game._instructions.text and "Nobody is lit" in game._action.tooltip_text, "Unlit plans warn before ACTION")
 	# Bonus challenge: a run where Grandma eats the pie earns its star once.
 	var world: Dictionary = game.RULES.initial_world(game.page, game.plan.to_data())
 	game._run = {"events": [{"beat": 1, "phase": "CLAIMS", "type": "EAT", "actor": "grandma", "object": "pie", "target": "", "from": 0, "to": 0}], "snapshots": [world], "end_beat": 1}

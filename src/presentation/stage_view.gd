@@ -674,6 +674,7 @@ func _draw() -> void:
 						draw_circle(Vector2(_x(actor.slot + step), FLOOR_Y + 4), 5, Color("c68b3f"))
 					_label(self, positions[actor.id] + Vector2(-25, 46), str(decision.type).to_lower() + (" >" if step > 0 else (" <" if step < 0 else "")), MEMORY, 14)
 	_draw_name_plates(world, positions)
+	_draw_object_tags(world)
 	var bubbles := _bubble_layout(world, positions)
 	for actor in world.get("characters", []):
 		if actor.status == "EXITED":
@@ -1253,3 +1254,22 @@ func _draw_screen(start: Vector2, end: Vector2) -> void:
 		draw_line(rect.position + Vector2(7, 8), rect.position + Vector2(7, rect.size.y - 8), Color(0.6, 0.45, 0.3, 0.35), 1)
 		draw_rect(rect, INK, false, 2)
 	draw_line(Vector2(top.x - 24, bottom.y), Vector2(top.x + 24, bottom.y), INK, 3)
+
+
+const OBJECT_NAMES := {"dog_bed": "DOG BED", "office_chair": "CHAIR", "pedal": "SWITCH", "rocker": "ROCKING CHAIR", "armchair": "ARMCHAIR"}
+
+func _draw_object_tags(world: Dictionary) -> void:
+	# Lit food, seats and switches get a small tag, like characters' names.
+	for object in world.get("objects", []):
+		if not object.get("present", true) or not _lit(object.slot, world):
+			continue
+		var key := str(object.get("art", object.id))
+		var name := str(OBJECT_NAMES.get(key, object.get("name", key))).replace("_", " ").to_upper()
+		var height := 40.0
+		if _prop_sprites.has(object.id) and _prop_sprites[object.id].texture != null:
+			height = _prop_sprites[object.id].texture.get_height()
+		var width := TEXT_FONT.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 10
+		var plate := Rect2(Vector2(_x(object.slot) - width * 0.5, FLOOR_Y - height - 18), Vector2(width, 15))
+		draw_rect(plate, Color("fffaf0"))
+		draw_rect(plate, Color("8c8679"), false, 1.2)
+		draw_string(TEXT_FONT, plate.position + Vector2(5, 11.5), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("5a5448"))

@@ -6,6 +6,9 @@ signal start_requested()
 signal page_requested(index: int)
 signal closed()
 signal settings_requested()
+signal levels_requested()
+## Where the Sunday Edition was opened from, so BACK returns there.
+var _edition_from_title := false
 
 const TIER_COLOURS := [Color("3a8d4f"), Color("d9a521"), Color("c0392b")]
 const TIER_NAMES := ["EASY", "MEDIUM", "HARD"]
@@ -105,7 +108,9 @@ func _build_title() -> void:
 	buttons.add_child(_start)
 	var pages := _button("LEVELS", 22, false)
 	pages.name = "Pages"
-	pages.pressed.connect(show_edition)
+	pages.pressed.connect(func():
+		_edition_from_title = true
+		levels_requested.emit())
 	buttons.add_child(pages)
 	var settings := _button("SETTINGS", 22, false)
 	settings.name = "Settings"
@@ -185,8 +190,13 @@ func _build_edition() -> void:
 	_close.custom_minimum_size = Vector2(160, 48)
 	_close.position = Vector2(560, 640)
 	_close.pressed.connect(func():
-		hide()
-		closed.emit()
+		if _edition_from_title:
+			_edition_from_title = false
+			_title_panel.show()
+			_edition_panel.hide()
+		else:
+			hide()
+			closed.emit()
 	)
 	_edition_panel.add_child(_close)
 
@@ -277,6 +287,7 @@ func _card(index: int, info: Dictionary) -> Control:
 
 
 func show_title(can_continue: bool) -> void:
+	_edition_from_title = false
 	_title_panel.show()
 	_edition_panel.hide()
 	_start.text = "CONTINUE" if can_continue else "PLAY"
