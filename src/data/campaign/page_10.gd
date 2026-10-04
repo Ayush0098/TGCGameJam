@@ -150,7 +150,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Boss and the Intern had the same bad idea.",
-		"endings_total": 57,
+		"endings_total": 45,
 		"bonus": [
 			{
 				"id": "headline_1",

@@ -41,6 +41,12 @@ var _won_current := false
 var _ding_count := 0
 var _audio_index := 0
 var _players: Array[AudioStreamPlayer] = []
+var _character_players: Array[AudioStreamPlayer] = []
+var _character_index := 0
+## Mix: narration on top, character lines just under it, effects and music below.
+const NARRATOR_DB := 0.0
+const CHARACTER_DB := -3.0
+const SFX_DB := -9.0
 var _stage: Control
 var _original_stage: Control
 var _result_stage: Control
@@ -160,7 +166,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_stop_voice()
-	for player in _players:
+	for player in _players + _character_players:
 		player.stop()
 		player.stream = null
 
@@ -338,11 +344,18 @@ func _build_ui() -> void:
 	_ui.add_child(_status)
 	for i in range(8):
 		var player := AudioStreamPlayer.new()
-		player.volume_db = -15
+		player.volume_db = SFX_DB
 		add_child(player)
 		_players.append(player)
+	# Recorded character lines get their own pool on the Voice bus so a burst of
+	# sound effects never cuts them off.
+	for i in range(3):
+		var player := AudioStreamPlayer.new()
+		player.volume_db = CHARACTER_DB
+		add_child(player)
+		_character_players.append(player)
 	_voice = AudioStreamPlayer.new()
-	_voice.volume_db = -3
+	_voice.volume_db = NARRATOR_DB
 	_voice.finished.connect(_stop_voice)
 	add_child(_voice)
 	var lines: Variant = JSON.parse_string(FileAccess.get_file_as_string(VOICE_ROOT + "lines.json"))
@@ -922,7 +935,7 @@ func _cancel_presentation() -> void:
 	_hook_drag = -1
 	_hide_payoff()
 	_stop_voice()
-	for player in _players:
+	for player in _players + _character_players:
 		player.stop()
 	for view in [_stage, _original_stage, _result_stage]:
 		if is_instance_valid(view):
@@ -1542,8 +1555,8 @@ func _play_voice_file(base: String, player: AudioStreamPlayer = null) -> bool:
 	if path.is_empty() or not _sound.button_pressed or DisplayServer.get_name() == "headless":
 		return false
 	if player == null:
-		player = _players[_audio_index % _players.size()]
-		_audio_index += 1
+		player = _character_players[_character_index % _character_players.size()]
+		_character_index += 1
 	player.stream = load(path)
 	player.play()
 	return true
@@ -1941,6 +1954,8 @@ func _setup_audio_buses() -> void:
 			AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 	for player in _players:
 		player.bus = "SFX"
+	for player in _character_players:
+		player.bus = "Voice"
 	if is_instance_valid(_voice):
 		_voice.bus = "Voice"
 
@@ -2245,7 +2260,8 @@ func _replay_tutorial() -> void:
 var _music_plan: AudioStreamPlayer
 var _music_action: AudioStreamPlayer
 var _sting: AudioStreamPlayer
-const MUSIC_DB := -9.0
+const MUSIC_DB := -12.0
+const DUCK_DB := -9.0
 const SILENT_DB := -60.0
 
 
@@ -2287,7 +2303,7 @@ func _update_music(delta: float) -> void:
 		# Start both layers together so they stay in phase.
 		_music_plan.play()
 		_music_action.play()
-	var duck := -6.0 if is_instance_valid(_voice) and _voice.playing else 0.0
+	var duck := DUCK_DB if is_instance_valid(_voice) and _voice.playing else 0.0
 	var action := mode == "PLAY"
 	var plan_target := MUSIC_DB + duck if not action else SILENT_DB
 	var action_target := MUSIC_DB + duck if action else SILENT_DB
@@ -2300,7 +2316,7 @@ func _play_sting(won: bool) -> void:
 	if not is_instance_valid(_sting) or not _sound.button_pressed or DisplayServer.get_name() == "headless":
 		return
 	_sting.stream = load("res://assets/audio/music/%s_sting.wav" % ("win" if won else "fail"))
-	_sting.volume_db = -4.0
+	_sting.volume_db = -6.0
 	_sting.play()
 
 
