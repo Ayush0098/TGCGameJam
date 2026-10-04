@@ -21,6 +21,8 @@ const RULES = preload("res://core/rules.gd")
 const SIMULATOR = preload("res://core/simulator.gd")
 const GOALS = preload("res://core/goal_evaluator.gd")
 const STAGE = preload("res://presentation/stage_view.gd")
+const BACKDROP_SHADER = preload("res://presentation/backdrop.gdshader")
+var _backdrop: ColorRect
 const FRONT = preload("res://presentation/front_end.gd")
 
 var page: Dictionary = {}
@@ -180,6 +182,14 @@ func _build_ui() -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
+	# The room painting fills the whole window; the HUD floats on top of it.
+	_backdrop = ColorRect.new()
+	_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var backdrop_material := ShaderMaterial.new()
+	backdrop_material.shader = BACKDROP_SHADER
+	_backdrop.material = backdrop_material
+	add_child(_backdrop)
 	_ui = Control.new()
 	_ui.size = Vector2(1280, 720)
 	_ui.theme = _comic_theme()
@@ -383,6 +393,23 @@ func _layout_ui() -> void:
 	var factor := minf(size.x / 1280.0, size.y / 720.0)
 	_ui.scale = Vector2.ONE * factor
 	_ui.position = (size - Vector2(1280, 720) * factor) * 0.5
+	_update_backdrop()
+
+
+## Map the painting onto the window so it lines up exactly with the stage band
+## (room_light.gdshader shows crop y 0.20..0.84 across the 1280x460 band).
+func _update_backdrop() -> void:
+	if not is_instance_valid(_backdrop) or not is_instance_valid(_stage) or _ui.scale.x <= 0.0:
+		return
+	var painting: Texture2D = _stage.painting()
+	if painting != null:
+		_backdrop.material.set_shader_parameter("painting", painting)
+	var band_top: float = _stage.position.y
+	var corner: Vector2 = -_ui.position / _ui.scale.x
+	var span: Vector2 = size / _ui.scale.x
+	var crop := Vector4(corner.x / 1280.0, 0.20 + 0.64 * (corner.y - band_top) / 460.0, span.x / 1280.0, 0.64 * span.y / 460.0)
+	_backdrop.material.set_shader_parameter("crop", crop)
+	_backdrop.visible = _stage.full_bleed and painting != null
 
 
 func _rich(font_size: int) -> RichTextLabel:
@@ -469,6 +496,7 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	if is_instance_valid(_legend):
 		_legend.text = _legend_text()
 	_queue_story_cards()
+	_update_backdrop()
 	_narrate("intro")
 	if page.id == "page_02" and not page.has("narration") and _cues.has("narrator_intro"):
 		_story_waiting = true
@@ -663,6 +691,7 @@ func _finish_run(natural := false) -> void:
 		_update_buttons()
 		return
 	mode = "RESULT"
+	var stars_before := _stars(page)
 	var result: Dictionary = GOALS.evaluate(page, _run)
 	_won_current = result.won
 	_show_facts(result)
@@ -683,6 +712,9 @@ func _finish_run(natural := false) -> void:
 	rewards.append_array(_gag_lines(result))
 	_show_payoff(result, rewards)
 	_show_result_card(result)
+	var stars_after := _stars(page)
+	if _tutorial_panel < 0 and page_override.is_empty() and (result.won or stars_after > stars_before):
+		_show_star_award(stars_before, stars_after, result.won)
 	if result.won:
 		_narrate("twist")
 		_say_scripted("win", [])
@@ -1277,7 +1309,8 @@ func _show_payoff(result: Dictionary, rewards: Array[String] = []) -> void:
 		_missing.add_theme_color_override("font_color", Color("9a6b00"))
 	else:
 		var lines: Array[String] = ["Still needed:  " + "   •   ".join(missing)]
-		lines.append("   ".join(rewards) if not rewards.is_empty() else "REWIND keeps your plan so you can adjust it.")
+		if not rewards.is_empty():
+			lines.append("   ".join(rewards))
 		_missing.text = "\n".join(lines)
 		_missing.add_theme_color_override("font_color", Color("a4383e"))
 	_missing.visible = not _missing.text.is_empty()
@@ -1879,9 +1912,16 @@ func _restyle_hud() -> void:
 	_instructions.add_theme_font_size_override("font_size", 14)
 	for hook in _hooks:
 		hook.position = Vector2(-400, -400)
-	_stage.position = Vector2(16, 148)
-	_stage.size = Vector2(1248, 460)
-	_comparison.position = _stage.position
+	_stage.position = Vector2(0, 146)
+	_stage.size = Vector2(1280, 460)
+	_stage.set_full_bleed(true)
+	_comparison.position = Vector2(16, 146)
+	# Floating HUD: translucent paper cards over the painting, readable ink on top.
+	for rect in [Rect2(8, 4, 1264, 46), Rect2(924, 56, 348, 86), Rect2(8, 610, 1264, 104)]:
+		var card := _glass_panel(rect)
+		_ui.add_child(card)
+		_ui.move_child(card, 0)
+	_update_backdrop()
 	# Bottom bar: legend, narration line, ⟲ and ACTION.
 	_legend = _label(LEGEND_BASE, 14)
 	_legend.position = Vector2(16, 614)
@@ -1941,7 +1981,7 @@ func _restyle_hud() -> void:
 
 func _build_result_card() -> void:
 	# Completion popup (ui.md §7): pasted clipping over the stage's right side.
-	_result_card = _paper_panel(Rect2(724, 160, 520, 430), 0.012)
+	_result_card = _paper_panel(Rect2(724, 140, 520, 466), 0.012)
 	_result_card.z_index = 160
 	_result_card.hide()
 	_ui.add_child(_result_card)
@@ -1957,10 +1997,10 @@ func _build_result_card() -> void:
 	_result_facts = _rich(16)
 	_result_facts.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_result_facts.position = Vector2(24, 200)
-	_result_facts.size = Vector2(472, 96)
+	_result_facts.size = Vector2(472, 92)
 	_result_card.add_child(_result_facts)
 	var row := HBoxContainer.new()
-	row.position = Vector2(24, 312)
+	row.position = Vector2(24, 346)
 	row.size = Vector2(472, 56)
 	row.add_theme_constant_override("separation", 12)
 	_result_card.add_child(row)
@@ -1973,7 +2013,7 @@ func _build_result_card() -> void:
 	_result_restart = _button(row, "RESTART", _restart_page)
 	_result_restart.custom_minimum_size = Vector2(130, 52)
 	var small := HBoxContainer.new()
-	small.position = Vector2(24, 376)
+	small.position = Vector2(24, 408)
 	small.add_theme_constant_override("separation", 8)
 	_result_card.add_child(small)
 	_levels_button = _button(small, "LEVELS", _open_edition)
@@ -2003,10 +2043,10 @@ func _build_result_card() -> void:
 	_stamp.pivot_offset = _stamp.size * 0.5
 	_missing.get_parent().remove_child(_missing)
 	_result_card.add_child(_missing)
-	_missing.position = Vector2(24, 286)
-	_missing.size = Vector2(472, 24)
-	_missing.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_missing.add_theme_font_size_override("font_size", 15)
+	_missing.position = Vector2(24, 296)
+	_missing.size = Vector2(472, 44)
+	_missing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_missing.add_theme_font_size_override("font_size", 14)
 
 
 func _show_result_card(result: Dictionary) -> void:
@@ -2908,8 +2948,50 @@ func _object_art(id: String) -> String:
 func _sentence_case(text: String) -> String:
 	var words := text.to_lower()
 	words = words.left(1).to_upper() + words.substr(1)
+	for keep in ["HR", "Kevin", "Brian", "Gary", "Steve", "Doug", "Dave", "Nigel"]:
+		words = RegEx.create_from_string("\\b%s\\b" % keep.to_lower()).sub(words, keep, true)
 	for character in page.get("characters", []):
 		var name := str(character.get("name", character.id))
 		var regex := RegEx.create_from_string("\\b%s\\b" % name.to_lower())
 		words = regex.sub(words, name, true)
 	return words
+
+
+
+func _glass_panel(rect: Rect2) -> Panel:
+	var panel := Panel.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(Color("fffaf0"), 0.9)
+	box.border_color = Color(INK, 0.85)
+	box.set_border_width_all(2)
+	box.set_corner_radius_all(10)
+	box.shadow_color = Color(0, 0, 0, 0.35)
+	box.shadow_size = 8
+	box.shadow_offset = Vector2(0, 3)
+	panel.add_theme_stylebox_override("panel", box)
+	panel.position = rect.position
+	panel.size = rect.size
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return panel
+
+
+
+# ------------------------------------------------------------ star award
+const STAR_AWARD = preload("res://presentation/star_award.gd")
+var _star_award: Control
+
+
+## Bulbs light up one by one after a page; the fresh ones pop in with sparks.
+func _show_star_award(before: int, after: int, won: bool) -> void:
+	if not is_instance_valid(_star_award):
+		_star_award = STAR_AWARD.new()
+		_star_award.z_index = 220
+		_ui.add_child(_star_award)
+		_star_award.star_landed.connect(func(index: int, _fresh: bool):
+			_ding(587.33 * pow(1.26, index))
+			_play_effect("SWAP"))
+	_star_award.position = _stage.position
+	_star_award.size = _stage.size
+	var total: int = 1 + page.get("bonus", []).size()
+	var title := "PERFECT PAGE!" if after == total else ("PAGE CLEAR!" if won else "BONUS STAR!")
+	_star_award.play(before, after, total, title, COMIC_FONT, _motion.button_pressed)

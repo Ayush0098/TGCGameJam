@@ -134,6 +134,22 @@ func _ready() -> void:
 	get_window().focus_exited.connect(_cancel_drag)
 	_layout()
 
+## The main stage bleeds into a full-screen backdrop: no frame, no clipping,
+## light fading out at the band edges.
+var full_bleed := false
+
+
+func set_full_bleed(enabled: bool) -> void:
+	full_bleed = enabled
+	clip_contents = not enabled
+	_room.material.set_shader_parameter("edge_fade", 0.09 if enabled else 0.0)
+	queue_redraw()
+
+
+func painting() -> Texture2D:
+	return _room.material.get_shader_parameter("painting")
+
+
 func _fit() -> float:
 	return maxf(0.0001, minf(size.x / LOGICAL_SIZE.x, size.y / LOGICAL_SIZE.y))
 
@@ -708,7 +724,8 @@ func _draw() -> void:
 	if _drag_bubble != "":
 		draw_circle(_mouse, 18, Color(1, 0.85, 0.3, 0.7))
 	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
-	draw_rect(Rect2(3, 3, 1274, 454), INK, false, 6)
+	if not full_bleed:
+		draw_rect(Rect2(3, 3, 1274, 454), INK, false, 6)
 
 func _draw_word(effect: Dictionary) -> void:
 	# Onomatopoeia: an inked starburst with an outlined word; pops in, drifts, fades.
