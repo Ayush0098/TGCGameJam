@@ -2,7 +2,7 @@
   "asset_id": "background.office.stage",
   "master": "assets/art/backgrounds/office_stage.png",
   "runtime": "src/assets/backgrounds/office_stage.png",
-  "generator": "OpenAI image generation (ChatGPT), requested by Ayush",
+  "generator": "Built-in image_gen",
   "generated_date": "2026-10-04",
   "native_width": 1672,
   "native_height": 941,
@@ -12,8 +12,11 @@
     1,
     0.64
   ],
-  "brief": "docs/review/2026-10-04_build/room_painting_requests.md (local)",
-  "review": "Claude 2026-10-04: seam ~0.66, gameplay lane plain, no painted light sources, no readable text, style matches living room under night grading.",
+  "wall_floor_seam_source_y": 0.665,
+  "reference": "assets/art/backgrounds/living_room_stage.png (style and composition only)",
+  "inspection": "Claude 2026-10-04: seam ~0.66, gameplay lane plain, no painted light sources, no readable text, style matches living room under night grading. (current image; v1 archived in assets/art/backgrounds/archive/).",
+  "prompt": "Use case: illustration-story.\nAsset type: production background painting for a 2D side-on storybook puzzle game, LIGHTBULB MOMENT. Create one high-resolution 16:9 landscape image, 2048 by 1152 pixels or higher, at least 1672 by 941 pixels.\n\nPrimary request: an empty old-fashioned small-company OFFICE architectural shell after hours, exquisitely hand-painted gouache with soft edges and fine natural paper grain. Subdued cool palette: muted slate-green upper walls, dark walnut wainscot panelling on the lower wall, desaturated brass details, a worn parquet floor in muted tones. Tasteful, slightly comic period-office character, like a lovingly illustrated storybook. It must match a companion living-room painting in the same style and will receive a deep-midnight lighting treatment in the game.\n\nComposition: straight-on side-on theatre stage with NO perspective vanishing point. Front wall across the entire image and floor stretching full width. Horizontal wall/floor seam EXACTLY around 67 percent of source-image height. We will display only the image area from 20 percent down to 84 percent down; frame this crop as the intended scene. Architecture is continuous, almost orthographic. Keep the middle 94 percent of width clear of projecting furniture or obstructions. Gameplay happens in the lower part of that crop, source y 52 to 76 percent. This entire gameplay lane must stay plain and visually quiet, suitable for small animated characters and separate props.\n\nDecorations (upper wall only, above source y 50 percent): a plain round wall clock with no numbers, two or three empty framed certificate shapes with no readable text, a small festive paper-chain garland along the cornice (it is the Boss's birthday), and one high window with closed venetian blinds and cool, dim, opaque glass at a FAR outer side, never brightly lit. Sparse and subtle.\n\nLighting: EVEN cool neutral mid-value ambient paint. No drawn pools of light, no bloom, no radiating beams, no directional shadows, no glowing windows. The game adds illumination later, so keep shadow texture soft and neutral. Preserve readable painted surfaces rather than blacking out the image.\n\nConstraints: no people, no animals, no desks, no chairs, no filing cabinets, no water cooler, no plants on the floor, no cake, no food, no lamps, no light bulbs, no candles, no switches, no puzzle blockers, no text, no logos, no watermark. No halftone dots, no stipple dot overlay, no pencil sketch, no photorealism, no 3D render. Fine paper grain only. The centre lower wall and floor are spacious empty negative space. This is a finished background painting, not a mockup; no borders, no annotations, no guide lines.",
+  "prompt_suffix": "Input image: living_room_stage.png is a STYLE AND STAGE COMPOSITION reference only. Generate the office as its companion; match paint texture, restraint and seam height. Produce only the office.",
   "runtime_processing": "Runtime copy identical to master.",
-  "terms": "Generated output; no stock art supplied. No open-source output license asserted. See THIRD_PARTY.md."
+  "note": "Restored from the v1 record after Claude accidentally overwrote this file on 2026-10-04; the base prompt matches docs/review/2026-10-04_build/room_painting_requests.md, any follow-up wording for the current image was not preserved."
 }
