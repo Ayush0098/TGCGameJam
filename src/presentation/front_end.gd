@@ -345,37 +345,54 @@ func _build_credits() -> void:
 	box.position = Vector2(300, 70)
 	box.size = Vector2(680, 580)
 	_credits_panel.add_child(box)
-	var heading := _label("THE DAILY BULB  ·  STAFF", 40)
-	heading.add_theme_font_override("font", COMIC_FONT)
-	heading.position = Vector2(30, 18)
-	box.add_child(heading)
-	var body := _label("\n".join([
-		"Made in 100 hours for the TGC Game Jam, Infinium 2026.",
-		"Themes: COMIC  ·  TWIST  ·  LIGHT",
-		"",
-		"A PROJECT NAP game",
-		"Made by Ayush Raj",
-		"",
+	# Team name and maker get the main focus; everyone else follows smaller.
+	var kicker := _label("THE DAILY BULB  ·  STAFF", 16, MUTED)
+	kicker.position = Vector2(0, 22)
+	kicker.size = Vector2(680, 20)
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(kicker)
+	var team := _label("PROJECT NAP", 64, RED)
+	team.add_theme_font_override("font", COMIC_FONT)
+	team.position = Vector2(0, 44)
+	team.size = Vector2(680, 76)
+	team.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(team)
+	var maker := _label("Made by AYUSH RAJ", 34)
+	maker.add_theme_font_override("font", COMIC_FONT)
+	maker.position = Vector2(0, 124)
+	maker.size = Vector2(680, 44)
+	maker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(maker)
+	var rule := ColorRect.new()
+	rule.color = INK
+	rule.position = Vector2(140, 178)
+	rule.size = Vector2(400, 2)
+	box.add_child(rule)
+	var others := _label("
+".join([
+		"Team member: Kancharla Nagapranav Reddy",
 		"Testing and ideation: Ayush Pattanayak, Pranshu Porwal, Adiraj Jain",
-		"",
-		"Printed with Godot Engine 4 (MIT licence).",
-		"Type: Bangers and Comic Neue (SIL Open Font Licence).",
-		"Characters, props, icons and sound effects: original work.",
-		"Room paintings: AI image generation (see THIRD_PARTY.md).",
-		"Narration: synthetic voices (see THIRD_PARTY.md).",
-		"Music and jingles: original, composed in code.",
+	]), 15)
+	others.position = Vector2(30, 192)
+	others.size = Vector2(620, 50)
+	others.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(others)
+	var body := _label("
+".join([
+		"Made in 100 hours for the TGC Game Jam, Infinium 2026  ·  Themes: COMIC · TWIST · LIGHT",
+		"Printed with Godot Engine 4 (MIT licence)  ·  Type: Bangers and Comic Neue (SIL OFL)",
+		"Characters, props, icons, sound effects and music: original work",
+		"Room paintings: AI image generation  ·  Voices: synthetic (see THIRD_PARTY.md)",
 		"",
 		"Thanks for reading the Sunday funnies.",
-	]), 18)
-	body.position = Vector2(30, 88)
-	var small := _label("Team member: Kancharla Nagapranav Reddy", 12, MUTED)
-	small.position = Vector2(30, 540)
-	box.add_child(small)
-	body.size = Vector2(620, 420)
+	]), 13, MUTED)
+	body.position = Vector2(30, 300)
+	body.size = Vector2(620, 220)
+	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(body)
 	var back := _button("BACK", 20, false)
 	back.custom_minimum_size = Vector2(160, 48)
-	back.position = Vector2(490, 510)
+	back.position = Vector2(260, 510)
 	back.pressed.connect(func(): _credits_panel.hide())
 	box.add_child(back)
