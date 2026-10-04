@@ -14,6 +14,7 @@ const TIER_COLOURS := [Color("3a8d4f"), Color("d9a521"), Color("c0392b")]
 const TIER_NAMES := ["EASY", "MEDIUM", "HARD"]
 var _star_total: Label
 var _credits_panel: Control
+var _credits_back: Button
 
 const INK := Color("243043")
 const PAPER := Color("f3ead8")
@@ -435,43 +436,45 @@ func _build_credits() -> void:
 	box.add_child(team)
 	var maker := _label("Made by AYUSH RAJ", 34)
 	maker.add_theme_font_override("font", COMIC_FONT)
-	maker.position = Vector2(0, 124)
+	maker.position = Vector2(0, 120)
 	maker.size = Vector2(680, 44)
 	maker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(maker)
-	var rule := ColorRect.new()
-	rule.color = INK
-	rule.position = Vector2(140, 178)
-	rule.size = Vector2(400, 2)
-	box.add_child(rule)
-	var others := _label("
-".join([
-		"Team member: Kancharla Nagapranav Reddy",
-		"Testing and ideation: Ayush Pattanayak, Pranshu Porwal, Adiraj Jain",
-	]), 15)
-	others.position = Vector2(30, 192)
-	others.size = Vector2(620, 50)
-	others.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(others)
-	var body := _label("
-".join([
-		"Made in 100 hours for the TGC Game Jam, Infinium 2026  ·  Themes: COMIC · TWIST · LIGHT",
-		"Printed with Godot Engine 4 (MIT licence)  ·  Type: Bangers and Comic Neue (SIL OFL)",
-		"Characters, props, icons, sound effects and music: original work",
-		"Room paintings: AI image generation  ·  Voices: synthetic (see THIRD_PARTY.md)",
-		"",
-		"Thanks for reading the Sunday funnies.",
-	]), 13, MUTED)
-	body.position = Vector2(30, 300)
-	body.size = Vector2(620, 220)
-	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(body)
+	# One centred line per entry: every label spans the full card width.
+	var lines := [
+		[170, "Contact:  ayush.raj@research.iiit.ac.in   ·   9102582903", 16, INK],
+		[214, "Team member:  Kancharla Nagapranav Reddy", 16, INK],
+		[240, "Testing and ideation:  Ayush Pattanayak, Pranshu Porwal, Adiraj Jain", 16, INK],
+		[300, "Made in 100 hours for the TGC Game Jam, Infinium 2026", 14, MUTED],
+		[324, "Themes: COMIC  ·  TWIST  ·  LIGHT", 14, MUTED],
+		[348, "Printed with Godot Engine 4 (MIT licence)  ·  Type: Bangers and Comic Neue (SIL OFL)", 14, MUTED],
+		[372, "Characters, props, icons, sound effects and music: original work", 14, MUTED],
+		[396, "Room paintings: AI image generation  ·  Voices: synthetic (see THIRD_PARTY.md)", 14, MUTED],
+		[440, "Thanks for reading the Sunday funnies.", 16, RED],
+	]
+	for entry in lines:
+		var line := _label(str(entry[1]), int(entry[2]), entry[3])
+		line.position = Vector2(0, float(entry[0]))
+		line.size = Vector2(680, 24)
+		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		line.autowrap_mode = TextServer.AUTOWRAP_OFF
+		box.add_child(line)
+	for y in [204, 284]:
+		var rule := ColorRect.new()
+		rule.color = Color(INK, 0.8 if y == 204 else 0.25)
+		rule.position = Vector2(140, y)
+		rule.size = Vector2(400, 2)
+		box.add_child(rule)
 	var back := _button("BACK", 20, false)
 	back.custom_minimum_size = Vector2(160, 48)
-	back.position = Vector2(260, 510)
+	back.size = Vector2(160, 48)
+	back.position = Vector2(260, 500)
 	back.pressed.connect(func(): _credits_panel.hide())
 	box.add_child(back)
+	_credits_back = back
+	_credits_panel.visibility_changed.connect(func():
+		if _credits_panel.visible:
+			_credits_back.grab_focus.call_deferred())
 
 
 
@@ -508,3 +511,19 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_idle_time = 0.0
+
+
+
+## Esc on the title screens: close Credits, or leave the Sunday Edition.
+func go_back() -> void:
+	if _credits_panel.visible:
+		_credits_panel.hide()
+		_start.grab_focus()
+	elif _edition_panel.visible:
+		_close.pressed.emit()
+
+
+func focus_settings() -> void:
+	var settings := _title_panel.find_child("Settings", true, false)
+	if settings is Control and settings.is_visible_in_tree():
+		settings.grab_focus()

@@ -940,7 +940,11 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
 		# Esc always goes back one step.
 		if is_instance_valid(_settings_sheet) and _settings_sheet.visible:
-			_settings_sheet.hide()
+			_close_settings()
+		elif is_instance_valid(_front) and _front.visible:
+			_front.go_back()
+		elif is_instance_valid(_endings_book):
+			_endings_book.queue_free()
 		elif is_instance_valid(_pause_sheet) and _pause_sheet.visible:
 			_close_pause()
 		elif not (is_instance_valid(_front) and _front.visible):
@@ -1235,10 +1239,10 @@ func _update_instructions() -> void:
 				text = "Nobody is lit. Drag the bulb into the room (or use the arrow keys) to reveal what someone is thinking."
 			elif lit.size() == 1:
 				text = "Light a second character to swap thoughts, or press ACTION!
-Keys: arrows/WASD move bulb · Tab pick · Enter swap · Space ACTION · H hint"
+Keys: WASD bulb · Tab pick · Enter swap · Space go · H hint"
 			else:
 				text = "Drag a lit thought onto another lit character to swap.
-Keys: arrows/WASD move bulb · Tab pick · Enter swap · Space ACTION · H hint"
+Keys: WASD bulb · Tab pick · Enter swap · Space go · H hint"
 	_instructions.text = text
 	if is_instance_valid(_action):
 		# The label never changes length (it must fit its button); a dark stage
@@ -2282,13 +2286,34 @@ func _load_settings() -> void:
 func _open_settings() -> void:
 	if not is_instance_valid(_settings_sheet):
 		_build_settings_sheet()
+	_settings_from_pause = is_instance_valid(_pause_sheet) and _pause_sheet.visible
+	if _settings_from_pause:
+		_pause_sheet.hide()
 	_settings_sheet.show()
+	for child in _settings_sheet.find_children("*", "Control", true, false):
+		if child.focus_mode == Control.FOCUS_ALL and child.is_visible_in_tree():
+			child.grab_focus.call_deferred()
+			break
+
+
+## Closing Settings returns to whichever menu opened it.
+func _close_settings() -> void:
+	if is_instance_valid(_settings_sheet):
+		_settings_sheet.hide()
+	if _settings_from_pause:
+		_settings_from_pause = false
+		_open_pause()
+	elif is_instance_valid(_front) and _front.visible:
+		_front.focus_settings()
+
+
+var _settings_from_pause := false
 
 
 func _build_settings_sheet() -> void:
 	_settings_sheet = Control.new()
 	_settings_sheet.size = Vector2(1280, 720)
-	_settings_sheet.z_index = 240
+	_settings_sheet.z_index = 380
 	_settings_sheet.mouse_filter = Control.MOUSE_FILTER_STOP
 	_ui.add_child(_settings_sheet)
 	var dim := ColorRect.new()
@@ -2365,7 +2390,7 @@ func _build_settings_sheet() -> void:
 	back.custom_minimum_size = Vector2(110, 48)
 	back.add_theme_font_override("font", COMIC_FONT)
 	back.add_theme_font_size_override("font_size", 24)
-	back.pressed.connect(func(): _settings_sheet.hide())
+	back.pressed.connect(_close_settings)
 	sheet.add_child(back)
 	_settings_sheet.hide()
 
