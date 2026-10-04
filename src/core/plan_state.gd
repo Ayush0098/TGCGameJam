@@ -4,6 +4,8 @@ extends RefCounted
 var centres: Array[int] = []
 var lanterns: Array = []
 var thoughts: Dictionary = {}
+## Optional FLICK {beat, centre}; kept across REWIND so a timed solution repeats.
+var flick: Dictionary = {}
 
 
 static func from_page(page: Dictionary) -> RefCounted:
@@ -17,13 +19,17 @@ static func from_page(page: Dictionary) -> RefCounted:
 
 
 func to_data() -> Dictionary:
-	return {"centres": centres.duplicate(), "lanterns": lanterns.duplicate(true), "thoughts": thoughts.duplicate(true)}
+	var data := {"centres": centres.duplicate(), "lanterns": lanterns.duplicate(true), "thoughts": thoughts.duplicate(true)}
+	if not flick.is_empty():
+		data.flick = flick.duplicate()
+	return data
 
 
 func restore(data: Dictionary) -> void:
 	centres.assign(data.get("centres", []))
 	lanterns = data.get("lanterns", []).duplicate(true)
 	thoughts = data.thoughts.duplicate(true)
+	flick = data.get("flick", {}).duplicate()
 
 
 func place(page: Dictionary, index: int, centre: int) -> bool:

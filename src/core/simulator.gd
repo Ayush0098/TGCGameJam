@@ -55,13 +55,14 @@ static func run(page: Dictionary, plan: Dictionary, capture_presentation: bool =
 				entered[actor.slot].append(actor.id)
 		_capture_phase(presentation_frames, world, "MOVE", capture_presentation)
 		_activate_switches(page, saved_plan, world, entered, events)
+		_activate_flick(page, saved_plan, world, events)
 		_capture_phase(presentation_frames, world, "SWITCHES", capture_presentation)
 		_resolve_bonks(world, actors, decisions, events)
 		_capture_phase(presentation_frames, world, "BONKS", capture_presentation)
 		_resolve_claims(world, actors, decisions, events)
 		_capture_phase(presentation_frames, world, "CLAIMS", capture_presentation)
 		snapshots.append(world.duplicate(true))
-		if events.size() == event_count:
+		if events.size() == event_count and not _flick_pending(world):
 			capped = false
 			break
 	var result := {"snapshots": snapshots, "events": events, "end_beat": world.beat, "capped": capped, "plan": saved_plan}
@@ -171,3 +172,32 @@ static func _before(world: Dictionary, first: String, second: String) -> bool:
 
 static func _event(beat: int, phase: String, type: String, actor: String, target: String, object: String, from_slot: int, to_slot: int) -> Dictionary:
 	return {"beat": beat, "phase": phase, "type": type, "actor": actor, "target": target, "object": object, "from": from_slot, "to": to_slot}
+
+
+
+static func _activate_flick(page: Dictionary, plan: Dictionary, world: Dictionary, events: Array[Dictionary]) -> void:
+	# Same code path as a switched lamp, at the beat the player chose.
+	for lamp in world.lamps:
+		if lamp.id != RULES.FLICK_ID or lamp.on or int(lamp.get("beat", 0)) != int(world.beat):
+			continue
+		lamp.on = true
+		var centre := int((int(lamp.zone[0]) + int(lamp.zone[1])) / 2.0)
+		var lamp_event := _event(world.beat, "SWITCHES", "FLICK", "", "", "", centre, centre)
+		lamp_event.lamp = lamp.id
+		events.append(lamp_event)
+		var lit := RULES.lit_slots(page, plan, world)
+		for actor in world.characters:
+			if not actor.active and actor.status != "EXITED" and actor.slot in lit:
+				actor.active = true
+				var ding := _event(world.beat, "SWITCHES", "DING", actor.id, "", "", actor.slot, actor.slot)
+				ding.lamp = lamp.id
+				events.append(ding)
+
+
+
+static func _flick_pending(world: Dictionary) -> bool:
+	# Quiet beats still pass while the spare bulb waits to switch on.
+	for lamp in world.lamps:
+		if lamp.id == RULES.FLICK_ID and not lamp.on:
+			return true
+	return false

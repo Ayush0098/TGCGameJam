@@ -85,6 +85,9 @@ var _progress_label: Label
 # Hitstop: impact frames pause the playback clock (not Engine.time_scale).
 var _hitstop := 0.0
 const HITSTOP := {"BONK": 0.12, "CLASH": 0.12, "EXIT": 0.1, "EAT": 0.08}
+## FLICK: a run with an unused spare bulb keeps playing quiet beats this long.
+const FLICK_WINDOW_BEATS := 8
+const AIM_SLOWDOWN := 0.4
 const INK := Color("243043")
 const PAPER := Color("f2e8cf")
 const SAVE_PATH := "user://lightbulb_progress.json"
@@ -197,6 +200,7 @@ func _build_ui() -> void:
 	_stage.thought_swapped.connect(_swap)
 	_stage.actor_revealed.connect(func(_id: String, thought: String): _play_effect("REVEAL_" + thought))
 	_stage.actor_poked.connect(func(_id: String, kind: String): _play_effect(kind))
+	_stage.flick_cleared.connect(_clear_flick)
 	_stage.preview_requested.connect(_preview)
 	_stage.preview_cleared.connect(_stage.clear_preview)
 	_comparison = HBoxContainer.new()
@@ -405,6 +409,10 @@ func _process(delta: float) -> void:
 	if _is_original and _active_cue == "narrator_intro":
 		return
 	var elapsed := delta * (3.0 if _fast else 1.0)
+	var aim := _aim_slot()
+	_stage.set_flick_ready(_flick_available(), aim)
+	if aim >= 0:
+		elapsed *= AIM_SLOWDOWN
 	if _hitstop > 0.0:
 		_hitstop = maxf(0.0, _hitstop - delta)
 		return
@@ -427,7 +435,10 @@ func _process(delta: float) -> void:
 		_events_at(int(frame.beat), str(frame.phase))
 		_frame_cursor += 1
 	# Hold the final contact/recovery before presenting the comparison panels.
-	if _clock >= float(_run.end_beat) * BEAT_SECONDS + RECOVERY_SECONDS:
+	var end_time := float(_run.end_beat) * BEAT_SECONDS + RECOVERY_SECONDS
+	if _flick_available():
+		end_time = maxf(end_time, float(FLICK_WINDOW_BEATS) * BEAT_SECONDS + RECOVERY_SECONDS)
+	if _clock >= end_time:
 		_finish_run()
 		return
 	var positions: Dictionary = {}
@@ -695,6 +706,12 @@ func _input(event: InputEvent) -> void:
 				return
 	var pressed_key: bool = event is InputEventKey and event.pressed and not event.echo
 	var pressed_mouse: bool = event is InputEventMouseButton and event.pressed
+	if mode == "PLAY" and pressed_mouse and event.button_index == MOUSE_BUTTON_LEFT and _flick_available():
+		var slot := _aim_slot()
+		if slot >= 0:
+			_drop_flick(slot)
+			get_viewport().set_input_as_handled()
+			return
 	if mode in ["INTRO", "ORIGINAL_END"] and (pressed_key or pressed_mouse):
 		_finish_run()
 		get_viewport().set_input_as_handled()
@@ -900,6 +917,8 @@ func _update_instructions() -> void:
 			text = "The Original strip. Watch what normally happens, or click to skip it."
 		"PLAY":
 			text = "AND THEN...   (Space skips to the end)"
+			if _flick_available():
+				text = "Click the room to drop your spare bulb: it lights 3 slots from the next beat (FLICK!)"
 		"RESULT":
 			text = "TWIST! Press NEXT PAGE, or hunt for another ending." if _won_current else "Not quite. REWIND keeps your plan; RESTART resets the page."
 		"PLAN":
@@ -1133,3 +1152,49 @@ func _comic_theme() -> Theme:
 	theme.set_color("font_disabled_color", "Button", Color("a9a28f"))
 	theme.set_color("font_color", "Label", INK)
 	return theme
+
+
+
+func _flick_available() -> bool:
+	return mode == "PLAY" and not _is_original and int(page.get("flick", 0)) > 0 and _run.get("plan", {}).get("flick", {}).is_empty()
+
+
+func _aim_slot() -> int:
+	if not _flick_available() or not is_instance_valid(_stage) or not _stage.is_inside_tree():
+		return -1
+	var local: Vector2 = _stage.get_local_mouse_position()
+	if not Rect2(Vector2.ZERO, _stage.size).has_point(local):
+		return -1
+	return _stage.slot_at(local)
+
+
+func _flick_beat() -> int:
+	# The first beat whose SWITCHES phase has not been shown yet, so the
+	# replayed prefix is identical to what the player already watched.
+	var beat := 1
+	while (float(beat) - 1.0) * BEAT_SECONDS + float(PHASE_TIME.SWITCHES) <= _clock:
+		beat += 1
+	return beat
+
+
+func _drop_flick(slot: int) -> void:
+	if not _flick_available():
+		return
+	var flick := {"beat": _flick_beat(), "centre": slot}
+	var flicked: Dictionary = _run.plan.duplicate(true)
+	flicked.flick = flick
+	plan.flick = flick.duplicate()
+	_saved_plan = plan.to_data()
+	# Pure re-simulation; playback continues from the same clock and frame.
+	_run = SIMULATOR.run(page, flicked, true)
+	_stage.set_flick_ready(false)
+	_ding(880.0)
+	_play_effect("LAMP_ON")
+	_update_instructions()
+
+
+func _clear_flick() -> void:
+	if mode == "PLAN" and not plan.flick.is_empty():
+		plan.flick = {}
+		_saved_plan = plan.to_data()
+		_refresh_plan()

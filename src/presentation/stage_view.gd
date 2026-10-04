@@ -8,6 +8,7 @@ signal preview_requested(first: String, second: String)
 signal preview_cleared()
 signal actor_revealed(id: String, thought: String)
 signal actor_poked(id: String, kind: String)
+signal flick_cleared()
 
 const INK := Color("243043")
 const PAPER := Color("f0eee5")
@@ -64,6 +65,10 @@ var _mood_left := 0.0
 var _bulb_clock := 0.0
 var _look := Vector2.ZERO
 var _lit_last: Dictionary = {}
+# FLICK: aiming during ACTION, and the ghost of a kept flick during PLAN.
+var _flick_ready := false
+var _aim_slot := -1
+var _flick_ghost_rect := Rect2()
 # Comic juice: screen shake (trauma 0..1, decays) applied to the panel root only.
 var _trauma := 0.0
 var _shake_time := 0.0
@@ -412,7 +417,7 @@ func present_events(events: Array, speed: float = 1.0, reduced_motion: bool = fa
 	_playback_speed = speed
 	_reduced_motion = reduced_motion
 	var actions := {"MOVE": "walk", "FLEE": "run", "STARTLE": "startle", "EAT": "eat", "SIT": "sit", "BONK": "bonk", "EXIT": "exit"}
-	var words := {"DING": "DING!", "STARTLE": "EEK!", "EAT": "CHOMP!", "SIT": "Zzz", "BONK": "BONK!", "CLASH": "CLONK!", "EXIT": "ZOOM!", "LAMP_ON": "CLICK!", "WHIFF": "WHIFF!"}
+	var words := {"FLICK": "FLICK!", "DING": "DING!", "STARTLE": "EEK!", "EAT": "CHOMP!", "SIT": "Zzz", "BONK": "BONK!", "CLASH": "CLONK!", "EXIT": "ZOOM!", "LAMP_ON": "CLICK!", "WHIFF": "WHIFF!"}
 	for event in events:
 		var id := str(event.get("actor", ""))
 		if actions.has(event.type):
@@ -566,7 +571,10 @@ func _draw() -> void:
 		var end := world_to_stage(Vector2(obstacle.to[0], obstacle.to[1]))
 		draw_line(start, end, Color("b3ada0"), 9, true)
 		draw_line(start, end, INK, 2, true)
+	_draw_flick(world)
 	for lamp in world.get("lamps", []):
+		if lamp.get("id", "") == "flick":
+			continue
 		var centre := Vector2(_x((float(lamp.zone[0]) + float(lamp.zone[1])) * 0.5), 65)
 		if lamp.on:
 			draw_colored_polygon(PackedVector2Array([centre, Vector2(_x(lamp.zone[0]) - _spacing() * 0.45, FLOOR_Y), Vector2(_x(lamp.zone[1]) + _spacing() * 0.45, FLOOR_Y)]), Color(1, 0.86, 0.55, 0.055))
@@ -736,6 +744,10 @@ func _gui_input(event: InputEvent) -> void:
 					_drag_bubble = id
 					accept_event()
 					return
+			if _flick_ghost_rect.has_area() and _flick_ghost_rect.has_point(_mouse):
+				flick_cleared.emit()
+				accept_event()
+				return
 			for index in range(_bulb_rects.size()):
 				if _bulb_rects[index].has_point(_mouse):
 					_drag_bulb = index
@@ -872,3 +884,58 @@ func _draw_bulby(index: int, at: Vector2) -> void:
 				draw_circle(Vector2(side * ex, ey) + look * 0.6, 2.4, INK)
 			draw_arc(Vector2(0, r * 0.12), r * 0.32, 0.4, PI - 0.4, 8, INK, 2.0, true)
 	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
+
+
+func set_flick_ready(ready: bool, aim_slot: int = -1) -> void:
+	if ready != _flick_ready or aim_slot != _aim_slot:
+		_flick_ready = ready
+		_aim_slot = aim_slot
+		queue_redraw()
+
+func slot_at(local_point: Vector2) -> int:
+	var point := to_stage(local_point)
+	return clampi(int(round((point.x - 90.0) / _spacing())), 0, int(_page.get("width", 11)) - 1)
+
+func _draw_spare_bulb(centre: Vector2, alpha: float, label: String = "") -> void:
+	draw_line(Vector2(centre.x, 6), centre - Vector2(0, 22), Color(0.32, 0.29, 0.32, alpha), 2, true)
+	draw_circle(centre, 24, Color(1, 0.8, 0.86, 0.25 * alpha))
+	draw_rect(Rect2(centre + Vector2(-6, 9), Vector2(12, 7)), Color(0.55, 0.59, 0.67, alpha))
+	draw_circle(centre, 12, Color(1, 0.78, 0.85, alpha))
+	draw_arc(centre, 12, 0, TAU, 24, Color(INK, alpha), 2.2, true)
+	for side in [-1, 1]:
+		draw_circle(centre + Vector2(side * 4, -2), 1.8, Color(INK, alpha))
+	draw_arc(centre + Vector2(0, 1), 4, 0.3, PI - 0.3, 6, Color(INK, alpha), 1.6, true)
+	if not label.is_empty():
+		_label(self, centre + Vector2(18, 6), label, Color(Color("ffd27a"), alpha), 15)
+
+func _draw_flick(world: Dictionary) -> void:
+	_flick_ghost_rect = Rect2()
+	var on_lamp: Dictionary = {}
+	for lamp in world.get("lamps", []):
+		if lamp.get("id", "") == "flick" and lamp.get("on", false):
+			on_lamp = lamp
+	if not on_lamp.is_empty():
+		var centre := Vector2(_x((float(on_lamp.zone[0]) + float(on_lamp.zone[1])) * 0.5), 60)
+		_draw_spare_bulb(centre, 1.0)
+	var flick: Dictionary = _plan.get("flick", {})
+	if _planning and not flick.is_empty():
+		# Ghost of the kept flick; clicking it clears the flick.
+		var ghost := Vector2(_x(float(flick.centre)), 60)
+		var left := _x(float(flick.centre) - 1.45)
+		var right := _x(float(flick.centre) + 1.45)
+		for x in range(int(left), int(right), 14):
+			draw_line(Vector2(x, FLOOR_Y + 10), Vector2(x + 7, FLOOR_Y + 10), Color(1, 0.78, 0.85, 0.8), 3)
+		_draw_spare_bulb(ghost, 0.55, "FLICK at beat %d  (click to clear)" % int(flick.beat))
+		_flick_ghost_rect = Rect2(ghost - Vector2(20, 30), Vector2(40, 54))
+	if _flick_ready:
+		if _aim_slot >= 0:
+			var left := _x(float(_aim_slot) - 1.45)
+			var right := _x(float(_aim_slot) + 1.45)
+			draw_rect(Rect2(left, 70, right - left, FLOOR_Y - 60), Color(1, 0.86, 0.55, 0.12))
+			for y in range(70, int(FLOOR_Y + 10), 14):
+				draw_line(Vector2(left, y), Vector2(left, y + 7), Color(1, 0.86, 0.55, 0.8), 2)
+				draw_line(Vector2(right, y), Vector2(right, y + 7), Color(1, 0.86, 0.55, 0.8), 2)
+			_draw_spare_bulb(Vector2(_x(float(_aim_slot)), 60), 1.0, "click to FLICK")
+		else:
+			var wiggle := 0.0 if _reduced_motion else sin(_bulb_clock * 9.0) * 3.0
+			_draw_spare_bulb(Vector2(40 + wiggle, 60), 1.0, "spare bulb: click the room!")

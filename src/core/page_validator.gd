@@ -98,6 +98,8 @@ func validate(content: Variant) -> Dictionary:
 					_error("bonus", bonus, "expected {id, caption, facts}")
 					continue
 				_validate_goal({"twist_caption": bonus.caption, "red_pen_words": ["BONUS"], "facts": bonus.get("facts")}, cast, props)
+	if page.has("flick") and (not page.flick is int or page.flick < 0 or page.flick > 1):
+		_error("flick", page.flick, "expected 0 or 1 spare bulbs")
 	if page.has("endings_total") and (not page.endings_total is int or page.endings_total < 1):
 		_error("endings_total", page.endings_total, "expected a positive count")
 	return _result(page)

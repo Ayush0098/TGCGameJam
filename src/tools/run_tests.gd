@@ -13,6 +13,7 @@ const SUITES = [
 	preload("res://tests/production_reference_test.gd"),
 	preload("res://tests/stage_presentation_test.gd"),
 	preload("res://tests/front_end_test.gd"),
+	preload("res://tests/flick_test.gd"),
 ]
 
 var _checks := 0

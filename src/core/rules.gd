@@ -3,6 +3,7 @@ extends RefCounted
 ## Worlds are owned copies; decisions never mutate them.
 
 const LIGHTING = preload("res://core/lighting.gd")
+const FLICK_ID := "flick"
 
 
 static func initial_world(page: Dictionary, plan: Dictionary) -> Dictionary:
@@ -31,6 +32,11 @@ static func initial_world(page: Dictionary, plan: Dictionary) -> Dictionary:
 		var lamp: Dictionary = authored.duplicate(true)
 		lamp.on = false
 		world.lamps.append(lamp)
+	var flick := flick_of(page, plan)
+	if not flick.is_empty():
+		# FLICK: the spare bulb is a lamp whose zone and switch-on beat the player
+		# chooses. It is off until the SWITCHES phase of its beat.
+		world.lamps.append({"id": FLICK_ID, "zone": [maxi(0, flick.centre - 1), mini(page.width - 1, flick.centre + 1)], "switch_id": "", "on": false, "beat": flick.beat})
 	var lit := lit_slots(page, plan, world)
 	for actor in world.characters:
 		actor.active = actor.slot in lit
@@ -144,3 +150,16 @@ static func _nearest(actor: Dictionary, candidates: Array[Dictionary]) -> Dictio
 
 static func _direction(delta: int) -> int:
 	return 0 if delta == 0 else (1 if delta > 0 else -1)
+
+
+
+## The plan's FLICK if the page grants one and it is well formed, else {}.
+static func flick_of(page: Dictionary, plan: Dictionary) -> Dictionary:
+	var flick: Variant = plan.get("flick", {})
+	if int(page.get("flick", 0)) < 1 or not flick is Dictionary or flick.is_empty():
+		return {}
+	var beat := int(flick.get("beat", 0))
+	var centre := int(flick.get("centre", -1))
+	if beat < 1 or centre < 0 or centre >= int(page.width):
+		return {}
+	return {"beat": beat, "centre": centre}
