@@ -1,12 +1,12 @@
 extends RefCounted
-## Level 9/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 12/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_09",
-		"number": 9,
+		"number": 12,
 		"room": "living_room",
 		"narration_key": "catmouse",
 		"title": "Cat & Mouse",
@@ -156,15 +156,21 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "Every day the Cat chases the Mouse off the page. Today, you have a spare bulb.",
-			"win": "The Mouse bonked the Cat, and the Dog got the cheese. Small, but furious.",
-			"fail": "The chase went the usual way."
+			"intro": "I've hired a professional. One Cat, paid in advance, in fish. The Cat will chase the Mouse out of this comic, and then the Cat will chase YOU out of this comic. Get him, Cat.",
+			"original": "The Cat chased the Mouse out of the comic. Money well spent.",
+			"twist": "The MOUSE bonked the CAT. The DOG got the cheese.",
+			"win": "The Mouse bonked the Cat. A MOUSE. Bonked. A CAT. I paid that cat in fish. I want my fish back. The Dog ate the cheese. The Dog doesn't even LIKE cheese.",
+			"fail": "The Cat chased the Mouse out. Best fish I ever spent.",
+			"fail_alt": [
+				"The Mouse has left the comic. He's in a cookbook now. Nobody tell the Cat.",
+				"Professional work, Cat."
+			]
 		},
 		"dialogue": [
 			{
 				"character": "cat",
 				"when": "lit",
-				"line": "Here, mousey mousey."
+				"line": "I've been paid. Nothing personal, mousey."
 			},
 			{
 				"character": "mouse",
@@ -179,17 +185,17 @@ static func definition() -> Dictionary:
 			{
 				"character": "cat",
 				"when": "swap",
-				"line": "Is it nap time already?"
+				"line": "Is it... nap time... already?"
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Cheese? Cheese."
+				"line": "Cheese? I don't even like cheese. CHEESE."
 			},
 			{
 				"character": "mouse",
 				"when": "win",
-				"line": "And STAY out!"
+				"line": "And STAY out of my comic!"
 			}
 		],
 		"tutorial": [],

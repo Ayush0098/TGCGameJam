@@ -10,7 +10,7 @@ const GOALS = preload("res://core/goal_evaluator.gd")
 
 func run(check: Callable) -> bool:
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/stage_manifest.json"))
-	check.call(MAIN.CAMPAIGN.size() == 10, "Campaign has ten pages")
+	check.call(MAIN.CAMPAIGN.size() == 15, "Campaign has fifteen pages")
 	for script in MAIN.CAMPAIGN:
 		var result: Dictionary = VALIDATOR.new().validate(script.definition())
 		check.call(result.errors.is_empty(), "%s validates %s" % [script.resource_path.get_file(), str(result.errors)])

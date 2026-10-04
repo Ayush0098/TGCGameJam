@@ -1,5 +1,5 @@
 extends RefCounted
-## Level 3/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 3/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
@@ -105,7 +105,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE BOSS BONKS THE DOG",
+				"caption": "THE BOSS BONKS THE DOG. HR IS TYPING.",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -116,7 +116,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE DOG BONKS THE INTERN",
+				"caption": "THE DOG BONKS KEVIN THE INTERN",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -146,9 +146,15 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "Sunday afternoon. The fire is warm, the cake is waiting, and the Boss is in charge. As usual.",
-			"win": "The Dog got the cake. The Boss got the dog bed. Nobody is telling HR.",
-			"fail": "That's one ending. Not the one we wanted."
+			"intro": "Sunday. The Boss has invited himself over, which is how the Boss gets invited anywhere. There is cake. Today, the Boss eats his first cake. Boss Cake Count: zero. For now.",
+			"original": "The Boss ate the cake. Hard work pays off.",
+			"twist": "The DOG ate the cake. The BOSS napped in the dog bed.",
+			"win": "The Dog ate the Boss's cake, and the Boss is asleep in a dog bed, drooling on a squeaky bone. Boss Cake Count: still zero. The Dog has been promoted.",
+			"fail": "The Boss ate the cake. Capitalism wins again.",
+			"fail_alt": [
+				"Order is restored. I love order.",
+				"Not the ending. But a very tidy ending."
+			]
 		},
 		"dialogue": [
 			{
@@ -164,17 +170,17 @@ static func definition() -> Dictionary:
 			{
 				"character": "intern",
 				"when": "lit",
-				"line": "Don't look at me like that."
+				"line": "Nobody invited me. I came anyway. Hi."
 			},
 			{
 				"character": "boss",
 				"when": "swap",
-				"line": "Suddenly... so... sleepy..."
+				"line": "Suddenly... so sleepy... is that a chew toy?"
 			},
 			{
 				"character": "dog",
 				"when": "win",
-				"line": "Best. Nap. Ever. Wait, I ate cake."
+				"line": "I've waited my whole life for this. All seven years of it."
 			}
 		],
 		"tutorial": [

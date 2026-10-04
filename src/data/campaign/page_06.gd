@@ -1,12 +1,12 @@
 extends RefCounted
-## Level 6/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 7/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_06",
-		"number": 6,
+		"number": 7,
 		"room": "living_room",
 		"narration_key": "revenge",
 		"title": "Grandma's Revenge",
@@ -121,7 +121,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE BOSS BONKS THE KID",
+				"caption": "THE BOSS BONKS THE KID. HE WILL BE HEARING FROM GRANDMA.",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -132,7 +132,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE KID NAPS THROUGH THE BONKING",
+				"caption": "THE KID NAPS THROUGH ALL THE BONKING",
 				"facts": [
 					{
 						"type": "ASLEEP",
@@ -167,9 +167,15 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "Grandma has had enough of everyone. Somebody's getting bonked. Let's choose who.",
-			"win": "Grandma got her revenge on the right person, and the Dog got the cake. Justice!",
-			"fail": "Wrong target, Grandma."
+			"intro": "Sweet, gentle Grandma. She knits. She bakes. She has bonked eleven people this week, and it's Tuesday. Tonight she is coming for the Dog.",
+			"original": "Grandma bonked the Dog. The Dog had it coming. Probably.",
+			"twist": "Grandma bonked the BOSS. The DOG ate the cake.",
+			"win": "Grandma bonked the Boss at his own leftover-birthday-cake party, and the Dog ate the leftovers. Boss Cake Count: still zero. I'm starting to think it's personal.",
+			"fail": "Wrong target. Then again, Grandma isn't fussy.",
+			"fail_alt": [
+				"Somebody got bonked. That's the main thing.",
+				"Grandma's knitting needles are not involved. Yet."
+			]
 		},
 		"dialogue": [
 			{
@@ -180,17 +186,22 @@ static func definition() -> Dictionary:
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Cake? Cake!"
+				"line": "Cake? Cake! CAKE!"
 			},
 			{
 				"character": "boss",
 				"when": "lit",
-				"line": "Is that cake for me?"
+				"line": "Is that leftover cake for me?"
+			},
+			{
+				"character": "kid",
+				"when": "lit",
+				"line": "I'm just here to watch."
 			},
 			{
 				"character": "grandma",
 				"when": "win",
-				"line": "That's for the birthday!"
+				"line": "That's for 1974."
 			}
 		],
 		"tutorial": [],

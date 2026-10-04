@@ -1,12 +1,12 @@
 extends RefCounted
-## Level 7/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 9/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_07",
-		"number": 7,
+		"number": 9,
 		"room": "living_room",
 		"narration_key": "shadow",
 		"title": "Shadow Play",
@@ -132,7 +132,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE INTERN BONKS THE KID",
+				"caption": "STEVE THE INTERN BONKS THE KID",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -143,7 +143,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE BOSS BONKS THE KID, GRANDMA FLEES",
+				"caption": "THE BOSS BONKS THE KID, GRANDMA LEAVES THE COMIC",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -172,25 +172,36 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "Grandma rules the living room. A tall bookshelf hides the cake, and its shadow hides more.",
-			"win": "Grandma met her match. The cake stayed hidden behind the shelf.",
-			"fail": "Grandma still rules the room."
+			"intro": "Lamp, listen. Let's make a deal. You leave this page alone, and I'll write you a page of your own. You can be the hero. A lamp hero. Grandma bonks the Kid behind a bookshelf. Lovely. Nobody touch it.",
+			"original": "Grandma bonked the Kid. He knows what he did.",
+			"twist": "The BOSS bonked GRANDMA.",
+			"win": "The Boss bonked Grandma. GRANDMA. I'll have to phone Grandma's lawyer. Grandma IS Grandma's lawyer. We had a DEAL, lamp.",
+			"fail": "Grandma bonked the Kid. Everything is as it should be.",
+			"fail_alt": [
+				"Deal's still on the table, lamp.",
+				"The bookshelf saw nothing."
+			]
 		},
 		"dialogue": [
 			{
 				"character": "grandma",
 				"when": "lit",
-				"line": "Who's making that racket?"
+				"line": "Who wants a bonk? Everybody gets a bonk."
 			},
 			{
 				"character": "kid",
 				"when": "lit",
-				"line": "Is there cake somewhere?"
+				"line": "Is there cake back there?"
 			},
 			{
 				"character": "boss",
 				"when": "lit",
-				"line": "I don't do conflict."
+				"line": "I don't do conflict. I have people for conflict."
+			},
+			{
+				"character": "intern",
+				"when": "lit",
+				"line": "Steve. My name is Steve. Hello?"
 			},
 			{
 				"character": "boss",
@@ -198,9 +209,9 @@ static func definition() -> Dictionary:
 				"line": "That's IT, Grandma!"
 			},
 			{
-				"character": "grandma",
-				"when": "fail",
-				"line": "Hmph."
+				"character": "boss",
+				"when": "win",
+				"line": "I'm so sorry, Grandma! It was the lamp!"
 			}
 		],
 		"tutorial": [

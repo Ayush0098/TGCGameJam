@@ -1,12 +1,12 @@
 extends RefCounted
-## Level 5/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 6/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_05",
-		"number": 5,
+		"number": 6,
 		"room": "office",
 		"narration_key": "birthday",
 		"title": "The Boss's Birthday",
@@ -116,12 +116,12 @@ static func definition() -> Dictionary:
 				"slot": 7
 			}
 		],
-		"original_caption": "The Boss ate the birthday cake.",
+		"original_caption": "The Boss ate his birthday cake.",
 		"endings_total": 12,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "GRANDMA BONKS THE BOSS",
+				"caption": "SWEET OLD GRANDMA BONKS THE BIRTHDAY BOY",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -155,9 +155,15 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "It's the Boss's birthday. There's cake. There's a desk lamp on a pedal. There's a very hungry Dog in the dark.",
-			"win": "Happy birthday, Boss. The Dog says thanks for the cake.",
-			"fail": "The party went on without the twist."
+			"intro": "It's the Boss's birthday. He planned the party himself, sent himself a card, and signed it 'from everyone'. This year he WILL eat the cake. Boss Cake Count: zero. That changes today.",
+			"original": "The Boss ate his birthday cake. Finally. Happy birthday, sir.",
+			"twist": "The DOG ate the birthday cake.",
+			"win": "Happy birthday, Boss. The Dog says thank you for the cake. Boss Cake Count: zero. Dog Cake Count: I've stopped counting. The Dog has his own accountant now.",
+			"fail": "The Boss ate his birthday cake. A beautiful moment. I may cry.",
+			"fail_alt": [
+				"Happy birthday to the Boss, and to nobody else.",
+				"The party went on without the twist."
+			]
 		},
 		"dialogue": [
 			{
@@ -168,27 +174,27 @@ static func definition() -> Dictionary:
 			{
 				"character": "grandma",
 				"when": "lit",
-				"line": "Oh my, so many people!"
+				"line": "Oh, how lovely, a party. I hate parties."
 			},
 			{
 				"character": "intern",
 				"when": "lit",
-				"line": "Nobody invited me."
+				"line": "I wasn't invited. I'm Brian. Hi. Cake?"
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "I heard cake."
+				"line": "Somebody said 'cake' in my dream."
 			},
 			{
 				"character": "boss",
 				"when": "swap",
-				"line": "Why is everyone looking at me?!"
+				"line": "Why is everyone LOOKING at me?!"
 			},
 			{
 				"character": "dog",
 				"when": "win",
-				"line": "Best party ever."
+				"line": "Best. Party. Ever."
 			}
 		],
 		"tutorial": [],

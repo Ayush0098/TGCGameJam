@@ -2,9 +2,9 @@ extends RefCounted
 ## Content validation only; no simulation or gameplay knowledge is evaluated here.
 ## Successful results own a deep copy. Invalid results expose no playable page.
 
-const THOUGHTS = ["HUNGRY", "SLEEPY", "ANGRY", "SCARED"]
+const THOUGHTS = ["HUNGRY", "SLEEPY", "ANGRY", "SCARED", "SHY", "IN_LOVE", "JEALOUS"]
 const OBJECT_TYPES = ["FOOD", "SEAT", "SWITCH"]
-const FACT_TYPES = ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "UNEATEN", "ALL_ACTIVATED", "CLONK"]
+const FACT_TYPES = ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "UNEATEN", "ALL_ACTIVATED", "CLONK", "HUGGED", "HIDING"]
 
 var _errors := PackedStringArray()
 var _page_id := "<unknown>"
@@ -210,8 +210,8 @@ func _validate_goal(value: Variant, cast: Dictionary, props: Dictionary) -> void
 			if not word is String or word.strip_edges().is_empty():
 				_error("goal.red_pen_words", word, "expected nonempty text")
 	var facts := _records(value, "facts", "goal.")
-	if facts.size() < 1 or facts.size() > 2:
-		_error("goal.facts", facts, "expected 1 or 2 facts")
+	if facts.size() < 1 or facts.size() > 3:
+		_error("goal.facts", facts, "expected 1 to 3 facts")
 	for i in facts.size():
 		var fact: Dictionary = facts[i]
 		var path := "goal.facts[%d]" % i
@@ -219,19 +219,19 @@ func _validate_goal(value: Variant, cast: Dictionary, props: Dictionary) -> void
 			continue
 		var type: String = fact.type
 		var allowed_keys := ["type"]
-		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "CLONK"]:
+		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "CLONK", "HUGGED", "HIDING"]:
 			allowed_keys.append("character")
-		if type == "BONKED":
+		if type in ["BONKED", "HUGGED"]:
 			allowed_keys.append("target")
 		if type in ["ATE", "UNEATEN", "ASLEEP"]:
 			allowed_keys.append("object")
 		for key in fact:
 			if key not in allowed_keys:
 				_error(path + "." + str(key), fact[key], "unknown argument for %s" % type)
-		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "CLONK"]:
+		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "CLONK", "HUGGED", "HIDING"]:
 			if _field(fact, "character", TYPE_STRING, path + ".character"):
 				_reference(cast, fact.character, "", path + ".character")
-		if type == "BONKED":
+		if type in ["BONKED", "HUGGED"]:
 			if _field(fact, "target", TYPE_STRING, path + ".target"):
 				_reference(cast, fact.target, "", path + ".target")
 				if fact.target == fact.get("character"):

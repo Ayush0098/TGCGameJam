@@ -1,12 +1,12 @@
 extends RefCounted
-## Level 10/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 15/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_10",
-		"number": 10,
+		"number": 15,
 		"room": "office",
 		"narration_key": "finale",
 		"title": "Lightbulb Moment",
@@ -154,7 +154,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE KID GETS THE CAKE",
+				"caption": "THE KID GETS THE CAKE. OF COURSE HE DOES.",
 				"facts": [
 					{
 						"type": "ATE",
@@ -165,7 +165,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE BOSS BONKS GRANDMA",
+				"caption": "THE BOSS BONKS GRANDMA. BRAVE.",
 				"facts": [
 					{
 						"type": "BONKED",
@@ -187,9 +187,15 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "The last page of the paper. The Boss and the Intern never agree. Tonight, everyone gets an idea.",
-			"win": "Everyone had a lightbulb moment, including you. THE END.",
-			"fail": "Somebody's still in the dark."
+			"intro": "The last page. I have no tricks left. No power cuts, no cats, no ghosts. Just a nice, quiet ending where nothing happens. Please. I'm begging you. Let nothing happen.",
+			"original": "The Boss and the Intern had the same bad idea. Nobody else had any idea at all. The End. Quietly.",
+			"twist": "EVERYONE had a lightbulb moment!",
+			"win": "Everyone... everyone had a... [snort] The Dog has the cake AGAIN. Boss Cake Count: ZERO. [wheeze] Fifteen pages! ZERO! [laughing helplessly] Fine. FINE. It's funnier. Your version is funnier. You win, lamp. ...That was my lightbulb moment. THE END.",
+			"fail": "Somebody's still in the dark. Good. Stay there.",
+			"fail_alt": [
+				"Nothing happened. Perfect. Beautiful. Don't touch it.",
+				"So close, lamp. So close to ruining everything."
+			]
 		},
 		"dialogue": [
 			{
@@ -200,12 +206,17 @@ static func definition() -> Dictionary:
 			{
 				"character": "intern",
 				"when": "lit",
-				"line": "No, MY idea!"
+				"line": "No, MY idea! I'm Nigel, by the way."
+			},
+			{
+				"character": "kid",
+				"when": "lit",
+				"line": "I have an idea too! It's loud!"
 			},
 			{
 				"character": "grandma",
 				"when": "lit",
-				"line": "Oh dear, a crowd."
+				"line": "Oh dear, a crowd. I'll get my slipper."
 			},
 			{
 				"character": "cat",
@@ -215,17 +226,12 @@ static func definition() -> Dictionary:
 			{
 				"character": "boss",
 				"when": "swap",
-				"line": "Is there... cake?"
+				"line": "Is there... cake? For ME?"
 			},
 			{
 				"character": "cat",
 				"when": "win",
 				"line": "Fine. That was a good one."
-			},
-			{
-				"character": "kid",
-				"when": "lit",
-				"line": "Is it my turn yet?"
 			}
 		],
 		"tutorial": [],

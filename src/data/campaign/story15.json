@@ -1,0 +1,78 @@
+{
+ "order": [
+  "page_01",
+  "page_02",
+  "page_03",
+  "page_04",
+  "page_11",
+  "page_05",
+  "page_06",
+  "page_12",
+  "page_07",
+  "page_13",
+  "page_08",
+  "page_09",
+  "page_15",
+  "page_14",
+  "page_10"
+ ],
+ "bands": {
+  "page_01": "green",
+  "page_02": "green",
+  "page_03": "green",
+  "page_04": "green",
+  "page_11": "green",
+  "page_05": "yellow",
+  "page_06": "yellow",
+  "page_12": "yellow",
+  "page_07": "yellow",
+  "page_13": "yellow",
+  "page_08": "red",
+  "page_09": "red",
+  "page_15": "red",
+  "page_14": "red",
+  "page_10": "red"
+ },
+ "acts": [
+  {
+   "number": 1,
+   "title": "ACT ONE: A Perfectly Normal Week",
+   "first_page": 1,
+   "card": "Good evening. I am the Narrator. I have narrated four thousand comics, and not one of them has ever had a twist. Please keep your hands, paws and lamps inside the margins."
+  },
+  {
+   "number": 2,
+   "title": "ACT TWO: Things Get Out of Hand",
+   "first_page": 6,
+   "card": "Act Two. I have spoken to my lawyer. My lawyer says lamps cannot be sued. My lawyer is also a lamp now. I don't want to talk about it."
+  },
+  {
+   "number": 3,
+   "title": "ACT THREE: Lights Out",
+   "first_page": 11,
+   "card": "Act Three. No more Mister Nice Narrator. I know where the fuse box is."
+  }
+ ],
+ "exit_places": [
+  "a cookbook",
+  "the weather report",
+  "somebody's tax return",
+  "a romance novel",
+  "the classifieds",
+  "a different, better comic",
+  "7 Down in the crossword",
+  "a takeaway menu",
+  "the instructions for a fridge",
+  "the horoscopes. He's a Scorpio now"
+ ],
+ "dog_titles": [
+  "Employee of the Month",
+  "Assistant to the Regional Manager",
+  "Regional Manager",
+  "Vice President of Cake",
+  "Chief Executive Dog",
+  "Supreme Chancellor of Snacks",
+  "Emperor of Dessert",
+  "a minor god"
+ ]
+}

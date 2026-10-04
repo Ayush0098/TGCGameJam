@@ -66,13 +66,19 @@
     "cheese_empty": "res://assets/props/cheese_empty.svg",
     "bone": "res://assets/props/bone.svg",
     "bone_empty": "res://assets/props/bone_empty.svg",
-    "cushion": "res://assets/props/cushion.svg"
+    "cushion": "res://assets/props/cushion.svg",
+    "slice": "res://assets/props/pie.svg",
+    "slice_empty": "res://assets/props/pie_empty.svg",
+    "coffin": "res://assets/props/coffin.svg"
   },
   "thoughts": {
     "hungry": "res://assets/thoughts/hungry.svg",
     "sleepy": "res://assets/thoughts/sleepy.svg",
     "angry": "res://assets/thoughts/angry.svg",
-    "scared": "res://assets/thoughts/scared.svg"
+    "scared": "res://assets/thoughts/scared.svg",
+    "shy": "res://assets/thoughts/shy.svg",
+    "in_love": "res://assets/thoughts/in_love.svg",
+    "jealous": "res://assets/thoughts/jealous.svg"
   },
   "dialogue": "res://assets/audio/reference/cues.json",
   "rooms": {

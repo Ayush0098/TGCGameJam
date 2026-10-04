@@ -1,13 +1,16 @@
 extends Control
 ## MVP flow: recorded simulation -> playback -> result -> exact-plan retry.
 
-## The eight-page campaign in story order (design/levels.md).
+## The fifteen-page campaign in story order (design/story.md, levels.md §7).
 const CAMPAIGN = [
 	preload("res://data/campaign/page_01.gd"), preload("res://data/campaign/page_02.gd"),
 	preload("res://data/campaign/page_03.gd"), preload("res://data/campaign/page_04.gd"),
-	preload("res://data/campaign/page_05.gd"), preload("res://data/campaign/page_06.gd"),
-	preload("res://data/campaign/page_07.gd"), preload("res://data/campaign/page_08.gd"),
-	preload("res://data/campaign/page_09.gd"), preload("res://data/campaign/page_10.gd"),
+	preload("res://data/campaign/page_11.gd"), preload("res://data/campaign/page_05.gd"),
+	preload("res://data/campaign/page_06.gd"), preload("res://data/campaign/page_12.gd"),
+	preload("res://data/campaign/page_07.gd"), preload("res://data/campaign/page_13.gd"),
+	preload("res://data/campaign/page_08.gd"), preload("res://data/campaign/page_09.gd"),
+	preload("res://data/campaign/page_15.gd"), preload("res://data/campaign/page_14.gd"),
+	preload("res://data/campaign/page_10.gd"),
 ]
 ## Integration tests swap in the original MVP fixture pages before instancing.
 static var page_override: Array = []
@@ -421,6 +424,10 @@ func _button(parent: Node, text: String, callback: Callable) -> Button:
 
 func _load_page(index: int, override: Dictionary = {}) -> void:
 	_cancel_presentation()
+	# A tutorial welcome still waiting for the title menu belongs to page 1 only.
+	_intro_pending = false
+	if is_instance_valid(_stage):
+		_stage.set_caption("", 0.0)
 	_last_cue = ""
 	page_index = index
 	if override.is_empty():
@@ -454,6 +461,9 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	_begin(_original_run, true)
 	_fail_count = 0
 	_said_scripted.clear()
+	if is_instance_valid(_legend):
+		_legend.text = _legend_text()
+	_queue_story_cards()
 	_narrate("intro")
 	if page.id == "page_02" and not page.has("narration") and _cues.has("narrator_intro"):
 		_story_waiting = true
@@ -506,12 +516,16 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 func _process(delta: float) -> void:
 	_update_music(delta)
-	if _intro_pending and not (is_instance_valid(_front) and _front.visible):
+	if _intro_pending and _tutorial_panel == 0 and not (is_instance_valid(_front) and _front.visible):
 		_show_intro_card()
 	if not _pending_narration.is_empty() and not _screen_covered() and page_index >= 0:
 		_narrate(_pending_narration)
 	if _narrator_hold and not _voice_busy():
 		_narrator_hold = false
+	if _read_hold > 0.0 and not _screen_covered():
+		_read_hold = maxf(0.0, _read_hold - delta)
+	if not _story_queue.is_empty() and not (is_instance_valid(_front) and _front.visible) and not (is_instance_valid(_intro_card) and _intro_card.visible) and not (is_instance_valid(_story_card) and _story_card.visible):
+		_show_story_card(_story_queue.pop_front())
 	if not _active_cue.is_empty():
 		_voice_elapsed += delta
 		# A suspended/unavailable audio device cannot hold gameplay forever.
@@ -521,13 +535,13 @@ func _process(delta: float) -> void:
 		return
 	if mode == "ORIGINAL_END":
 		_clock += delta
-		if _clock >= 0.6 and _active_cue.is_empty() and (not _voice_busy() or _clock >= 12.0):
+		if _clock >= 0.6 and _active_cue.is_empty() and _read_hold <= 0.0 and (not _voice_busy() or _clock >= 12.0):
 			_return_to_plan()
 		return
 	if mode not in ["INTRO", "PLAY"]:
 		return
 	# The story prologue finishes before the Original acts; skip voice is explicit.
-	if _is_original and (_active_cue == "narrator_intro" or _screen_covered() or not _pending_narration.is_empty() or (_narrator_hold and _voice_busy())):
+	if _is_original and (_active_cue == "narrator_intro" or _screen_covered() or not _pending_narration.is_empty() or (_narrator_hold and _voice_busy()) or _read_hold > 0.0):
 		return
 	var elapsed := delta * (3.0 if _fast else 1.0)
 	var aim := _aim_slot()
@@ -621,7 +635,7 @@ func _events_at(beat: int, phase: String = "ACTIVATE") -> void:
 		if event.type == "DING":
 			_ding(480.0 * pow(1.12, _ding_count))
 			_ding_count += 1
-		elif event.type in ["MOVE", "EAT", "SIT", "BONK", "CLASH", "WHIFF", "LAMP_ON"]:
+		elif event.type in ["MOVE", "EAT", "SIT", "BONK", "CLASH", "WHIFF", "LAMP_ON", "HUG"]:
 			_play_effect(event.type)
 
 
@@ -659,7 +673,9 @@ func _finish_run(natural := false) -> void:
 	_result_stage.pose(_run.snapshots.back(), _run.plan, knowledge, false)
 	_stage.show()
 	_comparison.hide()
-	_show_payoff(result, _record_progress(result))
+	var rewards := _record_progress(result)
+	rewards.append_array(_gag_lines(result))
+	_show_payoff(result, rewards)
 	_show_result_card(result)
 	if result.won:
 		_narrate("twist")
@@ -670,7 +686,7 @@ func _finish_run(natural := false) -> void:
 					_narrate_key("narr_finale_end"))
 	else:
 		_fail_count += 1
-		_narrate("fail_%d" % (1 + _fail_count % 2))
+		_narrate("fail_%d" % _fail_count)
 	for view in [_stage, _result_stage]:
 		view.set_mood("win" if result.won else "fail")
 	if page.id == "page_02" and result.won and not page.has("narration"):
@@ -688,8 +704,7 @@ func _show_facts(result: Dictionary) -> void:
 	var bonus_lines: Array[String] = []
 	for bonus in page.get("bonus", []):
 		var done: bool = bonus.id in bonus_done.get(page.id, [])
-		var words := str(bonus.caption).to_lower()
-		bonus_lines.append(_icon("star_on" if done else "star_off") + words.left(1).to_upper() + words.substr(1))
+		bonus_lines.append(_icon("star_on" if done else "star_off") + _sentence_case(str(bonus.caption)))
 	_facts.text = "   /   ".join(labels)
 	if is_instance_valid(_bonus_line):
 		_bonus_line.text = ("[b]Bonus stars:[/b]  " + "     ".join(bonus_lines)) if not bonus_lines.is_empty() else ""
@@ -853,6 +868,8 @@ func _update_buttons() -> void:
 		if _tutorial_panel >= 0:
 			_title.text = "TUTORIAL %d/%d  ·  %s" % [_tutorial_panel + 1, _tutorial_data().get("panels", []).size(), str(page.get("title", "")).to_upper()]
 		_progress_label.visible = _tutorial_panel < 0 or _tutorial_has_gate("endings_opened")
+		if is_instance_valid(_tutorial_skip):
+			_tutorial_skip.visible = _tutorial_panel >= 0
 		_tier_band.color = TIER_COLOURS[_tier(page_index)]
 		_action.text = " ACTION!"
 		_fast_button.text = ""
@@ -1054,6 +1071,8 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 	var duration := 0.28 if kind in ["EAT", "SIT"] else 0.16
 	if kind.begins_with("REVEAL_") or kind.begins_with("POKE_") or kind in ["HMPH", "SWAP"]:
 		duration = 0.32
+	if kind == "HUG":
+		duration = 0.24
 	var bytes := PackedByteArray()
 	bytes.resize(int(sample_rate * duration) * 2)
 	for index in bytes.size() / 2:
@@ -1091,6 +1110,18 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 				value = sin(TAU * 140.0 * t) * exp(-t * 10.0) * 0.4
 			"SWAP":
 				value = sin(TAU * (300.0 * t + 900.0 * t * t)) * sin(PI * t / duration) * 0.3
+			"HUG":
+				# Squeeze: a warm two-note "aww".
+				value = (sin(TAU * 523.0 * t) + sin(TAU * (659.0 if t > 0.07 else 523.0) * t)) * sin(PI * t / duration) * 0.22
+			"REVEAL_SHY", "POKE_SHY":
+				# Nervous giggle: tiny high trills.
+				value = sin(TAU * 900.0 * t) * (0.5 + 0.5 * sin(TAU * 22.0 * t)) * sin(PI * t / duration) * 0.22
+			"REVEAL_IN_LOVE", "POKE_IN_LOVE":
+				# Dreamy sigh: a slow rising sweep.
+				value = sin(TAU * (380.0 * t + 500.0 * t * t)) * sin(PI * t / duration) * 0.28
+			"REVEAL_JEALOUS", "POKE_JEALOUS":
+				# Sour hmph: a low wobbling buzz.
+				value = (fmod(t * 120.0, 1.0) * 2.0 - 1.0) * sin(PI * t / duration) * (0.6 + 0.4 * sin(TAU * 6.0 * t)) * 0.28
 		var attack := minf(1.0, t * 1000.0)
 		bytes.encode_s16(index * 2, clampi(int(value * attack * 16000.0), -32768, 32767))
 	var stream := AudioStreamWAV.new()
@@ -1348,7 +1379,7 @@ func _save_progress() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		return
-	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done}))
+	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done, "seen_cards": seen_cards.keys(), "gags": gags}))
 
 
 func _load_progress() -> void:
@@ -1366,6 +1397,10 @@ func _load_progress() -> void:
 	if data.get("endings") is Dictionary:
 		endings_found = data.endings
 	tutorial_done = data.get("tutorial_done", false) == true
+	for id in data.get("seen_cards", []):
+		seen_cards[str(id)] = true
+	if data.get("gags") is Dictionary:
+		gags = data.gags
 
 
 func _comic_theme() -> Theme:
@@ -1605,36 +1640,49 @@ func _narrate(moment: String) -> void:
 	elif not voice_key.is_empty():
 		key = "narr_%s_%s" % [voice_key, moment]
 	var text: String = _lines.get("narrator", {}).get(key, "")
-	# Level data owns the written narration; the voice file keys stay the same.
+	# The page's written script wins. A recording only plays when it says the
+	# same words, so voice and caption can never disagree.
 	var written: Variant = page.get("narration")
-	# A recorded line keeps its own words so the caption matches the voice.
-	if written is Dictionary and (_voice_path("narrator/" + key).is_empty() or moment.begins_with("fail_")):
-		var field: String = str({"intro": "intro", "twist": "win"}.get(moment, "fail" if moment.begins_with("fail_") else ""))
-		if not str(field).is_empty() and written.has(field):
-			text = str(written[field])
-			if moment.begins_with("fail_") and not voice_key.is_empty():
-				key = "narr_" + moment
+	if written is Dictionary:
+		var line := ""
+		if moment.begins_with("fail_"):
+			var fails: Array = [written.get("fail", "")] + Array(written.get("fail_alt", []))
+			fails = fails.filter(func(entry): return not str(entry).is_empty())
+			if not fails.is_empty():
+				line = str(fails[(_fail_count - 1) % fails.size()])
+		else:
+			line = str(written.get({"intro": "intro", "original": "original", "twist": "win"}.get(moment, moment), ""))
+		if not line.is_empty():
+			if line != text:
+				key = ""
+			text = line
 	if text.is_empty():
 		return
-	if moment == "intro" and _screen_covered():
+	if moment in ["intro", "original"] and _screen_covered():
 		# Never narrate behind the title menu or the intro card: speak when they close.
 		_pending_narration = moment
 		return
 	_pending_narration = ""
-	_stage.set_caption(text, 4.5 if moment in ["intro", "original"] else 0.0)
+	# Without a recording, the comic waits long enough to read the line.
+	_read_hold = clampf(text.split(" ").size() / 3.2, 2.0, 9.0) if moment in ["intro", "original"] and DisplayServer.get_name() != "headless" else 0.0
+	_stage.set_caption(text, _read_hold + 1.5 if moment in ["intro", "original"] else 0.0)
 	if is_instance_valid(_result_stage):
 		_result_stage.set_caption(text if moment == "twist" or moment.begins_with("fail") else "", 0.0)
-	_narrator_hold = _play_voice_file("narrator/" + key, _voice) and moment == "intro"
+	var voiced := not key.is_empty() and _play_voice_file("narrator/" + key, _voice)
+	_narrator_hold = voiced and moment == "intro"
+	if voiced:
+		_read_hold = 0.0
 
 
 
 ## The Original waits while the intro is being read, so voice and pictures match.
 var _narrator_hold := false
 var _pending_narration := ""
+var _read_hold := 0.0
 
 
 func _screen_covered() -> bool:
-	return (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or _intro_pending
+	return (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or _intro_pending or (is_instance_valid(_story_card) and _story_card.visible) or not _story_queue.is_empty()
 
 
 func _voice_busy() -> bool:
@@ -1751,14 +1799,14 @@ func _restyle_hud() -> void:
 	_stage.size = Vector2(1248, 460)
 	_comparison.position = _stage.position
 	# Bottom bar: legend, narration line, ⟲ and ACTION.
-	_legend = _label("HUNGRY > food   ·   SLEEPY > seat   ·   ANGRY > bonk   ·   SCARED > flee", 14)
+	_legend = _label(LEGEND_BASE, 14)
 	_legend.position = Vector2(16, 614)
 	_legend.mouse_filter = Control.MOUSE_FILTER_STOP
 	_legend.tooltip_text = "What each thought makes a character do"
 	_legend.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.pressed:
 			_tutorial_click())
-	_legend.size = Vector2(700, 20)
+	_legend.size = Vector2(900, 20)
 	_legend.add_theme_color_override("font_color", Color("6d6a62"))
 	_ui.add_child(_legend)
 	_caption.position = Vector2(16, 636)
@@ -1936,10 +1984,9 @@ func _hide_result_card() -> void:
 
 
 func _tier(index: int) -> int:
-	# Agreed difficulty split: pages 1–4 green, 5–7 yellow, 8–10 red.
-	if index < 4:
-		return 0
-	return 1 if index < 7 else 2
+	# Each page names its band: green 1–5, yellow 6–10, red 11–15.
+	var band := str(PAGE_SCRIPTS[index].definition().get("difficulty", "green")) if index < PAGE_SCRIPTS.size() else "green"
+	return {"green": 0, "yellow": 1, "red": 2}.get(band, 0)
 
 
 # ------------------------------------------------------------ pause sheet
@@ -2447,6 +2494,8 @@ func _intro_pages() -> Array:
 			"  " + tick + "[b]ANGRY[/b] bonks someone     " + tick + "[b]SCARED[/b] runs out of the comic",
 			"",
 			"In the dark, characters do nothing and their thoughts stay secret. Drag one lit thought onto another lit character to [b]swap[/b] what they're thinking.",
+			"",
+			"Later in the story, three new feelings turn up: [b]SHY[/b], [b]IN LOVE[/b] and [b]JEALOUS[/b]. Chaos follows.",
 		])],
 		["THE GOAL", "\n".join([
 			line.call(2),
@@ -2622,3 +2671,158 @@ func _all_hints() -> Array:
 	for line in page.get("bonus_hints", []):
 		hints.append("Bonus: " + str(line))
 	return hints
+
+
+
+# ------------------------------------------------------------ story: acts, new feelings, running gags
+const LEGEND_BASE := "HUNGRY > food   ·   SLEEPY > seat   ·   ANGRY > bonk   ·   SCARED > flee"
+const NEW_FEELINGS := {
+	"SHY": ["SHY", "Hates being seen. In the light it scurries to the nearest dark spot and hides. Your light pushes it around!"],
+	"IN_LOVE": ["IN LOVE", "Walks to the nearest lit character and hugs them. Whoever gets hugged falls in love too and goes looking for someone else to hug!"],
+	"JEALOUS": ["JEALOUS", "Wants whatever the nearest busy character is going for, and races them to it. Arrive together? CLONK!"],
+}
+var STORY: Dictionary = {}
+var seen_cards: Dictionary = {}
+var gags: Dictionary = {"exit": 0, "dog": 0}
+var _story_card: Control
+var _story_queue: Array = []
+
+
+func _story() -> Dictionary:
+	if STORY.is_empty():
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/campaign/story15.json"))
+		STORY = parsed if parsed is Dictionary else {"acts": []}
+	return STORY
+
+
+func _legend_text() -> String:
+	var text := LEGEND_BASE
+	var present := {}
+	for character in page.get("characters", []):
+		present[str(character.thought)] = true
+	if present.has("SHY"):
+		text += "   ·   SHY > hides from light"
+	if present.has("IN_LOVE"):
+		text += "   ·   IN LOVE > hugs"
+	if present.has("JEALOUS"):
+		text += "   ·   JEALOUS > copies"
+	return text
+
+
+## Called after a campaign page loads: queue the act card and the NEW FEELING card.
+func _queue_story_cards() -> void:
+	if not page_override.is_empty() or _tutorial_panel >= 0 or DisplayServer.get_name() == "headless":
+		return
+	var number := int(page.get("number", page_index + 1))
+	for act in _story().get("acts", []):
+		var id := "act_%d" % int(act.number)
+		if int(act.first_page) == number and not seen_cards.has(id):
+			_story_queue.append({"id": id, "kicker": "ACT %s" % ["ONE", "TWO", "THREE"][clampi(int(act.number) - 1, 0, 2)], "title": str(act.title).get_slice(": ", 1), "body": "The Narrator: \"%s\"" % act.card, "thought": ""})
+	var feeling := str(page.get("new_feeling", ""))
+	if NEW_FEELINGS.has(feeling) and not seen_cards.has("feeling_" + feeling):
+		_story_queue.append({"id": "feeling_" + feeling, "kicker": "NEW FEELING!", "title": NEW_FEELINGS[feeling][0], "body": NEW_FEELINGS[feeling][1], "thought": feeling})
+
+
+func _show_story_card(card: Dictionary) -> void:
+	seen_cards[card.id] = true
+	_save_progress()
+	if is_instance_valid(_story_card):
+		_story_card.queue_free()
+	_story_card = Control.new()
+	_story_card.size = Vector2(1280, 720)
+	_story_card.z_index = 235
+	_story_card.mouse_filter = Control.MOUSE_FILTER_STOP
+	_ui.add_child(_story_card)
+	var dim := ColorRect.new()
+	dim.color = Color(INK, 0.7)
+	dim.size = Vector2(1280, 720)
+	_story_card.add_child(dim)
+	var panel := _paper_panel(Rect2(260, 120, 760, 470), 0.01 if card.thought == "" else -0.012)
+	_story_card.add_child(panel)
+	var kicker := _label(str(card.kicker), 26)
+	kicker.add_theme_font_override("font", COMIC_FONT)
+	kicker.add_theme_color_override("font_color", Color("a4383e"))
+	kicker.position = Vector2(0, 26)
+	kicker.size = Vector2(760, 34)
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(kicker)
+	var title := _label(str(card.title), 54)
+	title.add_theme_font_override("font", COMIC_FONT)
+	title.position = Vector2(0, 62)
+	title.size = Vector2(760, 70)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(title)
+	var top := 150.0
+	if card.thought != "":
+		var icon := TextureRect.new()
+		icon.texture = load("res://assets/thoughts/%s.svg" % str(card.thought).to_lower())
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.position = Vector2(320, 140)
+		icon.size = Vector2(120, 120)
+		panel.add_child(icon)
+		top = 270.0
+		_play_effect("REVEAL_" + str(card.thought))
+	else:
+		_play_sting(true)
+	var body := _rich(22)
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.position = Vector2(60, top)
+	body.size = Vector2(640, 380 - top)
+	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	body.text = str(card.body)
+	panel.add_child(body)
+	var go := Button.new()
+	go.text = "GOT IT!" if card.thought != "" else "ON WITH THE SHOW"
+	go.add_theme_font_override("font", COMIC_FONT)
+	go.add_theme_font_size_override("font_size", 26)
+	go.position = Vector2(250, 392)
+	go.size = Vector2(260, 56)
+	_emphasise(go, true)
+	go.pressed.connect(func():
+		_play_effect("SWAP")
+		_story_card.hide()
+		_story_card.queue_free())
+	panel.add_child(go)
+
+
+## Running gags (story.md §4): where the runaway was last seen, and the Dog's career.
+func _gag_lines(result: Dictionary) -> Array[String]:
+	var lines: Array[String] = []
+	if _tutorial_panel >= 0 or not page_override.is_empty():
+		return lines
+	var places: Array = _story().get("exit_places", [])
+	for event in _run.get("events", []):
+		if event.type == "EXIT" and not places.is_empty():
+			lines.append("Last seen in: %s." % places[int(gags.get("exit", 0)) % places.size()])
+			gags.exit = int(gags.get("exit", 0)) + 1
+			break
+	var titles: Array = _story().get("dog_titles", [])
+	if result.won and not titles.is_empty():
+		for event in _run.get("events", []):
+			if event.type == "EAT" and event.actor == "dog" and _object_art(str(event.object)) in ["cake", "slice", "pie"]:
+				var index := mini(int(gags.get("dog", 0)), titles.size() - 1)
+				lines.append("The Dog has been promoted to %s!" % titles[index])
+				gags.dog = int(gags.get("dog", 0)) + 1
+				break
+	if not lines.is_empty():
+		_save_progress()
+	return lines
+
+
+func _object_art(id: String) -> String:
+	for object in page.get("objects", []):
+		if object.id == id:
+			return str(object.get("art", id))
+	return id
+
+
+
+## "THE BOSS BONKS GRANDMA" -> "The Boss bonks Grandma": names keep their capitals.
+func _sentence_case(text: String) -> String:
+	var words := text.to_lower()
+	words = words.left(1).to_upper() + words.substr(1)
+	for character in page.get("characters", []):
+		var name := str(character.get("name", character.id))
+		var regex := RegEx.create_from_string("\\b%s\\b" % name.to_lower())
+		words = regex.sub(words, name, true)
+	return words

@@ -1,5 +1,5 @@
 extends RefCounted
-## Level 1/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 1/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
@@ -87,7 +87,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE DOG GOES FOR THE COOKIE",
+				"caption": "THE DOG SETTLES FOR A COOKIE",
 				"facts": [
 					{
 						"type": "ATE",
@@ -111,25 +111,36 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "Dinner time at the Bulb house. Somebody always gets the fish, and it's never the Cat.",
-			"win": "And for once, the Cat dined like a king. The Dog is still sulking.",
-			"fail": "Not quite the ending the Cat was hoping for. Try another light."
+			"intro": "Dinner at the Bulb house. Every night for eleven years, the Dog has eaten the fish. It is a classic. It is tradition. It is, frankly, the only joke I have.",
+			"original": "The Dog ate the fish. Ha. Ha ha. Classic.",
+			"twist": "The CAT ate the fish.",
+			"win": "The CAT ate the... Who moved my lamp? Somebody MOVED my LAMP.",
+			"fail": "The Dog ate the fish. As is tradition. As God and the Narrator intended.",
+			"fail_alt": [
+				"Ah, the classics.",
+				"The fish has spoken."
+			]
 		},
 		"dialogue": [
 			{
 				"character": "cat",
 				"when": "lit",
-				"line": "Is that... fish?"
+				"line": "Eleven years. ELEVEN YEARS he gets the fish."
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Mine! Mine! Mine!"
+				"line": "Fish fish fish fish fish."
 			},
 			{
 				"character": "cat",
 				"when": "win",
-				"line": "Purrfect."
+				"line": "Tell them, Narrator. Tell them who ate the fish."
+			},
+			{
+				"character": "dog",
+				"when": "fail",
+				"line": "Fish."
 			}
 		],
 		"tutorial": {

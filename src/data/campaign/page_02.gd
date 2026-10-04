@@ -1,5 +1,5 @@
 extends RefCounted
-## Level 2/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 2/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
@@ -102,7 +102,7 @@ static func definition() -> Dictionary:
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE DOG EATS HIS GREENS",
+				"caption": "THE DOG GOES VEGAN",
 				"facts": [
 					{
 						"type": "ATE",
@@ -113,7 +113,7 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "headline_2",
-				"caption": "GRANDMA EATS THE BROCCOLI",
+				"caption": "GRANDMA EATS THE BROCCOLI. NOBODY ASKS WHY.",
 				"facts": [
 					{
 						"type": "ATE",
@@ -137,30 +137,41 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "Dinner rules: greens first. The Kid has other plans, and the Dog has a nose.",
-			"win": "The Kid ate the broccoli. Nobody saw the cookie. Nobody will ever know.",
-			"fail": "The broccoli survives another day."
+			"intro": "Page two. A boy. A cookie. And a head of broccoli that has sat on that table, untouched, since 2009. The broccoli is decorative.",
+			"original": "The Kid ate the cookie. Of course he did. He's a child, not a rabbit.",
+			"twist": "The Kid ate the BROCCOLI.",
+			"win": "A child. Ate broccoli. On purpose. Nobody is going to believe this. I'm not sure I believe this. Somebody check him for a fever.",
+			"fail": "The broccoli survives another day. It has survived worse.",
+			"fail_alt": [
+				"The cookie wins. The cookie always wins.",
+				"The broccoli remains decorative."
+			]
 		},
 		"dialogue": [
 			{
 				"character": "kid",
 				"when": "lit",
-				"line": "Cookie! Cookie! Cookie!"
+				"line": "Cookie! Cookie! COOKIE!"
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Is someone not eating that?"
+				"line": "Is someone... not eating that?"
 			},
 			{
 				"character": "grandma",
 				"when": "lit",
-				"line": "Eat your greens, dear."
+				"line": "Eat your greens, dear. I'm watching."
 			},
 			{
 				"character": "kid",
 				"when": "win",
-				"line": "...Huh. Not bad."
+				"line": "Mum? I think I'm... healthy?"
+			},
+			{
+				"character": "grandma",
+				"when": "win",
+				"line": "I am so proud I could bonk someone."
 			}
 		],
 		"tutorial": [

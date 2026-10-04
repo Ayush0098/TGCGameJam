@@ -1,4 +1,5 @@
 extends RefCounted
+const LIGHTING = preload("res://core/lighting.gd")
 ## Goal truth and short event-derived captions only. No simulation or PNR analysis.
 
 
@@ -10,11 +11,30 @@ static func evaluate(page: Dictionary, run: Dictionary) -> Dictionary:
 	var events: Array = run.get("events", [])
 	var results: Array[Dictionary] = []
 	var won := not requested.is_empty()
+	run_plan = run.get("plan", {})
 	for fact in requested:
 		var met := _met(page, world, events, fact)
 		results.append({"fact": fact.duplicate(true), "met": met})
 		won = won and met
-	return {"won": won, "facts": results, "caption": _caption(page, events)}
+	var caption := _caption(page, events)
+	if not world.is_empty():
+		for actor in world.get("characters", []):
+			if _hiding(page, run_plan, world, actor):
+				var hidden := "%s hid in the dark." % _character_name(actor.id, true)
+				caption = hidden if caption.begins_with("Nobody") else caption + " " + hidden
+	return {"won": won, "facts": results, "caption": caption}
+
+
+static var run_plan: Dictionary = {}
+
+
+## SHY, woken, still standing, and in the dark at the end.
+static func _hiding(page: Dictionary, plan: Dictionary, world: Dictionary, actor: Dictionary) -> bool:
+	if actor.is_empty() or actor.get("thought") != "SHY" or actor.get("active") != true:
+		return false
+	if actor.get("status") in ["KO", "ASLEEP", "EXITED"]:
+		return false
+	return not LIGHTING.is_lit(page, plan, world, int(actor.slot))
 
 
 static func _met(page: Dictionary, world: Dictionary, events: Array, fact: Dictionary) -> bool:
@@ -49,6 +69,10 @@ static func _met(page: Dictionary, world: Dictionary, events: Array, fact: Dicti
 		"UNEATEN":
 			var final_food := _find(world.get("objects", []), fact.get("object"))
 			return prop.get("type") == "FOOD" and final_food.get("present") == true
+		"HUGGED":
+			return not actor.is_empty() and _event_matches(events, "HUG", fact.character, "target", str(fact.get("target", "")))
+		"HIDING":
+			return not actor.is_empty() and _hiding(page, run_plan, world, final_actor)
 		"ALL_ACTIVATED":
 			var cast: Array = page.get("characters", [])
 			if cast.is_empty():
@@ -111,6 +135,10 @@ static func _event_caption(page: Dictionary, event: Dictionary) -> String:
 				return "%s bonked %s." % [name, _character_name(target.id)]
 		"EXIT":
 			return "%s ran out of the comic." % name
+		"HUG":
+			var hugged := _find(page.get("characters", []), event.get("target"))
+			if not hugged.is_empty():
+				return "%s hugged %s." % [name, _character_name(hugged.id)]
 	return ""
 
 
@@ -145,4 +173,8 @@ static func fact_text(fact: Dictionary) -> String:
 			return "Everyone gets a bright idea"
 		"CLONK":
 			return "%s gets clonked in a food fight" % who
+		"HUGGED":
+			return "%s hugs %s" % [who, _character_name(str(fact.get("target", "")))]
+		"HIDING":
+			return "%s hides in the dark" % who
 	return str(fact.get("type", ""))

@@ -7,7 +7,7 @@ const FLICK_ID := "flick"
 
 
 static func initial_world(page: Dictionary, plan: Dictionary) -> Dictionary:
-	var world := {"beat": 0, "characters": [], "objects": [], "lamps": []}
+	var world := {"beat": 0, "width": int(page.width), "characters": [], "objects": [], "lamps": []}
 	# Sorting by initial slot preserves authored order for co-located actors.
 	for slot in range(page.width):
 		for authored in page.characters:
@@ -80,7 +80,7 @@ static func decisions(world: Dictionary, lit: Array[int]) -> Array[Dictionary]:
 					decision.step = _direction(target.slot - actor.slot)
 					decision.type = "MOVE" if decision.step != 0 else ("EAT" if object_type == "FOOD" else "SIT")
 			"ANGRY":
-				var target := _nearest(actor, _standing_targets(actor, world))
+				var target := _nearest(actor, _standing_targets(actor, world, lit))
 				if target.is_empty():
 					decision.reason = "no_character"
 				else:
@@ -96,7 +96,7 @@ static func decisions(world: Dictionary, lit: Array[int]) -> Array[Dictionary]:
 					decision.step = actor.flee_direction
 				else:
 					var threats: Array[Dictionary] = []
-					for target in _standing_targets(actor, world):
+					for target in _standing_targets(actor, world, lit):
 						if absi(target.slot - actor.slot) <= 2:
 							threats.append(target)
 					var target := _nearest(actor, threats)
@@ -117,18 +117,90 @@ static func decisions(world: Dictionary, lit: Array[int]) -> Array[Dictionary]:
 						decision.step = direction
 						decision.startle = true
 						decision.flee_direction = direction
+			"SHY":
+				# Hates being seen: from a lit slot, walk to the nearest dark one
+				# (the panel border counts as dark). In the dark it hides, never done.
+				if actor.slot in lit:
+					var facing := 1 if actor.facing == "R" else -1
+					var best_distance := 2147483647
+					var best_step := 0
+					var best_preferred := false
+					for spot in range(-1, int(world.get("width", 0)) + 1):
+						if spot >= 0 and spot < int(world.get("width", 0)) and spot in lit:
+							continue
+						var step := _direction(spot - actor.slot)
+						var distance: int = absi(spot - actor.slot)
+						var preferred := step == facing
+						if distance < best_distance or (distance == best_distance and preferred and not best_preferred):
+							best_distance = distance
+							best_step = step
+							best_preferred = preferred
+					decision.type = "HIDE"
+					decision.step = best_step
+				else:
+					decision.reason = "calm"
+			"IN_LOVE":
+				# Walks to the nearest visible character who is not done yet and hugs them.
+				var candidates: Array[Dictionary] = []
+				for other in _standing_targets(actor, world, lit):
+					if other.status == "READY":
+						candidates.append(other)
+				var target := _nearest(actor, candidates)
+				if target.is_empty():
+					decision.reason = "no_character"
+				else:
+					decision.target = target.id
+					if absi(target.slot - actor.slot) > 1:
+						decision.type = "MOVE"
+						decision.step = _direction(target.slot - actor.slot)
+					else:
+						decision.type = "HUG"
 		result.append(decision)
+	# JEALOUS decides last: it copies the food or seat the nearest visible
+	# character is going for this beat, and races them to it.
+	for decision in result:
+		var actor := _actor(world, decision.actor)
+		if actor.thought != "JEALOUS":
+			continue
+		var busy: Array[Dictionary] = []
+		for other in _standing_targets(actor, world, lit):
+			for other_decision in result:
+				if other_decision.actor == other.id and other_decision.object != "":
+					busy.append(other)
+		var rival := _nearest(actor, busy)
+		if rival.is_empty():
+			decision.reason = "nobody_to_envy"
+			continue
+		var wanted := ""
+		for other_decision in result:
+			if other_decision.actor == rival.id:
+				wanted = other_decision.object
+		for object in world.objects:
+			if object.id == wanted:
+				decision.object = wanted
+				decision.target = rival.id
+				decision.step = _direction(object.slot - actor.slot)
+				decision.type = "MOVE" if decision.step != 0 else ("EAT" if object.type == "FOOD" else "SIT")
+				decision.reason = ""
 	return result
+
+
+static func _actor(world: Dictionary, id: String) -> Dictionary:
+	for actor in world.characters:
+		if actor.id == id:
+			return actor
+	return {}
 
 
 static func standing(actor: Dictionary) -> bool:
 	return actor.status not in ["KO", "ASLEEP", "EXITED"]
 
 
-static func _standing_targets(actor: Dictionary, world: Dictionary) -> Array[Dictionary]:
+static func _standing_targets(actor: Dictionary, world: Dictionary, lit: Array[int] = []) -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = []
 	for other in world.characters:
-		if other.id != actor.id and other.active and standing(other):
+		# A SHY character standing in the dark hides its glow: nobody can see it.
+		if other.id != actor.id and other.active and standing(other) and not (other.thought == "SHY" and other.slot not in lit):
 			candidates.append(other)
 	return candidates
 

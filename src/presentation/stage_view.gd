@@ -14,8 +14,8 @@ const INK := Color("243043")
 const PAPER := Color("f0eee5")
 const MEMORY := Color("a2adbd")
 const DARK := Color("18243a")
-const COLOURS := {"HUNGRY": Color("db8738"), "SLEEPY": Color("5684ba"), "ANGRY": Color("cb5757"), "SCARED": Color("9475b9")}
-const FACES := {"HUNGRY": "hungry", "SLEEPY": "sleepy", "ANGRY": "angry", "SCARED": "frightened"}
+const COLOURS := {"HUNGRY": Color("db8738"), "SLEEPY": Color("5684ba"), "ANGRY": Color("cb5757"), "SCARED": Color("9475b9"), "SHY": Color("e0789c"), "IN_LOVE": Color("d2456f"), "JEALOUS": Color("4e9a43")}
+const FACES := {"HUNGRY": "hungry", "SLEEPY": "sleepy", "ANGRY": "angry", "SCARED": "frightened", "SHY": "surprised", "IN_LOVE": "pleased", "JEALOUS": "angry"}
 const LIGHTING = preload("res://core/lighting.gd")
 const ACTOR = preload("res://scenes/character_actor.tscn")
 const ROOM_SHADER = preload("res://presentation/room_light.gdshader")
@@ -84,7 +84,7 @@ var _flick_ghost_rect := Rect2()
 var _trauma := 0.0
 var _shake_time := 0.0
 const EFFECT_LIFE := 0.85
-const WORD_COLOURS := {"DING": Color("ffd27a"), "EAT": Color("f28c28"), "BONK": Color("d7263d"), "CLASH": Color("d7263d"), "STARTLE": Color("8e5cc9"), "EXIT": Color("8e5cc9"), "SIT": Color("4a90d9"), "LAMP_ON": Color("f2e8cf"), "WHIFF": Color("f2e8cf")}
+const WORD_COLOURS := {"DING": Color("ffd27a"), "EAT": Color("f28c28"), "BONK": Color("d7263d"), "CLASH": Color("d7263d"), "STARTLE": Color("8e5cc9"), "EXIT": Color("8e5cc9"), "SIT": Color("4a90d9"), "LAMP_ON": Color("f2e8cf"), "WHIFF": Color("f2e8cf"), "HUG": Color("f28fb0")}
 const WORD_TRAUMA := {"BONK": 0.5, "CLASH": 0.55, "EXIT": 0.4, "EAT": 0.22, "STARTLE": 0.12}
 var _manifest: Dictionary = {}
 
@@ -470,7 +470,7 @@ func present_events(events: Array, speed: float = 1.0, reduced_motion: bool = fa
 	_playback_speed = speed
 	_reduced_motion = reduced_motion
 	var actions := {"MOVE": "walk", "FLEE": "run", "STARTLE": "startle", "EAT": "eat", "SIT": "sit", "BONK": "bonk", "EXIT": "exit"}
-	var words := {"FLICK": "FLICK!", "DING": "DING!", "STARTLE": "EEK!", "EAT": "CHOMP!", "SIT": "Zzz", "BONK": "BONK!", "CLASH": "CLONK!", "EXIT": "ZOOM!", "LAMP_ON": "CLICK!", "WHIFF": "WHIFF!"}
+	var words := {"FLICK": "FLICK!", "DING": "DING!", "STARTLE": "EEK!", "EAT": "CHOMP!", "SIT": "Zzz", "BONK": "BONK!", "CLASH": "CLONK!", "EXIT": "ZOOM!", "LAMP_ON": "CLICK!", "WHIFF": "WHIFF!", "HUG": "SQUEEZE!"}
 	for event in events:
 		var id := str(event.get("actor", ""))
 		if actions.has(event.type):
@@ -482,6 +482,9 @@ func present_events(events: Array, speed: float = 1.0, reduced_motion: bool = fa
 			_play(id, action)
 		if event.type == "BONK":
 			_play(str(event.get("target", "")), "ko")
+		if event.type == "HUG":
+			_play(id, "eat")
+			_play(str(event.get("target", "")), "startle")
 		if words.has(event.type):
 			var slot := float(event.get("to", 4))
 			var anchor_x := -1.0
@@ -689,8 +692,9 @@ func _draw() -> void:
 		_draw_thought_cloud(rect, at - Vector2(0, _figure_height(actor.art) - 5.0), colour)
 		if _textures.has(actor.thought):
 			draw_texture_rect(_textures[actor.thought], Rect2(rect.position + Vector2(32, 4), Vector2(32, 32)), false)
-		var label_width := TEXT_FONT.get_string_size(actor.thought, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
-		_label(self, rect.position + Vector2((96 - label_width) / 2, 54), actor.thought, colour, 16)
+		var thought_text := str(actor.thought).replace("_", " ")
+		var label_width := TEXT_FONT.get_string_size(thought_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+		_label(self, rect.position + Vector2((96 - label_width) / 2, 54), thought_text, colour, 16)
 		if _planning:
 			_bubble_rects[actor.id] = rect
 			_actor_rects[actor.id] = Rect2(at - Vector2(42, _figure_height(actor.art)), Vector2(84, _figure_height(actor.art)))

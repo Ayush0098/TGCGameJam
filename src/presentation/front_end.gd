@@ -26,6 +26,7 @@ const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 var _title_panel: Control
 var _edition_panel: Control
 var _cards: GridContainer
+var _page_count := 10
 var _start: Button
 var _edition_note: Label
 var _close: Button
@@ -206,6 +207,8 @@ func set_pages(pages: Array, note: String = "") -> void:
 	for child in _cards.get_children():
 		_cards.remove_child(child)
 		child.queue_free()
+	_page_count = pages.size()
+	_cards.add_theme_constant_override("v_separation", 12 if _page_count > 10 else 18)
 	for index in pages.size():
 		_cards.add_child(_card(index, pages[index]))
 	_edition_note.text = note
@@ -218,7 +221,8 @@ func _card(index: int, info: Dictionary) -> Control:
 	var solved: bool = info.get("solved", false)
 	var button := Button.new()
 	button.name = "Page%d" % (index + 1)
-	button.custom_minimum_size = Vector2(206, 200)
+	var compact := _page_count > 10
+	button.custom_minimum_size = Vector2(206, 140 if compact else 200)
 	button.disabled = not unlocked
 	button.tooltip_text = "" if unlocked else "Solve the previous page to unlock"
 	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
@@ -244,43 +248,43 @@ func _card(index: int, info: Dictionary) -> Control:
 	tier_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	tier_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(tier_name)
-	var title := _label(str(info.get("title", "")).to_upper() if unlocked else "? ? ?", 22, INK if unlocked else MUTED)
+	var title := _label(str(info.get("title", "")).to_upper() if unlocked else "? ? ?", 20 if compact else 22, INK if unlocked else MUTED)
 	title.add_theme_font_override("font", COMIC_FONT)
-	title.position = Vector2(16, 62)
-	title.size = Vector2(176, 60)
+	title.position = Vector2(16, 48 if compact else 62)
+	title.size = Vector2(176, 44 if compact else 60)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(title)
 	if not unlocked:
 		var lock := TextureRect.new()
 		lock.texture = load("res://assets/ui/lock.svg")
-		lock.position = Vector2(79, 124)
+		lock.position = Vector2(79, 88 if compact else 124)
 		lock.size = Vector2(48, 48)
 		lock.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.add_child(lock)
 		return button
 	if info.has("max_stars"):
 		var row := HBoxContainer.new()
-		row.position = Vector2(16, 130)
+		row.position = Vector2(16, 90 if compact else 130)
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		for i in int(info.max_stars):
 			var bulb := TextureRect.new()
 			bulb.texture = load("res://assets/ui/%s.svg" % ("star_on" if i < int(info.get("stars", 0)) else "star_off"))
-			bulb.custom_minimum_size = Vector2(28, 28)
+			bulb.custom_minimum_size = Vector2(24, 24) if compact else Vector2(28, 28)
 			bulb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			bulb.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			row.add_child(bulb)
 		button.add_child(row)
 	var detail := ("Endings %d / %d" % [int(info.get("endings", 0)), int(info.get("max_endings", 0))]) if solved or int(info.get("endings", 0)) > 0 else "NEW!"
 	var line := _label(detail, 14, RED if not solved else MUTED)
-	line.position = Vector2(16, 166)
+	line.position = Vector2(16, 116 if compact else 166)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(line)
 	if solved:
 		var stamp := _label("INKED", 20, RED)
 		stamp.add_theme_font_override("font", COMIC_FONT)
 		stamp.rotation = -0.2
-		stamp.position = Vector2(130, 150)
+		stamp.position = Vector2(130, 96 if compact else 150)
 		stamp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.add_child(stamp)
 	return button

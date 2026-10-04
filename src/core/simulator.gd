@@ -58,6 +58,7 @@ static func run(page: Dictionary, plan: Dictionary, capture_presentation: bool =
 		_activate_flick(page, saved_plan, world, events)
 		_capture_phase(presentation_frames, world, "SWITCHES", capture_presentation)
 		_resolve_bonks(world, actors, decisions, events)
+		_resolve_hugs(world, actors, decisions, events)
 		_capture_phase(presentation_frames, world, "BONKS", capture_presentation)
 		_resolve_claims(world, actors, decisions, events)
 		_capture_phase(presentation_frames, world, "CLAIMS", capture_presentation)
@@ -129,6 +130,35 @@ static func _resolve_bonks(world: Dictionary, actors: Dictionary, decisions: Arr
 			actor.status = "KO"
 		elif satisfied.has(actor.id):
 			actor.status = "SATISFIED"
+
+
+## IN LOVE: a hug lands on a not-yet-done neighbour. The hugger is SMITTEN
+## (done, still standing); the hugged one falls in love and acts next beat,
+## and loses this beat's claim. Bonks land first.
+static func _resolve_hugs(world: Dictionary, actors: Dictionary, decisions: Array[Dictionary], events: Array[Dictionary]) -> void:
+	var hugs: Array[Array] = []
+	for decision in decisions:
+		var actor: Dictionary = actors[decision.actor]
+		if actor.thought != "IN_LOVE" or decision.target == "" or actor.status != "READY":
+			continue
+		var target: Dictionary = actors[decision.target]
+		if target.status == "READY" and absi(target.slot - actor.slot) <= 1:
+			hugs.append([actor, target])
+	var huggers := {}
+	for pair in hugs:
+		huggers[pair[0].id] = true
+		events.append(_event(world.beat, "BONKS", "HUG", pair[0].id, pair[1].id, "", pair[0].slot, pair[1].slot))
+	for pair in hugs:
+		pair[0].status = "SMITTEN"
+	for pair in hugs:
+		var target: Dictionary = pair[1]
+		if not huggers.has(target.id) and target.status == "READY":
+			target.thought = "IN_LOVE"
+			target.flee_direction = 0
+			for decision in decisions:
+				if decision.actor == target.id:
+					decision.object = ""
+					decision.target = ""
 
 
 static func _resolve_claims(world: Dictionary, actors: Dictionary, decisions: Array[Dictionary], events: Array[Dictionary]) -> void:

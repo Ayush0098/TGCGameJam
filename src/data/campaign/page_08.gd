@@ -1,12 +1,12 @@
 extends RefCounted
-## Level 8/10 proposed by design thread "Level and puzzle logic design" (design/levels.md).
+## Level 11/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
 ## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_08",
-		"number": 8,
+		"number": 11,
 		"room": "office",
 		"narration_key": "powercut",
 		"title": "Power Cut",
@@ -186,9 +186,15 @@ static func definition() -> Dictionary:
 			]
 		},
 		"narration": {
-			"intro": "The power's out. Only your bulb, one lamp pedal and one spare bulb. The cake is somewhere in the dark.",
-			"win": "The lights came back on. The Mouse was asleep and the cake was gone. Good Dog.",
-			"fail": "Still dark in here."
+			"intro": "Right. If you're going to ruin my comic, you can ruin it in the DARK. [click] There. Power's off. Good luck twisting what you can't see, lamp. ...Is that a spare bulb? Where did you get a SPARE BULB?",
+			"original": "The Mouse ran out of the comic. Smart Mouse.",
+			"twist": "The MOUSE napped in the armchair. The DOG ate the cake.",
+			"win": "I cut the power. You brought a spare bulb. Who carries a SPARE BULB? The Mouse is asleep in an armchair like a tiny retired accountant, and the Dog has eaten the cake in total darkness. By SMELL.",
+			"fail": "Darkness wins. I love darkness. I should have done this on page one.",
+			"fail_alt": [
+				"Still dark. Still mine.",
+				"The Mouse has left the comic. Sensible."
+			]
 		},
 		"dialogue": [
 			{
@@ -199,26 +205,26 @@ static func definition() -> Dictionary:
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "I can smell it, I just can't see it."
+				"line": "I can smell it. I can't see it. I can SMELL it."
 			},
 			{
 				"character": "boss",
 				"when": "lit",
-				"line": "Is this a fire drill?"
+				"line": "Is this a fire drill? I'm not doing a fire drill."
 			},
 			{
 				"character": "mouse",
 				"when": "swap",
-				"line": "Actually... dark is cosy."
+				"line": "Actually... dark is quite cosy."
 			},
 			{
 				"character": "dog",
 				"when": "win",
-				"line": "Found it!"
+				"line": "Found it. Ate it. Don't ask."
 			}
 		],
 		"tutorial": [
-			"Remember the spare bulb? Click the rail during ACTION to drop it."
+			"Remember your spare bulb? During ACTION, click the rail once to drop it."
 		],
 		"hints": [
 			"The Mouse panics next to the Dog. What if it was sleepy instead?",
