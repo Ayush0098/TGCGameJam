@@ -162,8 +162,6 @@ func _ready() -> void:
 	# Menus sit above every in-game card (result card z 160, star award z 220).
 	_front.z_index = 360
 	_front.name = "FrontEnd"
-	# Above the stage, which draws its overlay at z 100.
-	_front.z_index = 200
 	_ui.add_child(_front)
 	_front.start_requested.connect(_on_front_start)
 	_front.page_requested.connect(_on_front_page)
@@ -652,7 +650,7 @@ func _display(world: Dictionary, planning: bool, phase: String = "") -> void:
 	var intentions: Array = RULES.decisions(world, RULES.lit_slots(page, data, world)) if planning else []
 	_stage.pose(world, data, knowledge, planning, intentions)
 	if not planning:
-		var partial := {"snapshots": [world], "events": _run.events.filter(func(event):
+		var partial := {"plan": _run.plan, "snapshots": [world], "events": _run.events.filter(func(event):
 			return event.beat < world.beat or (event.beat == world.beat and (phase.is_empty() or float(PHASE_TIME.get(event.phase, 0.0)) <= float(PHASE_TIME[phase]))))}
 		_show_facts(GOALS.evaluate(page, partial))
 
@@ -725,7 +723,7 @@ func _finish_run(natural := false) -> void:
 	if result.won:
 		_narrate("twist")
 		_say_scripted("win", [])
-		if page.get("finale", false):
+		if page.get("finale", false) and str(page.get("voice", "")).is_empty():
 			get_tree().create_timer(3.5).timeout.connect(func():
 				if mode == "RESULT":
 					_narrate_key("narr_finale_end"))
@@ -1046,7 +1044,7 @@ func _cancel_presentation(keep_audio := false) -> void:
 func _sound_changed(enabled: bool) -> void:
 	if not enabled:
 		_stop_voice()
-		for player in _players:
+		for player in _players + _character_players:
 			player.stop()
 	_update_voice_buttons()
 
@@ -1641,11 +1639,16 @@ func _speak(events: Array) -> void:
 			if line.is_empty():
 				continue
 			said.append(speaker)
-			_stage.say(speaker, line, 1.3)
+			var life := 1.3
 			# Stagger voices so a burst of DINGs doesn't turn into noise.
 			if said.size() <= 2:
-				if not _play_voice_file("characters/%s_%s" % [art, pair[1]]):
+				if _play_voice_file("characters/%s_%s" % [art, pair[1]]):
+					var player: AudioStreamPlayer = _character_players[(_character_index - 1) % _character_players.size()]
+					if player.stream != null:
+						life = maxf(life, player.stream.get_length() + 0.3)
+				else:
 					_blip(speaker, line)
+			_stage.say(speaker, line, life)
 
 
 var _run_said: Dictionary = {}
@@ -2109,20 +2112,21 @@ func _show_result_card(result: Dictionary) -> void:
 		_stage.set_caption("~~ " + GOALS.evaluate(page, _original_run).caption + " ~~", 0.0)
 		get_tree().create_timer(1.3).timeout.connect(func():
 			if mode == "RESULT":
-				_show_tab(true)
+				_show_tab(true, _voice_busy())
 				_stage.celebrate())
 	else:
 		_show_tab(true)
 
 
-func _show_tab(twist: bool) -> void:
+func _show_tab(twist: bool, keep_caption := false) -> void:
 	if mode != "RESULT":
 		return
 	var shown: Dictionary = _run if twist else _original_run
 	_stage.pose(shown.snapshots.back(), shown.plan, knowledge if twist else {}, false)
 	var ending: Dictionary = GOALS.evaluate(page, shown)
 	var line: String = str(page.goal.twist_caption) if twist and ending.won else str(ending.caption)
-	_stage.set_caption(("YOUR TWIST: " if twist else "THE ORIGINAL: ") + line, 0.0)
+	if not keep_caption:
+		_stage.set_caption(("YOUR TWIST: " if twist else "THE ORIGINAL: ") + line, 0.0)
 	_tab_original.disabled = not twist
 	_tab_twist.disabled = twist
 
@@ -2378,6 +2382,10 @@ func _build_settings_sheet() -> void:
 			skipped.clear()
 			bonus_done.clear()
 			endings_found.clear()
+			tutorial_done = false
+			seen_cards.clear()
+			gags = {"exit": 0, "dog": 0}
+			_tutorial_endings.clear()
 			_save_progress()
 			reset.text = "PROGRESS CLEARED"
 			_update_buttons()

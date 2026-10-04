@@ -27,9 +27,10 @@ func run(check: Callable) -> bool:
 	game._process(0.7)
 	game._finish_run()
 	check.call(game.mode == "PLAN", "Keyboard test starts in PLAN")
+	_key(game, KEY_2)
 	var start: float = game.plan.lanterns[0].x
 	_key(game, KEY_A)
-	check.call(game.plan.lanterns[0].x < start, "A moves the bulb left")
+	check.call(game.plan.lanterns[0].x < start, "Key 2 on a one-bulb page keeps the bulb movable")
 	_key(game, KEY_D)
 	_key(game, KEY_D, true)
 	game._move_lantern(0, Vector2(5.4, 0.0), true)
@@ -53,5 +54,24 @@ func run(check: Callable) -> bool:
 	if game.mode == "RESULT":
 		_key(game, KEY_ENTER)
 	check.call(game.mode == "PLAN" or game.page_index != nap, "Enter leaves the result (retry or next page)")
+	# Live goal check during playback uses the player's lanterns (SHY HIDING).
+	var stage_fright := -1
+	for index in game.PAGE_SCRIPTS.size():
+		if game.PAGE_SCRIPTS[index].definition().title == "Stage Fright":
+			stage_fright = index
+	game._load_page(stage_fright)
+	var lit_plan: Dictionary = game.plan.to_data()
+	var world: Dictionary = game.RULES.initial_world(game.page, lit_plan)
+	var hiding := {"type": "HIDING", "character": "kid"}
+	var page_copy: Dictionary = game.page.duplicate(true)
+	page_copy.goal = {"facts": [hiding], "twist_caption": "x"}
+	for actor in world.characters:
+		actor.active = true
+	var lit_kid := false
+	for actor in world.characters:
+		if actor.id == "kid":
+			lit_kid = game.RULES.is_lit(game.page, lit_plan, world, actor.slot)
+	var judged: bool = game.GOALS.evaluate(page_copy, {"plan": lit_plan, "snapshots": [world], "events": []}).won
+	check.call(judged == (not lit_kid), "HIDING follows the player's lantern plan")
 	game.free()
 	return true

@@ -8,19 +8,18 @@ You play a mischievous lightbulb loose inside a newspaper comic. Each page first
 
 ## Status
 
-A playable three-puzzle sample contains **Nap Time**, **Midnight Snack** and
-**The Boss's Birthday**. Nap Time now uses a painted vintage room, expressive SVG
-characters, thought icons, animated actions and original sound effects. Its story
-intro and winning conclusion use recorded voice auditions with subtitles,
-skip/replay and a deliberate **Start story** button for browser audio.
-The other two puzzles remain greybox while their artwork is produced.
+A **15-page campaign** in three acts (green, yellow and red difficulty), opened by a
+skippable six-panel tutorial on page 1. Seven feelings drive the cast: HUNGRY,
+SLEEPY, ANGRY and SCARED, plus SHY, IN LOVE and JEALOUS, each introduced by a
+NEW FEELING card on its debut page. Every page has a twist, bonus headlines
+(up to three stars), an Endings book, a step-by-step HINT and a spare bulb
+(FLICK) on the later pages. Every star is audited to have one or two solutions.
 
-Two radial lanterns reveal thoughts and activate characters. Gold rings mark
-gameplay coverage; decorative halos reveal nothing. Swaps, first-move previews,
-lamp chains, FAST/SKIP, Original/Twist results and exact-plan REWIND work.
-The ten-level campaign, final narration, music, saves and epilogue are still in
-production. A separate art/voice study remains available. No public playable
-release has been published.
+The game has painted rooms that fill the screen, rigged SVG characters, a voiced
+narrator and character reactions, layered music, a torch-lit title screen,
+page transitions, star awards and full keyboard play. Progress, settings and
+the tutorial state are saved. The story and narration are being revised; no
+public release has been published yet.
 
 ## Proposal
 
@@ -35,20 +34,18 @@ The game proposal is in [`proposal.pdf`](proposal.pdf) at the root of this repos
 ## Open and run
 
 Use Godot **4.7.2 standard**, import `src/project.godot`, then press **F5**.
-Choose **Start story** for narration, or **Skip voice** to watch the Original.
-The game then returns to PLAN.
-Drag a HUD hook into the marked area to deploy its lantern. Return the lantern
-to a hook, click its hook, or press P to park it. Drag one lit thought onto another lit character,
-then press **ACTION**. **Space** starts ACTION or skips playback.
-With the stage focused, **1/2** selects a lantern, **arrow keys** move it,
-**Shift + arrows** moves it more precisely, and **P** parks/deploys it.
-Both lanterns lock during ACTION. Their personal idea markers do not illuminate
-objects; fixed and switched lamps still determine what targets can be seen.
-**REWIND** keeps your edited plan; **RESTART** restores the page defaults.
-**ORIGINAL** replays the default story and preserves your edits.
-**FAST** speeds up playback; **SKIP RUN** jumps to its result. **SKIP PAGE**
-unlocks after three failed runs. Sound and Reduce motion are session settings.
-After winning page 6, **PLAY AGAIN** restarts the MVP.
+Each page first plays its Original; click or press any key to skip it.
+
+| | Mouse | Keyboard |
+|---|---|---|
+| Move the bulb | drag it | arrows or WASD (up/down raise and lower it) |
+| Second bulb | drag it off its hook | 1 / 2 select, P parks or hangs it |
+| Swap thoughts | drag one lit thought onto another lit character | Tab / Q / E to choose, Enter to pick, Enter to swap, Esc cancels |
+| Start the run | ACTION | Space (Space again skips) |
+| Spare bulb | click the room during ACTION | left/right to aim, F to drop |
+| Hint, restart, Original, Endings | buttons | H, R, O, B |
+| Result | RETRY / NEXT PAGE | Enter (or N), R restarts, L levels |
+| Menus | click | arrows and Enter, Esc goes back |
 
 For command-line work, run these PowerShell commands from the repository root.
 Set the executable path to your own extracted Godot download:

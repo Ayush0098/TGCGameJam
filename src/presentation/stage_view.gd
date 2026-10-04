@@ -555,7 +555,7 @@ func _process(delta: float) -> void:
 		effect.age += delta * _playback_speed
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
 	for saying in _sayings:
-		saying.age += delta * _playback_speed
+		saying.age += delta
 	_sayings = _sayings.filter(func(saying): return saying.age < float(saying.get("life", 1.0)))
 	if _caption_left > 0.0:
 		_caption_left -= delta
@@ -840,7 +840,8 @@ func _gui_input(event: InputEvent) -> void:
 			accept_event()
 			return
 		if event.keycode in [KEY_1, KEY_2]:
-			_selected_lantern = 0 if event.keycode == KEY_1 else 1
+			var count := mini(int(_page.get("lanterns", {}).get("count", 2)), _plan.get("lanterns", []).size())
+			_selected_lantern = 0 if event.keycode == KEY_1 else clampi(1, 0, maxi(0, count - 1))
 		elif event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_P]:
 			var light: Dictionary = _plan.lanterns[_selected_lantern]
 			var at := Vector2(light.x, light.y)
