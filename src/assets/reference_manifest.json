@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "status": "production_reference",
+  "background": "res://assets/backgrounds/living_room_reference.png",
+  "characters": {
+    "boss": {
+      "rig": "res://assets/characters/boss/rig.json",
+      "canvas": [
+        320,
+        400
+      ],
+      "anchor": [
+        160,
+        380
+      ],
+      "parts": [
+        {
+          "name": "leg_left",
+          "texture": "res://assets/characters/boss/leg_left.svg",
+          "pivot": [
+            133,
+            298
+          ],
+          "z": -3
+        },
+        {
+          "name": "leg_right",
+          "texture": "res://assets/characters/boss/leg_right.svg",
+          "pivot": [
+            185,
+            298
+          ],
+          "z": -2
+        },
+        {
+          "name": "arm_left",
+          "texture": "res://assets/characters/boss/arm_left.svg",
+          "pivot": [
+            104,
+            187
+          ],
+          "z": -1
+        },
+        {
+          "name": "body",
+          "texture": "res://assets/characters/boss/body.svg",
+          "pivot": [
+            160,
+            218
+          ],
+          "z": 0
+        },
+        {
+          "name": "arm_right",
+          "texture": "res://assets/characters/boss/arm_right.svg",
+          "pivot": [
+            213,
+            190
+          ],
+          "z": 1
+        },
+        {
+          "name": "head",
+          "texture": "res://assets/characters/boss/head.svg",
+          "pivot": [
+            160,
+            114
+          ],
+          "z": 2
+        },
+        {
+          "name": "bowtie",
+          "texture": "res://assets/characters/boss/bowtie.svg",
+          "pivot": [
+            160,
+            180
+          ],
+          "z": 3
+        }
+      ],
+      "expressions": {
+        "neutral": "res://assets/characters/boss/face_neutral.svg",
+        "hungry": "res://assets/characters/boss/face_hungry.svg",
+        "sleepy": "res://assets/characters/boss/face_sleepy.svg",
+        "angry": "res://assets/characters/boss/face_angry.svg",
+        "frightened": "res://assets/characters/boss/face_frightened.svg",
+        "surprised": "res://assets/characters/boss/face_surprised.svg",
+        "pleased": "res://assets/characters/boss/face_pleased.svg"
+      },
+      "animations": [
+        "idle",
+        "walk",
+        "startle",
+        "run",
+        "eat",
+        "sit",
+        "sleep",
+        "bonk",
+        "ko",
+        "exit",
+        "celebrate"
+      ]
+    },
+    "dog": {
+      "rig": "res://assets/characters/dog/rig.json",
+      "canvas": [
+        320,
+        400
+      ],
+      "anchor": [
+        160,
+        380
+      ],
+      "parts": [
+        {
+          "name": "tail",
+          "texture": "res://assets/characters/dog/tail.svg",
+          "pivot": [
+            86,
+            259
+          ],
+          "z": -3
+        },
+        {
+          "name": "leg_left",
+          "texture": "res://assets/characters/dog/leg_left.svg",
+          "pivot": [
+            122,
+            299
+          ],
+          "z": -2
+        },
+        {
+          "name": "leg_right",
+          "texture": "res://assets/characters/dog/leg_right.svg",
+          "pivot": [
+            218,
+            300
+          ],
+          "z": -1
+        },
+        {
+          "name": "body",
+          "texture": "res://assets/characters/dog/body.svg",
+          "pivot": [
+            160,
+            271
+          ],
+          "z": 0
+        },
+        {
+          "name": "arm_left",
+          "texture": "res://assets/characters/dog/arm_left.svg",
+          "pivot": [
+            110,
+            245
+          ],
+          "z": 1
+        },
+        {
+          "name": "arm_right",
+          "texture": "res://assets/characters/dog/arm_right.svg",
+          "pivot": [
+            220,
+            245
+          ],
+          "z": 1
+        },
+        {
+          "name": "head",
+          "texture": "res://assets/characters/dog/head.svg",
+          "pivot": [
+            160,
+            149
+          ],
+          "z": 2
+        },
+        {
+          "name": "ear_left",
+          "texture": "res://assets/characters/dog/ear_left.svg",
+          "pivot": [
+            108,
+            110
+          ],
+          "z": 3
+        },
+        {
+          "name": "ear_right",
+          "texture": "res://assets/characters/dog/ear_right.svg",
+          "pivot": [
+            211,
+            110
+          ],
+          "z": 3
+        },
+        {
+          "name": "bandana",
+          "texture": "res://assets/characters/dog/bandana.svg",
+          "pivot": [
+            160,
+            222
+          ],
+          "z": 4
+        }
+      ],
+      "expressions": {
+        "neutral": "res://assets/characters/dog/face_neutral.svg",
+        "hungry": "res://assets/characters/dog/face_hungry.svg",
+        "sleepy": "res://assets/characters/dog/face_sleepy.svg",
+        "angry": "res://assets/characters/dog/face_angry.svg",
+        "frightened": "res://assets/characters/dog/face_frightened.svg",
+        "surprised": "res://assets/characters/dog/face_surprised.svg",
+        "pleased": "res://assets/characters/dog/face_pleased.svg"
+      },
+      "animations": [
+        "idle",
+        "walk",
+        "startle",
+        "run",
+        "eat",
+        "sit",
+        "sleep",
+        "bonk",
+        "ko",
+        "exit",
+        "celebrate"
+      ]
+    }
+  },
+  "thoughts": {
+    "hungry": "res://assets/thoughts/hungry.svg",
+    "sleepy": "res://assets/thoughts/sleepy.svg",
+    "angry": "res://assets/thoughts/angry.svg",
+    "scared": "res://assets/thoughts/scared.svg"
+  },
+  "dialogue": "res://assets/audio/reference/cues.json"
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400"><defs>
+<linearGradient id="skin" x2=".8" y2="1"><stop stop-color="#ffdfb0"/><stop offset="1" stop-color="#e9a478"/></linearGradient>
+<linearGradient id="shirt" x2="1" y2="1"><stop stop-color="#ddf2e5"/><stop offset="1" stop-color="#8fbbae"/></linearGradient>
+<linearGradient id="vest" x2=".4" y2="1"><stop stop-color="#b85266"/><stop offset="1" stop-color="#773b57"/></linearGradient>
+<linearGradient id="fur" x2=".5" y2="1"><stop stop-color="#ffda86"/><stop offset="1" stop-color="#d78c42"/></linearGradient>
+<linearGradient id="ear" x2="1" y2="1"><stop stop-color="#835544"/><stop offset="1" stop-color="#513946"/></linearGradient>
+</defs><path d="M110 204 Q158 225 214 201 L208 223 L181 249 L163 276 L139 242 L115 223 Z" fill="#529f9a" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M135 226 Q154 232 177 227" fill="none" stroke="#b5ded1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /><ellipse cx="163" cy="241" rx="5" ry="5" fill="#e8db91" stroke="#453747" stroke-width="2" /></svg>

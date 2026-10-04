@@ -1,0 +1,19 @@
+{
+  "asset_id": "background.living_room.stage",
+  "master": "assets/art/backgrounds/living_room_stage.png",
+  "runtime": "src/assets/backgrounds/living_room_stage.png",
+  "generator": "Built-in image_gen",
+  "generated_date": "2026-10-04",
+  "native_width": 1672,
+  "native_height": 941,
+  "source_crop_uv": [
+    0,
+    0.2,
+    1,
+    0.64
+  ],
+  "wall_floor_seam_source_y": 0.66,
+  "style": "Painted storybook gouache, vintage wood trim, cool neutral midnight-ready palette, fine paper grain; no halftone.",
+  "inspection": "Empty side-on architectural shell. No characters, furniture, puzzle props, fireplace or baked light pools. Dim cool windows and decorative trim stay at the sides. Native size meets approved minimum. Floor grain has mild illustrative depth; no gameplay geometry is painted.",
+  "prompt": "Use case: illustration-story.\nAsset type: production background painting for a 2D side-on storybook puzzle game, LIGHTBULB MOMENT. Create one high-resolution 16:9 landscape image, 2048 by 1152 pixels or higher, at least 1672 by 941 pixels.\nPrimary request: an empty cosy vintage living-room architectural shell, exquisitely hand-painted gouache with soft edges and fine natural paper grain, subdued cool slate blue and muted dusty teal walls, desaturated wood trim and plank floor. It should feel like a lovingly illustrated storybook, with quiet character and tasteful detail, ready for a deep-midnight runtime lighting treatment.\nComposition: straight-on side-on theatre stage with NO perspective vanishing point. Front wall across the entire image and floor stretching full width. Horizontal wall/floor seam EXACTLY around 67 percent of source-image height. We will display only the image area from 20 percent down to 84 percent down; frame this crop as the intended scene. Architecture is continuous, almost orthographic. Keep the middle 94 percent of width clear of projecting furniture or obstructions. Gameplay happens in the lower part of that crop: cropped y230 to404 out of460, which is source y52 to76 percent. This entire gameplay lane must stay plain and visually quiet, suitable for small animated characters and separate props.\nDecorations: refined vintage wood cornice and restrained upper-wall decorative borders. One or two small high-set windows with cool dim blue opaque glass, at far outer sides and above source y50 percent, never brightly lit. A few delicate antique botanical patterns or empty picture-frame silhouettes can decorate upper wall only, sparse and subtle, with no readable text.\nLighting: EVEN cool neutral mid-value ambient paint. No drawn pools of light, no bloom, no radiating beams, no directional shadows, no glowing windows. The game adds illumination later, so keep shadow texture soft and neutral. Preserve readable painted surfaces rather than blacking out the image.\nConstraints: no people, no animals, no furniture, no tables, no sofa, no chairs, no bed, no food, no books on floor, no props, no lamps, no light bulbs, no fireplace, no candles, no switches, no puzzle blockers, no characters, no text, no logos, no watermark. No halftone dots, no stipple dot overlay, no pencil sketch, no photorealism, no 3D render. Fine paper grain only. The centre lower wall and floor are spacious empty negative space. This is a finished background painting, not a mockup; no borders, no annotations, no guide lines."
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "cues": [
+    {
+      "id": "narrator_intro",
+      "speaker": "Narrator",
+      "text": "Every morning, the Editor wrote the same ending. The Boss got the cake. The Dog got the dog bed. But tonight, the lights went out... and a small idea began to glow.",
+      "voice": "af_heart",
+      "audio": "res://assets/audio/reference/narrator_intro.ogg",
+      "duration_seconds": 10.352
+    },
+    {
+      "id": "boss_reaction",
+      "speaker": "Boss",
+      "text": "Well! That was not the ending I expected. Perhaps there is enough room in this story for somebody else.",
+      "voice": "bm_george",
+      "audio": "res://assets/audio/reference/boss_reaction.ogg",
+      "duration_seconds": 6.2487
+    },
+    {
+      "id": "narrator_success",
+      "speaker": "Narrator",
+      "text": "For once, the cake went to the Dog. The Boss discovered that a borrowed bed could be surprisingly comfortable. It was a small change on a small page. But somewhere, beyond the frame, the Editor paused.",
+      "voice": "af_heart",
+      "audio": "res://assets/audio/reference/narrator_success.ogg",
+      "duration_seconds": 12.0587
+    }
+  ]
+}

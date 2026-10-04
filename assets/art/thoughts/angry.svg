@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><defs>
+<linearGradient id="skin" x2=".8" y2="1"><stop stop-color="#ffdfb0"/><stop offset="1" stop-color="#e9a478"/></linearGradient>
+<linearGradient id="shirt" x2="1" y2="1"><stop stop-color="#ddf2e5"/><stop offset="1" stop-color="#8fbbae"/></linearGradient>
+<linearGradient id="vest" x2=".4" y2="1"><stop stop-color="#b85266"/><stop offset="1" stop-color="#773b57"/></linearGradient>
+<linearGradient id="fur" x2=".5" y2="1"><stop stop-color="#ffda86"/><stop offset="1" stop-color="#d78c42"/></linearGradient>
+<linearGradient id="ear" x2="1" y2="1"><stop stop-color="#835544"/><stop offset="1" stop-color="#513946"/></linearGradient>
+</defs><path d="M23 35 L40 35 L45 16 L62 30 L78 14 L83 35 L104 34 L94 56 L110 73 L87 80 L84 106 L63 93 L43 109 L38 84 L15 77 L29 59 Z" fill="#dc7971" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M43 48 L62 59 L78 48 L84 56 L67 70 L50 65 Z" fill="#fff2d6" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M46 83 Q63 72 81 82" fill="none" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M14 15 L22 23 M110 17 L102 24" fill="none" stroke="#b24c58" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /></svg>

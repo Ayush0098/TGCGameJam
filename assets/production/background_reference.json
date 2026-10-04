@@ -1,0 +1,12 @@
+{
+  "id": "living_room_reference",
+  "producer": "OpenAI built-in imagegen tool",
+  "reference_images": [],
+  "transparent_background": false,
+  "master": "assets/art/backgrounds/living_room_reference.png",
+  "runtime": "src/assets/backgrounds/living_room_reference.png",
+  "original_output_name": "exec-2b648a8e-6aeb-4836-ab80-33d8ed41dc93.png",
+  "production_brief": "Painted storybook comic living room. Gouache/watercolour, subtle ivory paper, irregular dark plum ink contours, muted apricot plaster and dusty teal trim, dark blue night window. Straight side-view stage with a clear lower floor for movable gameplay objects. Books, wall art and fireplace around edges. No characters, animals, food, chairs, beds, sofas, lamps, lanterns, switches, light beams, text or interface. Gentle neutral illumination; runtime lighting remains separate.",
+  "status": "Batch 1 style reference; final runtime lighting and puzzle alignment pending",
+  "terms": "Generated output; no stock art supplied. No open-source output license asserted. See THIRD_PARTY.md."
+}

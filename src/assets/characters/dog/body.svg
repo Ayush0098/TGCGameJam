@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400"><defs>
+<linearGradient id="skin" x2=".8" y2="1"><stop stop-color="#ffdfb0"/><stop offset="1" stop-color="#e9a478"/></linearGradient>
+<linearGradient id="shirt" x2="1" y2="1"><stop stop-color="#ddf2e5"/><stop offset="1" stop-color="#8fbbae"/></linearGradient>
+<linearGradient id="vest" x2=".4" y2="1"><stop stop-color="#b85266"/><stop offset="1" stop-color="#773b57"/></linearGradient>
+<linearGradient id="fur" x2=".5" y2="1"><stop stop-color="#ffda86"/><stop offset="1" stop-color="#d78c42"/></linearGradient>
+<linearGradient id="ear" x2="1" y2="1"><stop stop-color="#835544"/><stop offset="1" stop-color="#513946"/></linearGradient>
+</defs><path d="M100 220 Q133 206 180 220 Q225 229 244 270 Q256 316 223 335 Q174 352 118 331 Q81 321 83 278 Q85 244 100 220 Z" fill="url(#fur)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M138 235 Q171 223 194 245 Q226 275 207 310 Q172 329 138 311 Q123 276 138 235 Z" fill="#fbe2ac" stroke="#453747" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /><path d="M96 273 Q104 277 108 272 M226 286 Q231 279 235 282" fill="none" stroke="#b67645" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>

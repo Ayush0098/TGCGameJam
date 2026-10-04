@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "batch": 1,
+  "runtime_manifest": "src/assets/reference_manifest.json",
+  "produced": {
+    "living_room": {
+      "status": "reference",
+      "method": "built-in imagegen",
+      "runtime": "res://assets/backgrounds/living_room_reference.png",
+      "master": "assets/art/backgrounds/living_room_reference.png"
+    },
+    "boss": {
+      "status": "reference",
+      "rig": "res://assets/characters/boss/rig.json"
+    },
+    "dog": {
+      "status": "reference",
+      "rig": "res://assets/characters/dog/rig.json"
+    },
+    "thoughts": {
+      "status": "reference",
+      "resources": {
+        "hungry": "res://assets/thoughts/hungry.svg",
+        "sleepy": "res://assets/thoughts/sleepy.svg",
+        "angry": "res://assets/thoughts/angry.svg",
+        "scared": "res://assets/thoughts/scared.svg"
+      }
+    },
+    "voices": {
+      "status": "audition",
+      "cues": "res://assets/audio/reference/cues.json"
+    },
+    "living_room_stage": {
+      "status": "playable_checkpoint_awaiting_visual_review",
+      "method": "built-in imagegen",
+      "runtime": "res://assets/backgrounds/living_room_stage.png",
+      "master": "assets/art/backgrounds/living_room_stage.png",
+      "provenance": "assets/production/living_room_stage.json",
+      "native_size": [
+        1672,
+        941
+      ],
+      "crop_uv": [
+        0,
+        0.2,
+        1,
+        0.64
+      ],
+      "stage_size": [
+        1280,
+        460
+      ],
+      "feet_y": 404,
+      "painted_seam_stage_y": 331,
+      "texture": "fine paper grain, no halftone",
+      "lighting": "separate runtime illumination"
+    },
+    "nap_time_props": {
+      "status": "playable_checkpoint_awaiting_visual_review",
+      "method": "original project SVG",
+      "resources": [
+        "res://assets/props/cake.svg",
+        "res://assets/props/cake_empty.svg",
+        "res://assets/props/dog_bed.svg",
+        "res://assets/props/lantern.svg",
+        "res://assets/props/fixture.svg"
+      ]
+    },
+    "action_effects": {
+      "status": "integrated",
+      "method": "original procedural synthesis",
+      "source": "src/game/main.gd",
+      "events": [
+        "MOVE",
+        "EAT",
+        "SIT",
+        "BONK",
+        "CLASH",
+        "WHIFF",
+        "LAMP_ON"
+      ]
+    }
+  },
+  "planned": {
+    "characters": [
+      "grandma",
+      "kid",
+      "intern",
+      "cat",
+      "mouse",
+      "editor_hand",
+      "editor_portrait"
+    ],
+    "backgrounds": [
+      "kitchen",
+      "office",
+      "editor_desk"
+    ],
+    "props": [
+      "pie",
+      "fish",
+      "cookie",
+      "broccoli",
+      "chair",
+      "armchair",
+      "pedal_off",
+      "pedal_on",
+      "lamp_off",
+      "lamp_on",
+      "curtain_obstacle",
+      "screen_obstacle"
+    ],
+    "effects": [
+      "ding",
+      "chomp",
+      "bonk",
+      "zoom",
+      "stars",
+      "crumbs",
+      "dust",
+      "twist_stamp",
+      "border_reaction"
+    ],
+    "interface": [
+      "title",
+      "level_cards",
+      "goal_caption",
+      "buttons",
+      "settings",
+      "original_twist_tabs",
+      "credits"
+    ],
+    "audio": [
+      "character_dialogue",
+      "event_recaps",
+      "level_conclusions",
+      "epilogue",
+      "reveal_stingers",
+      "rewind",
+      "music"
+    ]
+  },
+  "integration_status": "nap_time_checkpoint_awaiting_visual_review"
+}
