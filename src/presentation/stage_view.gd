@@ -71,6 +71,11 @@ var _mood_left := 0.0
 var _bulb_clock := 0.0
 var _look := Vector2.ZERO
 var _lit_last: Dictionary = {}
+## Walking direction per actor this beat (set by playback), for stable facing.
+var motion_headings: Dictionary = {}
+var _last_moved: Dictionary = {}
+var _stack_shown: Dictionary = {}
+var _stack_time: Dictionary = {}
 # FLICK: aiming during ACTION, and the ghost of a kept flick during PLAN.
 var _flick_ready := false
 var _aim_slot := -1
@@ -272,10 +277,21 @@ func _update_visuals() -> void:
 		var index := int(stack.get(record.slot, 0))
 		stack[record.slot] = index + 1
 		rig.visible = record.status != "EXITED"
-		rig.position = _actor_position(record, index)
+		# Shared-slot staggering eases in and out instead of popping 22 px.
+		var target_stack := float(index)
+		var shown_stack: float = _stack_shown.get(record.id, target_stack)
+		var since: float = _bulb_clock - float(_stack_time.get(record.id, _bulb_clock))
+		_stack_time[record.id] = _bulb_clock
+		shown_stack = target_stack if _reduced_motion or _planning else lerpf(shown_stack, target_stack, clampf(since * 6.0, 0.0, 1.0))
+		if absf(shown_stack - target_stack) < 0.01:
+			shown_stack = target_stack
+		_stack_shown[record.id] = shown_stack
+		rig.position = _actor_position(record, 0) + Vector2(shown_stack * 22.0, -shown_stack * 12.0)
 		var amount: float = _manifest.characters[record.art].scale
 		var facing := -1.0 if record.get("facing", "R") == "L" else 1.0
-		if _visual_positions.has(record.id):
+		if motion_headings.has(record.id) and motion_headings[record.id] != 0.0:
+			facing = motion_headings[record.id]
+		elif _visual_positions.has(record.id):
 			var movement: float = float(_visual_positions[record.id]) - float(record.slot)
 			if absf(movement) > 0.001:
 					facing = signf(movement)
@@ -301,7 +317,11 @@ func _update_visuals() -> void:
 				rig.show_terminal(record.status)
 				_actions[record.id] = "rest"
 		elif _actions.get(record.id, "") in ["walk", "run"] and not _visual_positions.has(record.id):
-			_play(record.id, "idle")
+			# Keep the walk cycle through the short gap between consecutive steps.
+			if _bulb_clock - float(_last_moved.get(record.id, -10.0)) > 0.12:
+				_play(record.id, "idle")
+		if _visual_positions.has(record.id):
+			_last_moved[record.id] = _bulb_clock
 		elif _actions.get(record.id, "").is_empty():
 			_play(record.id, "idle")
 	for object in world.get("objects", []):
@@ -437,6 +457,9 @@ func cancel_presentation() -> void:
 	queue_redraw()
 
 func _play(id: String, action: String) -> void:
+	# A walk that continues into the next step keeps its cycle (no restart hitch).
+	if action in ["walk", "run"] and _actions.get(id, "") == action and _rigs.has(id) and _rigs[id].animation_player.is_playing():
+		return
 	if _rigs.has(id):
 		_rigs[id].play_action(action, _playback_speed * 2.0, _reduced_motion)
 		_actions[id] = action

@@ -108,6 +108,8 @@ const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
 const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 const SAVE_PATH := "user://lightbulb_campaign_v1.json"
 const BEAT_SECONDS := 0.4
+## Visual walk time per beat; arrival lands just before CLAIMS (0.35).
+const MOVE_SECONDS := 0.34
 const RECOVERY_SECONDS := 0.45
 const PHASE_TIME := {"DECIDE": 0.04, "MOVE": 0.26, "SWITCHES": 0.27, "BONKS": 0.31, "CLAIMS": 0.35}
 
@@ -487,14 +489,29 @@ func _process(delta: float) -> void:
 		_finish_run()
 		return
 	var positions: Dictionary = {}
+	var headings: Dictionary = {}
 	if not _motion.button_pressed:
+		# Walk across (almost) the whole beat at constant speed, so consecutive
+		# steps join into one continuous stroll instead of stop-go hops. The
+		# visual position keeps overriding the slot after the MOVE phase lands.
 		var next_beat := int(_clock / BEAT_SECONDS) + 1
 		var local_time := fmod(_clock, BEAT_SECONDS)
-		if local_time >= 0.04 and local_time < 0.26:
-			var fraction := (local_time - 0.04) / 0.22
-			for event in _run.events:
-				if event.beat == next_beat and event.type == "MOVE":
-					positions[event.actor] = lerpf(float(event.from), float(event.to), fraction)
+		var walkers: Dictionary = {}
+		for event in _run.events:
+			if event.type == "MOVE" and absi(int(event.beat) - next_beat) <= 1:
+				walkers[str(event.actor) + ":" + str(event.beat)] = true
+		for event in _run.events:
+			if event.beat == next_beat and event.type == "MOVE":
+				var before: bool = walkers.has(str(event.actor) + ":" + str(next_beat - 1))
+				var after: bool = walkers.has(str(event.actor) + ":" + str(next_beat + 1))
+				# A step that continues into the next one uses the whole beat at
+				# constant speed; a single step eases in and out.
+				var fraction := clampf(local_time / (BEAT_SECONDS if after else MOVE_SECONDS), 0.0, 1.0)
+				if not before and not after:
+					fraction = smoothstep(0.0, 1.0, fraction)
+				positions[event.actor] = lerpf(float(event.from), float(event.to), fraction)
+				headings[event.actor] = signf(float(event.to) - float(event.from))
+	_stage.motion_headings = headings
 	_stage.pose(_playback_world, _run.plan, knowledge, false, [], positions)
 
 
