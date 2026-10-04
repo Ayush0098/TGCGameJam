@@ -14,6 +14,10 @@ var _rest: Dictionary = {}
 var _faces: Dictionary = {}
 var _face: Sprite2D
 var _lighting_material: ShaderMaterial
+# Presentation-only squash/stretch "take" (reveal, swap, poke); never moves the actor.
+var _pop_time := -1.0
+var _pop_base := Vector2.ONE
+const POP_SECONDS := 0.28
 var expression_name := "neutral"
 
 
@@ -229,3 +233,22 @@ func _build_animation(action: String) -> Animation:
 	if _parts.has("tail"):
 		_rotation(animation, "tail", [[0, -7], [0.2, 13], [0.4, -7], [0.6, 13], [0.8, -7]])
 	return animation
+
+
+
+func pop() -> void:
+	if _pop_time < 0.0:
+		_pop_base = scale
+	_pop_time = 0.0
+
+
+func _process(delta: float) -> void:
+	if _pop_time < 0.0:
+		return
+	_pop_time += delta
+	if _pop_time >= POP_SECONDS:
+		_pop_time = -1.0
+		scale = _pop_base
+		return
+	var wave := sin(_pop_time / POP_SECONDS * PI)
+	scale = _pop_base * Vector2(1.0 - 0.06 * wave, 1.0 + 0.10 * wave)

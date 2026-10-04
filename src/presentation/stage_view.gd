@@ -6,6 +6,8 @@ signal lantern_moved(index: int, position: Vector2, enabled: bool)
 signal thought_swapped(first: String, second: String)
 signal preview_requested(first: String, second: String)
 signal preview_cleared()
+signal actor_revealed(id: String, thought: String)
+signal actor_poked(id: String, kind: String)
 
 const INK := Color("243043")
 const PAPER := Color("f0eee5")
@@ -55,6 +57,13 @@ var _prop_sprites: Dictionary = {}
 var _actions: Dictionary = {}
 var _textures: Dictionary = {}
 var _effects: Array[Dictionary] = []
+# Bulby: the lantern bulb is the player's face. Mood is presentation only.
+var _bulb_mood := "idle"
+var _mood_after := "idle"
+var _mood_left := 0.0
+var _bulb_clock := 0.0
+var _look := Vector2.ZERO
+var _lit_last: Dictionary = {}
 # Comic juice: screen shake (trauma 0..1, decays) applied to the panel root only.
 var _trauma := 0.0
 var _shake_time := 0.0
@@ -137,6 +146,7 @@ func configure(page: Dictionary) -> void:
 	_shade = null
 	_shade_from = null
 	_selected_lantern = 0
+	_lit_last.clear()
 	# Illustrated whenever every cast member and prop has production art.
 	_art = page.get("characters", []).all(func(record): return _manifest.characters.has(str(record.art))) 		and page.get("objects", []).all(func(record): return _textures.has(str(record.art)))
 	for rig in _rigs.values():
@@ -241,6 +251,12 @@ func _update_visuals() -> void:
 		rig.scale = Vector2(amount * facing, amount)
 		var lit := _lit(record.slot, world)
 		rig.set_lit(lit)
+		if _planning and _preview.is_empty():
+			# A newly revealed actor does a take; leaving the light is silent.
+			if lit and _lit_last.has(record.id) and not _lit_last[record.id] and record.status == "READY":
+				rig.pop()
+				actor_revealed.emit(str(record.id), str(record.thought))
+			_lit_last[record.id] = lit
 		if _planning:
 			var expression: String = FACES.get(record.thought, "neutral") if lit else "neutral"
 			if _actions.get(record.id, "") != "plan_" + expression:
@@ -373,6 +389,8 @@ func cancel_presentation() -> void:
 	_drag_bulb = -1
 	_target = ""
 	_effects.clear()
+	_bulb_mood = "idle"
+	_mood_left = 0.0
 	_trauma = 0.0
 	if is_instance_valid(_root):
 		_root.position = _offset()
@@ -429,12 +447,22 @@ func present_events(events: Array, speed: float = 1.0, reduced_motion: bool = fa
 			_effects.append({"text": words[event.type], "kind": str(event.type), "at": Vector2(clampf(anchor_x if anchor_x >= 0.0 and event.type != "LAMP_ON" else _x(slot), 75, 1205), height), "age": 0.0, "rot": wobble, "colour": WORD_COLOURS.get(event.type, Color("ffd27a"))})
 			if not reduced_motion:
 				_trauma = minf(1.0, _trauma + float(WORD_TRAUMA.get(event.type, 0.0)))
+			_look = Vector2(clampf(_x(slot), 75, 1205), height)
+			if event.type in ["BONK", "CLASH", "EXIT"]:
+				set_mood("flinch", 0.45)
 	queue_redraw()
 
 func _process(delta: float) -> void:
 	if _blend < 1.0:
 		_blend = minf(1.0, _blend + delta * _playback_speed / 0.3)
 		_room.material.set_shader_parameter("blend", _blend)
+	_bulb_clock += delta
+	if _mood_left > 0.0:
+		_mood_left -= delta
+		if _mood_left <= 0.0:
+			_bulb_mood = _mood_after
+	if not _reduced_motion and not _plan.get("lanterns", []).is_empty():
+		queue_redraw()
 	for effect in _effects:
 		effect.age += delta * _playback_speed
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
@@ -658,9 +686,7 @@ func _draw_lanterns() -> void:
 		var opacity := 1.0 if _planning else 0.3
 		for segment in range(48):
 			draw_arc(at, LIGHTING.radius(_page) * _spacing(), TAU * segment / 48.0, TAU * (segment + 0.55) / 48.0, 3, Color(0.97, 0.78, 0.33, opacity * 0.7), 1.5, true)
-		draw_line(Vector2(at.x, 6), at - Vector2(0, 22), Color(0.35, 0.32, 0.32, opacity), 2, true)
-		draw_texture(_textures.lantern, at - Vector2(20, 26), Color(1, 1, 1, opacity))
-		_label(self, at + Vector2(-5, 4), str(index + 1), INK, 15)
+		_draw_bulby(index, at)
 		if _planning and index == _selected_lantern:
 			draw_arc(at, 27, 0, TAU, 32, Color("d8b575"), 2, true)
 		_bulb_rects.append(Rect2(at - Vector2(25, 27), Vector2(50, 54)))
@@ -716,6 +742,11 @@ func _gui_input(event: InputEvent) -> void:
 					_selected_lantern = index
 					accept_event()
 					return
+			var poked := _actor_at(_mouse)
+			if not poked.is_empty():
+				poke(poked)
+				accept_event()
+				return
 		else:
 			if _drag_bubble != "" and _target != "":
 				thought_swapped.emit(_drag_bubble, _target)
@@ -726,6 +757,7 @@ func _gui_input(event: InputEvent) -> void:
 			clear_preview()
 			queue_redraw()
 	elif event is InputEventMouseMotion:
+		_look = _mouse
 		if _drag_bulb >= 0:
 			_move_selected(_world_position(_mouse))
 		elif _drag_bubble != "":
@@ -741,3 +773,102 @@ func _gui_input(event: InputEvent) -> void:
 				else:
 					preview_requested.emit(_drag_bubble, _target)
 		queue_redraw()
+
+
+func set_mood(mood: String, seconds: float = 0.0) -> void:
+	# Timed moods (flinch, scheme) fall back to the last persistent mood.
+	if seconds <= 0.0:
+		_mood_after = mood
+	elif _mood_left <= 0.0:
+		_mood_after = _bulb_mood
+	_bulb_mood = mood
+	_mood_left = seconds
+	queue_redraw()
+
+func react_swap(first: String, second: String) -> void:
+	for id in [first, second]:
+		if _rigs.has(id):
+			_rigs[id].pop()
+	set_mood("scheme", 1.2)
+
+func _actor_at(point: Vector2) -> String:
+	var world := _shown()
+	var positions := _positions(world)
+	for actor in world.get("characters", []):
+		if actor.status == "EXITED" or not positions.has(actor.id):
+			continue
+		var height := _figure_height(str(actor.get("art", "")))
+		if Rect2(positions[actor.id] - Vector2(40, height), Vector2(80, height)).has_point(point):
+			return str(actor.id)
+	return ""
+
+## Poking is a pure toy. A dark actor gives the same generic grumble whatever it
+## is thinking, so pokes never leak a hidden thought.
+func poke(id: String) -> String:
+	var world := _shown()
+	var kind := "HMPH"
+	for actor in world.get("characters", []):
+		if actor.id == id and actor.status == "READY" and _lit(actor.slot, world):
+			kind = "POKE_" + str(actor.thought)
+	if _rigs.has(id):
+		_rigs[id].pop()
+	actor_poked.emit(id, kind)
+	return kind
+
+func _draw_bulby(index: int, at: Vector2) -> void:
+	# The lantern bulb is Bulby, the player. Faces never change the light radius.
+	var mood := _bulb_mood
+	if _drag_bulb == index:
+		mood = "grab"
+	var small := index == 1
+	var r := 13.0 if small else 16.0
+	var tint := Color("ffc7d9") if small else Color("ffe17a")
+	var bob := 0.0 if _reduced_motion or _drag_bulb == index else sin(_bulb_clock * 2.2 + index) * 2.0
+	var squash := Vector2(0.9, 1.14) if mood == "grab" else Vector2.ONE
+	var centre := at + Vector2(0, bob)
+	draw_line(Vector2(at.x, 6), centre - Vector2(0, r + 10), Color("524b51"), 2, true)
+	var glow := 0.18 if mood == "fail" else (0.55 if mood == "win" else 0.32)
+	if mood == "win" and not _reduced_motion:
+		for ray in 10:
+			var direction := Vector2.from_angle(TAU * ray / 10.0 + _bulb_clock)
+			draw_line(centre + direction * (r + 8), centre + direction * (r + 20), Color(1, 0.86, 0.45, 0.8), 3, true)
+	draw_circle(centre, r * 1.9, Color(tint, glow * 0.5))
+	draw_set_transform(_offset() + centre * _fit(), 0, squash * _fit())
+	draw_rect(Rect2(-r * 0.45, r * 0.7, r * 0.9, r * 0.55), Color("8e97aa"))
+	draw_rect(Rect2(-r * 0.45, r * 0.7, r * 0.9, r * 0.55), INK, false, 2)
+	draw_line(Vector2(-r * 0.45, r * 0.95), Vector2(r * 0.45, r * 0.95), INK, 1.5)
+	draw_circle(Vector2.ZERO, r, tint if mood != "fail" else tint.darkened(0.35))
+	draw_arc(Vector2.ZERO, r, 0, TAU, 28, INK, 2.5, true)
+	var look := Vector2.ZERO
+	if _look != Vector2.ZERO:
+		look = (_look - centre).limit_length(1.0) * 2.0
+	var ex := r * 0.36
+	var ey := -r * 0.12
+	match mood:
+		"grab", "watch":
+			for side in [-1, 1]:
+				draw_circle(Vector2(side * ex, ey), 4.2, Color.WHITE)
+				draw_arc(Vector2(side * ex, ey), 4.2, 0, TAU, 12, INK, 1.2, true)
+				draw_circle(Vector2(side * ex, ey) + look, 2.0, INK)
+			draw_circle(Vector2(0, r * 0.42), 3.0 if mood == "grab" else 2.2, INK)
+		"scheme":
+			for side in [-1, 1]:
+				draw_line(Vector2(side * ex - 3.5, ey - side * 1.5), Vector2(side * ex + 3.5, ey + side * 1.5), INK, 2.2, true)
+			draw_arc(Vector2(0, r * 0.18), r * 0.42, 0.15, PI - 0.15, 10, INK, 2.2, true)
+		"win":
+			for side in [-1, 1]:
+				draw_arc(Vector2(side * ex, ey + 1.5), 3.2, PI, TAU, 8, INK, 2.2, true)
+			draw_circle(Vector2(0, r * 0.3), r * 0.3, Color("8d4b59"))
+		"fail":
+			for side in [-1, 1]:
+				draw_line(Vector2(side * ex - 3, ey + 1), Vector2(side * ex + 3, ey + 1), INK, 2.2, true)
+			draw_arc(Vector2(0, r * 0.62), r * 0.3, PI + 0.3, TAU - 0.3, 8, INK, 2.2, true)
+		"flinch":
+			for side in [-1, 1]:
+				draw_polyline(PackedVector2Array([Vector2(side * ex - 3 * side, ey - 3), Vector2(side * ex + 2 * side, ey), Vector2(side * ex - 3 * side, ey + 3)]), INK, 2.0, true)
+			draw_polyline(PackedVector2Array([Vector2(-5, r * 0.45), Vector2(-2, r * 0.35), Vector2(1, r * 0.45), Vector2(4, r * 0.35)]), INK, 1.8, true)
+		_:
+			for side in [-1, 1]:
+				draw_circle(Vector2(side * ex, ey) + look * 0.6, 2.4, INK)
+			draw_arc(Vector2(0, r * 0.12), r * 0.32, 0.4, PI - 0.4, 8, INK, 2.0, true)
+	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())

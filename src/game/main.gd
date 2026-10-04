@@ -195,6 +195,8 @@ func _build_ui() -> void:
 	_stage.spotlight_moved.connect(_move_light)
 	_stage.lantern_moved.connect(_move_lantern)
 	_stage.thought_swapped.connect(_swap)
+	_stage.actor_revealed.connect(func(_id: String, thought: String): _play_effect("REVEAL_" + thought))
+	_stage.actor_poked.connect(func(_id: String, kind: String): _play_effect(kind))
 	_stage.preview_requested.connect(_preview)
 	_stage.preview_cleared.connect(_stage.clear_preview)
 	_comparison = HBoxContainer.new()
@@ -378,6 +380,7 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 	_comparison.hide()
 	_stage.clear_preview()
 	_stage.set_playback_speed(1.0)
+	_stage.set_mood("watch")
 	_display(_run.snapshots[0], false)
 	_initial_events_pending = true
 	_update_buttons()
@@ -505,6 +508,8 @@ func _finish_run() -> void:
 	_stage.hide()
 	_comparison.show()
 	_show_payoff(result, _record_progress(result))
+	for view in [_stage, _result_stage]:
+		view.set_mood("win" if result.won else "fail")
 	if page.id == "page_02" and result.won:
 		_play_voice("narrator_success")
 	_update_buttons()
@@ -539,6 +544,7 @@ func _return_to_plan() -> void:
 	_stage.show()
 	_comparison.hide()
 	_caption.text = "HUNGRY > food   /   SLEEPY > seat   /   ANGRY > bonk   /   SCARED > flee"
+	_stage.set_mood("idle")
 	_pop.text = ""
 	_refresh_plan()
 	_update_buttons()
@@ -577,6 +583,8 @@ func _swap(first: String, second: String) -> void:
 	if mode == "PLAN" and plan.swap(first, second, _lit_ids()):
 		_stage.clear_preview()
 		_refresh_plan()
+		_stage.react_swap(first, second)
+		_play_effect("SWAP")
 
 
 func _preview(first: String, second: String) -> void:
@@ -820,6 +828,8 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 	# Original procedural sound design; no imported sound library or random state.
 	var sample_rate := 22050
 	var duration := 0.28 if kind in ["EAT", "SIT"] else 0.16
+	if kind.begins_with("REVEAL_") or kind.begins_with("POKE_") or kind in ["HMPH", "SWAP"]:
+		duration = 0.32
 	var bytes := PackedByteArray()
 	bytes.resize(int(sample_rate * duration) * 2)
 	for index in bytes.size() / 2:
@@ -840,6 +850,23 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 				value = noise * sin(PI * t / duration) * 0.22
 			"LAMP_ON":
 				value = (noise + sin(TAU * 1300.0 * t) * 0.3) * exp(-t * 90.0) * 0.4
+			"REVEAL_HUNGRY", "POKE_HUNGRY":
+				# Stomach growl: low wobbling rumble.
+				value = sin(TAU * (70.0 + 25.0 * sin(TAU * 9.0 * t)) * t) * (0.6 + noise * 0.4) * sin(PI * t / duration) * 0.5
+			"REVEAL_SLEEPY", "POKE_SLEEPY":
+				# Yawn: a slow falling tone.
+				value = sin(TAU * (420.0 * t - 380.0 * t * t)) * sin(PI * t / duration) * 0.35
+			"REVEAL_ANGRY", "POKE_ANGRY":
+				# Grumble: buzzing low saw.
+				value = (fmod(t * 95.0, 1.0) * 2.0 - 1.0) * sin(PI * t / duration) * (0.5 + 0.5 * sin(TAU * 14.0 * t)) * 0.35
+			"REVEAL_SCARED", "POKE_SCARED":
+				# Teeth chatter: rapid clicks.
+				value = noise * (1.0 if fmod(t * 28.0, 1.0) < 0.25 else 0.0) * 0.5
+			"HMPH":
+				# Generic sleepy grumble used for every dark actor.
+				value = sin(TAU * 140.0 * t) * exp(-t * 10.0) * 0.4
+			"SWAP":
+				value = sin(TAU * (300.0 * t + 900.0 * t * t)) * sin(PI * t / duration) * 0.3
 		var attack := minf(1.0, t * 1000.0)
 		bytes.encode_s16(index * 2, clampi(int(value * attack * 16000.0), -32768, 32767))
 	var stream := AudioStreamWAV.new()

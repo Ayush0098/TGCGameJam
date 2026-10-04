@@ -45,6 +45,26 @@ func run(check: Callable) -> bool:
 	check.call("boss" not in stage.revealed_thought_ids(), "A visual actor inside light cannot reveal an authoritative actor outside its radius")
 	var halo := LIGHTING.intensity(page, plan, world, Vector2(2.3, 0))
 	check.call(halo > 0 and not LIGHTING.is_lit(page, plan, world, 2.3), "Decorative halo never supplies binary activation")
+	# Darkness still hides: a dark actor looks and sounds identical for every thought.
+	var dark_page := PAGE.definition()
+	dark_page.fixed_lights = []
+	stage.configure(dark_page)
+	var dark_plan: Dictionary = PLAN.from_page(dark_page).to_data()
+	var signatures := {}
+	for thought in ["HUNGRY", "SLEEPY", "ANGRY", "SCARED"]:
+		var dark_world := RULES.initial_world(dark_page, dark_plan)
+		dark_world.characters[0].thought = thought
+		stage.pose(dark_world, dark_plan, {}, true)
+		signatures[str([stage._rigs.boss.expression_name, stage.poke("boss"), stage.revealed_thought_ids()])] = true
+	check.call(signatures.size() == 1 and signatures.keys()[0].contains("HMPH"), "Dark actors show the same face and poke sound for every thought")
+	var revealed: Array = []
+	stage.actor_revealed.connect(func(id, thought): revealed.append([id, thought]))
+	dark_plan.lanterns[0] = {"x": 2.0, "y": 0.0, "enabled": true}
+	stage.pose(RULES.initial_world(dark_page, dark_plan), dark_plan, {}, true)
+	check.call(revealed == [["boss", "HUNGRY"]] and stage.poke("boss") == "POKE_HUNGRY", "Lighting an actor reveals it once with its own stinger; lit pokes use the thought")
+	stage.set_mood("flinch", 0.2)
+	stage._process(0.25)
+	check.call(stage._bulb_mood == "idle", "Timed Bulby moods return to the persistent mood")
 	page = PAGE.definition()
 	stage.configure(page)
 	plan = PLAN.from_page(page).to_data()
