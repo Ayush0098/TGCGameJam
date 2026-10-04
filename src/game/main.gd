@@ -222,6 +222,12 @@ func _build_ui() -> void:
 	_progress_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_progress_label.position = Vector2(860, 46)
 	_progress_label.size = Vector2(404, 28)
+	_progress_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	_progress_label.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_progress_label.tooltip_text = "Open the Endings book"
+	_progress_label.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_open_endings_book())
 	_ui.add_child(_progress_label)
 	_facts = _rich(15)
 	_facts.position = Vector2(16, 75)
@@ -384,6 +390,8 @@ func _rich(font_size: int) -> RichTextLabel:
 	label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_size_override("normal_font_size", font_size)
+	label.add_theme_font_size_override("bold_font_size", font_size)
+	label.add_theme_font_override("bold_font", TEXT_FONT)
 	label.add_theme_color_override("default_color", INK)
 	return label
 
@@ -498,6 +506,8 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 func _process(delta: float) -> void:
 	_update_music(delta)
+	if _intro_pending and not (is_instance_valid(_front) and _front.visible):
+		_show_intro_card()
 	if not _active_cue.is_empty():
 		_voice_elapsed += delta
 		# A suspended/unavailable audio device cannot hold gameplay forever.
@@ -838,7 +848,7 @@ func _update_buttons() -> void:
 		_title.text = "PAGE %d  ·  %s" % [page_index + 1, str(page.get("title", "")).to_upper()]
 		if _tutorial_panel >= 0:
 			_title.text = "TUTORIAL %d/%d  ·  %s" % [_tutorial_panel + 1, _tutorial_data().get("panels", []).size(), str(page.get("title", "")).to_upper()]
-		_progress_label.visible = _tutorial_panel < 0
+		_progress_label.visible = _tutorial_panel < 0 or _tutorial_has_gate("endings_opened")
 		_tier_band.color = TIER_COLOURS[_tier(page_index)]
 		_action.text = " ACTION!"
 		_fast_button.text = ""
@@ -1274,7 +1284,14 @@ func _stars(definition: Dictionary) -> int:
 
 func _record_progress(result: Dictionary) -> Array[String]:
 	if _tutorial_panel >= 0:
-		return []
+		# Tutorial endings are shown but never saved.
+		var seen: Array = _tutorial_endings.get(page.id, [])
+		if str(result.caption) in seen:
+			return []
+		seen.append(str(result.caption))
+		_tutorial_endings[page.id] = seen
+		_update_progress_label()
+		return ["NEW ENDING! (%d)" % seen.size()] as Array[String]
 	# Every player run can find a new ending; any run can also earn bonus stars.
 	var rewards: Array[String] = []
 	var found: Array = endings_found.get(page.id, [])
@@ -1302,6 +1319,9 @@ func _update_progress_label() -> void:
 	var total: int = 1 + page.get("bonus", []).size()
 	var stars := _stars(page)
 	var found: int = endings_found.get(page.id, []).size()
+	if _tutorial_panel >= 0:
+		_progress_label.text = "[u]Endings book: %d[/u]" % _found_endings().size()
+		return
 	_progress_label.text = _icon("star_on", 20).repeat(stars) + _icon("star_off", 20).repeat(total - stars) + "    Endings %d / %d" % [found, maxi(int(page.get("endings_total", 0)), found)]
 
 
@@ -1419,6 +1439,7 @@ func _clear_flick() -> void:
 func _show_hint() -> void:
 	# Bulby's hints: a nudge, the key character, then the move itself.
 	var hints: Array = _all_hints()
+	_tutorial_event("hint_opened")
 	if _hints_shown >= hints.size() or mode not in ["PLAN", "RESULT"]:
 		return
 	var text := str(hints[_hints_shown]).trim_prefix("ghost: ")
@@ -1777,8 +1798,12 @@ func _build_result_card() -> void:
 	_tab_bar.add_theme_constant_override("separation", 4)
 	_tab_bar.hide()
 	_ui.add_child(_tab_bar)
-	_tab_original = _button(_tab_bar, "THE ORIGINAL", func(): _show_tab(false))
-	_tab_twist = _button(_tab_bar, "YOUR TWIST", func(): _show_tab(true))
+	_tab_original = _button(_tab_bar, "THE ORIGINAL", func():
+		_show_tab(false)
+		_tutorial_event("tabs_viewed"))
+	_tab_twist = _button(_tab_bar, "YOUR TWIST", func():
+		_show_tab(true)
+		_tutorial_event("tabs_viewed"))
 	_button(_tab_bar, "RESULT", func(): _result_card.show())
 	# The stamp sits at the top of the card.
 	_stamp.get_parent().remove_child(_stamp)
@@ -2200,7 +2225,7 @@ func _check_tutorial_gates() -> void:
 		"lit":
 			satisfied = targets.all(func(id): return id in lit)
 		"unlit":
-			satisfied = targets.all(func(id): return id not in lit)
+			satisfied = targets.all(func(id): return id not in lit and not _object_lit(world, lit_slots, str(id)))
 		"lit_set":
 			satisfied = targets.all(func(id): return id in lit or _object_lit(world, lit_slots, str(id)))
 		"lantern_deployed":
@@ -2210,6 +2235,10 @@ func _check_tutorial_gates() -> void:
 	if satisfied:
 		_tutorial_step += 1
 		_show_tutorial_step()
+
+
+func _tutorial_has_gate(gate: String) -> bool:
+	return _tutorial_steps().any(func(step): return str(step.get("gate", "")) == gate)
 
 
 func _object_lit(world: Dictionary, lit_slots: Array, id: String) -> bool:
@@ -2328,11 +2357,60 @@ func _narrate_key(key: String) -> void:
 
 
 
-# The tutorial opens with the big picture: story, objective, twist, rules.
+# The tutorial opens with the big picture, as short paged cards: the story and
+# the Original, how light and thoughts work, the Twist goal, stars and endings.
 var _intro_card: Control
+var _intro_page := 0
+var _intro_pending := false
+var _intro_heading: Label
+var _intro_body: RichTextLabel
+var _intro_next: Button
+var _intro_back: Button
+var _intro_dots: Label
+
+
+func _intro_pages() -> Array:
+	var intro: Array = _tutorial_data().get("intro", [])
+	var line := func(index: int) -> String: return str(intro[index]) if index < intro.size() else ""
+	var panels: int = _tutorial_data().get("panels", []).size()
+	var tick := _icon("star_on")
+	return [
+		["THE STORY", "\n".join([
+			"It's blackout night at the Bulb house, and the [b]Daily Bulb[/b] comic is printing the same tired ending again.",
+			"",
+			line.call(0),
+			"",
+			"You're [b]Bulby[/b], the last lightbulb still shining inside the comic. Tonight, you rewrite the punchline.",
+		])],
+		["HOW IT WORKS", "\n".join([
+			line.call(1),
+			"",
+			"  " + tick + "[b]HUNGRY[/b] eats food     " + tick + "[b]SLEEPY[/b] sits on a seat",
+			"  " + tick + "[b]ANGRY[/b] bonks someone     " + tick + "[b]SCARED[/b] runs out of the comic",
+			"",
+			"In the dark, characters do nothing and their thoughts stay secret. Drag one lit thought onto another lit character to [b]swap[/b] what they're thinking.",
+		])],
+		["THE GOAL", "\n".join([
+			line.call(2),
+			"",
+			"The red line at the top of the page is the [color=#a4383e][b]TWIST[/b][/color]. Set up your light and thoughts, press [b]ACTION![/b] and watch it play out.",
+			"",
+			"Not right? Retry as often as you like. Every attempt is free.",
+		])],
+		["STARS & ENDINGS", "\n".join([
+			line.call(3),
+			"",
+			"This tutorial is [b]%d short panels[/b], one idea each, then the real Dinner Time page. You can skip it any time and replay it from Settings." % panels,
+		])],
+	]
 
 
 func _show_intro_card() -> void:
+	# Wait until the title menu is gone; the card must never sit on top of it.
+	if not is_instance_valid(_front) or _front.visible:
+		_intro_pending = true
+		return
+	_intro_pending = false
 	if not is_instance_valid(_intro_card):
 		_intro_card = Control.new()
 		_intro_card.size = Vector2(1280, 720)
@@ -2343,53 +2421,141 @@ func _show_intro_card() -> void:
 		dim.color = Color(INK, 0.6)
 		dim.size = Vector2(1280, 720)
 		_intro_card.add_child(dim)
-		var card := _paper_panel(Rect2(200, 50, 880, 620), -0.008)
+		var card := _paper_panel(Rect2(240, 90, 800, 540), -0.008)
 		_intro_card.add_child(card)
-		var heading := _label("WELCOME TO THE DAILY BULB", 44)
-		heading.add_theme_font_override("font", COMIC_FONT)
-		heading.position = Vector2(0, 18)
-		heading.size = Vector2(880, 56)
-		heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		card.add_child(heading)
-		var body := _rich(18)
-		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		body.position = Vector2(40, 84)
-		body.size = Vector2(800, 440)
-		body.text = "
-".join([
-			"[b]The story.[/b] It's blackout night at the Bulb house. Every night the comic prints the same tired ending. That printed ending is [b]THE ORIGINAL[/b].",
-			"",
-			"[b]You are Bulby[/b], the last lightbulb still shining inside the comic. Your job: rewrite tonight's punchline.",
-			"",
-			"[b]The goal.[/b] The red line at the top is the [color=#a4383e][b]TWIST[/b][/color]: the ending you must make happen. Bonus lines under it earn extra stars.",
-			"",
-			"[b]How it works[/b]",
-			"  " + _icon("star_on") + "Only characters in your light get an idea and act. In the dark they do nothing, and their thoughts stay secret.",
-			"  " + _icon("star_on") + "HUNGRY eats food   ·   SLEEPY sits on a seat   ·   ANGRY bonks someone   ·   SCARED runs away.",
-			"  " + _icon("star_on") + "Drag one lit thought onto another lit character to [b]swap[/b] what they're thinking.",
-			"  " + _icon("star_on") + "Press [b]ACTION![/b] and watch the story play out. Not right? Retry as often as you like.",
-		])
-		card.add_child(body)
-		var go := Button.new()
-		go.text = "LET'S GO!"
-		go.add_theme_font_override("font", COMIC_FONT)
-		go.add_theme_font_size_override("font_size", 28)
-		go.position = Vector2(480, 540)
-		go.size = Vector2(220, 60)
-		_emphasise(go, true)
-		go.pressed.connect(func(): _intro_card.hide())
-		card.add_child(go)
+		_intro_heading = _label("", 46)
+		_intro_heading.add_theme_font_override("font", COMIC_FONT)
+		_intro_heading.position = Vector2(0, 24)
+		_intro_heading.size = Vector2(800, 60)
+		_intro_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(_intro_heading)
+		_intro_body = _rich(21)
+		_intro_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_intro_body.position = Vector2(56, 104)
+		_intro_body.size = Vector2(688, 320)
+		card.add_child(_intro_body)
+		_intro_dots = _label("", 22)
+		_intro_dots.position = Vector2(0, 420)
+		_intro_dots.size = Vector2(800, 30)
+		_intro_dots.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		card.add_child(_intro_dots)
+		_intro_next = Button.new()
+		_intro_next.add_theme_font_override("font", COMIC_FONT)
+		_intro_next.add_theme_font_size_override("font_size", 28)
+		_intro_next.position = Vector2(540, 460)
+		_intro_next.size = Vector2(200, 56)
+		_emphasise(_intro_next, true)
+		_intro_next.pressed.connect(func():
+			_play_effect("SWAP")
+			if _intro_page >= _intro_pages().size() - 1:
+				_intro_card.hide()
+			else:
+				_intro_page += 1
+				_fill_intro_card())
+		card.add_child(_intro_next)
+		_intro_back = Button.new()
+		_intro_back.text = "BACK"
+		_intro_back.add_theme_font_size_override("font_size", 16)
+		_intro_back.position = Vector2(400, 466)
+		_intro_back.size = Vector2(120, 44)
+		_intro_back.pressed.connect(func():
+			_intro_page = maxi(0, _intro_page - 1)
+			_fill_intro_card())
+		card.add_child(_intro_back)
 		var skip := Button.new()
 		skip.text = "SKIP TUTORIAL"
-		skip.add_theme_font_size_override("font_size", 16)
-		skip.position = Vector2(180, 552)
-		skip.size = Vector2(200, 44)
+		skip.add_theme_font_size_override("font_size", 14)
+		skip.position = Vector2(56, 470)
+		skip.size = Vector2(170, 38)
 		skip.pressed.connect(func():
 			_intro_card.hide()
 			_finish_tutorial())
 		card.add_child(skip)
+	_intro_page = 0
+	_fill_intro_card()
 	_intro_card.show()
 
+
+func _fill_intro_card() -> void:
+	var pages := _intro_pages()
+	_intro_page = clampi(_intro_page, 0, pages.size() - 1)
+	_intro_heading.text = pages[_intro_page][0]
+	_intro_body.text = pages[_intro_page][1]
+	_intro_dots.text = "%d / %d" % [_intro_page + 1, pages.size()]
+	_intro_next.text = "LET'S GO!" if _intro_page == pages.size() - 1 else "NEXT"
+	_intro_back.visible = _intro_page > 0
+
+
+# ------------------------------------------------------------ endings book
+var _endings_book: Control
+var _tutorial_endings: Dictionary = {}
+
+
+func _found_endings() -> Array:
+	return (_tutorial_endings if _tutorial_panel >= 0 else endings_found).get(page.get("id", ""), [])
+
+
+func _open_endings_book() -> void:
+	if page.is_empty():
+		return
+	if is_instance_valid(_endings_book):
+		_endings_book.queue_free()
+	_endings_book = Control.new()
+	_endings_book.size = Vector2(1280, 720)
+	_endings_book.z_index = 220
+	_endings_book.mouse_filter = Control.MOUSE_FILTER_STOP
+	_ui.add_child(_endings_book)
+	var dim := ColorRect.new()
+	dim.color = Color(INK, 0.55)
+	dim.size = Vector2(1280, 720)
+	dim.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed:
+			_endings_book.queue_free())
+	_endings_book.add_child(dim)
+	var card := _paper_panel(Rect2(290, 80, 700, 560), 0.006)
+	_endings_book.add_child(card)
+	var heading := _label("ENDINGS BOOK", 40)
+	heading.add_theme_font_override("font", COMIC_FONT)
+	heading.position = Vector2(0, 18)
+	heading.size = Vector2(700, 50)
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	card.add_child(heading)
+	var found := _found_endings()
+	var total := maxi(int(page.get("endings_total", 0)), found.size()) if _tutorial_panel < 0 else found.size()
+	var sub := _label("%s  ·  %d of %d endings found" % [str(page.get("title", "")).to_upper(), found.size(), total] if _tutorial_panel < 0 else "Every different result lands here.", 16)
+	sub.position = Vector2(0, 70)
+	sub.size = Vector2(700, 24)
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	card.add_child(sub)
+	var list := _rich(17)
+	list.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	list.scroll_active = true
+	list.position = Vector2(40, 108)
+	list.size = Vector2(620, 370)
+	var lines: Array[String] = []
+	var twist := str(page.get("goal", {}).get("twist_caption", ""))
+	for i in found.size():
+		var caption := str(found[i])
+		var won := caption == twist or caption.to_lower() == twist.to_lower()
+		lines.append("[b]%d.[/b]  %s%s" % [i + 1, caption, "   [color=#a4383e][b]TWIST![/b][/color]" if won else ""])
+	var missing := total - found.size()
+	if missing > 0:
+		lines.append("")
+		lines.append("[color=#8a8578]??? x%d still hidden. Try lighting different characters or swapping thoughts.[/color]" % missing)
+	if found.is_empty():
+		lines = ["[color=#8a8578]No endings yet. Press ACTION to print your first one![/color]"]
+	list.text = "\n".join(lines)
+	card.add_child(list)
+	var close := Button.new()
+	close.text = "CLOSE"
+	close.add_theme_font_size_override("font_size", 18)
+	close.position = Vector2(270, 494)
+	close.size = Vector2(160, 46)
+	_emphasise(close, true)
+	close.pressed.connect(func(): _endings_book.queue_free())
+	card.add_child(close)
+	_play_effect("SWAP")
+	_tutorial_event("endings_opened")
 
 
 func _all_hints() -> Array:

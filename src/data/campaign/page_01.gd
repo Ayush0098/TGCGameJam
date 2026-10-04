@@ -7,9 +7,9 @@ static func definition() -> Dictionary:
 	return {
 		"id": "page_01",
 		"number": 1,
+		"title": "Dinner Time",
 		"room": "kitchen",
 		"narration_key": "dinner",
-		"title": "Dinner Time",
 		"difficulty": "green",
 		"width": 9,
 		"rail_span": [
@@ -133,6 +133,12 @@ static func definition() -> Dictionary:
 			}
 		],
 		"tutorial": {
+			"intro": [
+				"Welcome to the Daily Bulb! Every page is a comic strip that has already been printed. That's the ORIGINAL story.",
+				"You're Bulby, the lightbulb. Characters only act when they're in your light, and each one does what its thought bubble says.",
+				"Your goal: change who's lit and what they think, so the strip ends with the TWIST written in red pen.",
+				"Win the twist for a star, find bonus headlines for more stars, and collect every ending. Let's start with dinner..."
+			],
 			"panels": [
 				{
 					"id": "p1_light",
@@ -252,6 +258,10 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
+							"caption": "Things get name tags too when they're lit: that's the fish.",
+							"gate": "click"
+						},
+						{
 							"caption": "Keep the Dog in the dark. A dark Dog can't smell a thing.",
 							"gate": "unlit",
 							"target": "dog"
@@ -261,7 +271,11 @@ static func definition() -> Dictionary:
 							"gate": "action"
 						},
 						{
-							"caption": "Twist printed! RETRY replays, NEXT moves on.",
+							"caption": "Twist printed! Flip between the ORIGINAL and YOUR TWIST tabs to compare.",
+							"gate": "tabs_viewed"
+						},
+						{
+							"caption": "RETRY replays, NEXT moves on.",
 							"gate": "result_closed"
 						}
 					],
@@ -407,6 +421,14 @@ static func definition() -> Dictionary:
 						},
 						{
 							"caption": "See the extra headline? Bonus headlines earn extra stars on every page.",
+							"gate": "click"
+						},
+						{
+							"caption": "NEW ENDING! Every different result goes in your Endings book. Tap the counter to peek.",
+							"gate": "endings_opened"
+						},
+						{
+							"caption": "Close the book and carry on.",
 							"gate": "result_closed"
 						}
 					],
@@ -428,7 +450,171 @@ static func definition() -> Dictionary:
 					]
 				},
 				{
-					"id": "p3_pedal",
+					"id": "p3_shelf",
+					"title": "Lights and shadows",
+					"teaches": [
+						"furniture blocks light",
+						"raise the bulb to shine over it",
+						"ANGRY characters bonk",
+						"SCARED characters run off"
+					],
+					"width": 8,
+					"rail_span": [
+						0,
+						7
+					],
+					"spotlights": {
+						"count": 1,
+						"default_centres": [
+							1
+						]
+					},
+					"lanterns": {
+						"radius": 1.6,
+						"bounds": [
+							0.0,
+							-1.2,
+							7.0,
+							0.6
+						],
+						"count": 1,
+						"defaults": [
+							{
+								"x": 1.0,
+								"y": -0.6,
+								"enabled": true
+							},
+							{
+								"x": 0.0,
+								"y": -0.6,
+								"enabled": false
+							}
+						]
+					},
+					"obstacles": [
+						{
+							"id": "shelf",
+							"from": [
+								2.5,
+								-0.45
+							],
+							"to": [
+								2.5,
+								0.8
+							]
+						}
+					],
+					"flick": 0,
+					"fixed_lights": [],
+					"lamps": [],
+					"characters": [
+						{
+							"id": "dog",
+							"name": "Dog",
+							"art": "dog",
+							"slot": 2,
+							"facing": "L",
+							"thought": "HUNGRY",
+							"contradiction": false
+						},
+						{
+							"id": "cat",
+							"name": "Cat",
+							"art": "cat",
+							"slot": 4,
+							"facing": "L",
+							"thought": "ANGRY",
+							"contradiction": false
+						},
+						{
+							"id": "mouse",
+							"name": "Mouse",
+							"art": "mouse",
+							"slot": 5,
+							"facing": "L",
+							"thought": "SCARED",
+							"contradiction": false
+						}
+					],
+					"objects": [
+						{
+							"id": "cheese",
+							"type": "FOOD",
+							"art": "cheese",
+							"slot": 0
+						}
+					],
+					"original_caption": "The Dog ate the cheese.",
+					"goal": {
+						"facts": [
+							{
+								"type": "BONKED",
+								"character": "cat",
+								"target": "dog"
+							}
+						],
+						"twist_caption": "The CAT bonked the DOG.",
+						"red_pen_words": [
+							"CAT",
+							"DOG"
+						]
+					},
+					"bonus": [
+						{
+							"id": "headline_1",
+							"caption": "THE MOUSE RUNS OFF",
+							"facts": [
+								{
+									"type": "EXITED",
+									"character": "mouse"
+								}
+							]
+						}
+					],
+					"steps": [
+						{
+							"caption": "A shelf! Slide me to the right of it. See how its shadow keeps the cheese dark?",
+							"gate": "unlit",
+							"target": "cheese"
+						},
+						{
+							"caption": "An angry Cat bonks whoever it can see. The Dog is behind the shelf: pull my cord UP to shine over it and light both.",
+							"gate": "lit_set",
+							"target": [
+								"cat",
+								"dog"
+							]
+						},
+						{
+							"caption": "No cheese in sight, so the Dog stays put. Press ACTION.",
+							"gate": "action"
+						},
+						{
+							"caption": "Bonus: scared characters run out of the comic. Light the Mouse too and see.",
+							"gate": "result_closed"
+						}
+					],
+					"hints": [
+						"Keep the cheese in the shelf's shadow.",
+						"Raise the bulb high, just right of the shelf, to light the Dog and the Cat."
+					],
+					"solution": [
+						{
+							"thoughts": {
+								"Cat": "ANGRY",
+								"Dog": "HUNGRY",
+								"Mouse": "SCARED"
+							},
+							"lit": [
+								"cat",
+								"dog"
+							],
+							"flick_wakes": []
+						}
+					]
+				},
+				{
+					"id": "p4_pedal",
 					"title": "Step on it",
 					"teaches": [
 						"pedals switch on lamps",
@@ -568,6 +754,10 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
+							"caption": "Stuck? Tap HINT. Each tap shows one more step.",
+							"gate": "hint_opened"
+						},
+						{
 							"caption": "Keep Grandma in the dark, then press ACTION.",
 							"gate": "action"
 						}
@@ -591,7 +781,7 @@ static func definition() -> Dictionary:
 					]
 				},
 				{
-					"id": "p4_two_bulbs",
+					"id": "p5_two_bulbs",
 					"title": "Double feature",
 					"teaches": [
 						"the second bulb: deploy and park"
@@ -689,7 +879,7 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "Some pages give you a second bulb. Drag it off its hook.",
+							"caption": "Some pages give you a second bulb. The hooks show how many bulbs you have. Drag one off its hook.",
 							"gate": "lantern_deployed"
 						},
 						{
@@ -720,7 +910,7 @@ static func definition() -> Dictionary:
 					]
 				},
 				{
-					"id": "p5_flick",
+					"id": "p6_flick",
 					"title": "Spare bulb",
 					"teaches": [
 						"the spare bulb (FLICK) during ACTION",
