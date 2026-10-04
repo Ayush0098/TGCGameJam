@@ -1,5 +1,5 @@
 {
-  "note": "Text for every voiced line (design/voice_request.md). Audio files with the same base name (.ogg, .mp3 or .wav) in narrator/ or characters/ are played when present; text always shows.",
+  "note": "Current voiced text from assets/audio/voice/request.md and manifest.json. Later request sections replace earlier duplicate cue IDs. Missing audio falls back to text.",
   "narrator": {
     "narr_title": "The Daily Bulb presents... Lightbulb Moment!",
     "narr_sunday": "Hot off the press! Pick a page, any page.",
@@ -111,13 +111,5 @@
       "huh": "Hmm?"
     }
   },
-  "pending_recordings": [
-    "narr_catmouse_twist",
-    "narr_shadow_intro",
-    "narr_shadow_original",
-    "narr_shadow_twist",
-    "narr_powercut_intro",
-    "narr_powercut_original",
-    "narr_powercut_twist"
-  ]
+  "pending_recordings": []
 }

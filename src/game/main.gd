@@ -1768,7 +1768,9 @@ func _build_result_card() -> void:
 func _show_result_card(result: Dictionary) -> void:
 	var won: bool = result.won
 	_result_title.text = "YOUR ENDING:"
-	_result_caption.text = str(result.caption)
+	# A win names the twist itself; the event caption can omit a goal fact.
+	_result_caption.text = str(page.goal.twist_caption) if won else str(result.caption)
+	_caption.text = ""
 	var lines: Array[String] = []
 	for item in result.facts:
 		lines.append((_icon("check") if item.met else _icon("cross")) + ("Twist: " if lines.is_empty() else "") + GOALS.fact_text(item.fact))
@@ -1801,7 +1803,9 @@ func _show_tab(twist: bool) -> void:
 		return
 	var shown: Dictionary = _run if twist else _original_run
 	_stage.pose(shown.snapshots.back(), shown.plan, knowledge if twist else {}, false)
-	_stage.set_caption(("YOUR TWIST: " if twist else "THE ORIGINAL: ") + GOALS.evaluate(page, shown).caption, 0.0)
+	var ending: Dictionary = GOALS.evaluate(page, shown)
+	var line: String = str(page.goal.twist_caption) if twist and ending.won else str(ending.caption)
+	_stage.set_caption(("YOUR TWIST: " if twist else "THE ORIGINAL: ") + line, 0.0)
 	_tab_original.disabled = not twist
 	_tab_twist.disabled = twist
 
