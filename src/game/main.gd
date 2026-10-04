@@ -1792,8 +1792,11 @@ func _narrate(moment: String) -> void:
 					queue.append(key)
 					key = "narr15_twist_stamp"
 			if moment == "twist":
+				_voice_texts.clear()
+				_voice_texts[prefix + field] = _spoken_text(line)
 				var extra := _win_extras(prefix)
 				for item in extra:
+					_voice_texts[str(item[1])] = _spoken_text(str(item[0]))
 					line += "  " + str(item[0])
 					queue.append(str(item[1]))
 		text = _spoken_text(line)
@@ -1815,6 +1818,9 @@ func _narrate(moment: String) -> void:
 	_narrator_hold = voiced and moment == "intro"
 	if voiced:
 		_read_hold = 0.0
+		if moment == "twist" and not queue.is_empty() and _voice_texts.has(queue[0]):
+			# Each recorded line gets its own subtitle as it plays.
+			_stage.set_caption(_voice_texts[queue[0]], 0.0)
 		if moment == "intro" or moment == "original":
 			# The recording sets the pace; keep its caption up while it plays.
 			_stage.set_caption(text, maxf(seconds, _voice_length() + 0.8))
@@ -1834,12 +1840,15 @@ func _voice_length() -> float:
 
 ## Narrator lines that follow each other (TWIST?! then the win line).
 var _voice_queue: Array[String] = []
+var _voice_texts: Dictionary = {}
 
 
 func _on_voice_finished() -> void:
 	if not _voice_queue.is_empty():
 		var next: String = _voice_queue.pop_front()
 		if _play_voice_file("narrator/" + next, _voice):
+			if _voice_texts.has(next) and mode == "RESULT":
+				_stage.set_caption(_voice_texts[next], 0.0)
 			return
 	_stop_voice()
 
@@ -3439,8 +3448,9 @@ func _update_narration_line() -> void:
 	_narration_text = text
 	_narration_centred = floating
 	_narration.text = text
+	_narration.add_theme_font_size_override("font_size", 19 if text.length() < 150 else (16 if text.length() < 260 else 14))
 	_narration.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER if floating else HORIZONTAL_ALIGNMENT_LEFT
-	var rect := Rect2(360, 606, 540, 80) if floating else Rect2(20, 606, 860, 80)
+	var rect := Rect2(352, 604, 560, 112) if floating else Rect2(20, 606, 860, 80)
 	_narration.size = rect.size
 	_narration.position = rect.position
 	if changed and not text.is_empty() and not _motion.button_pressed:
