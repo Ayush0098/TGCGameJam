@@ -819,6 +819,9 @@ func _update_buttons() -> void:
 		_skip_run.visible = playing_now
 		_legend.visible = mode == "PLAN"
 		_title.text = "PAGE %d  ·  %s" % [page_index + 1, str(page.get("title", "")).to_upper()]
+		if _tutorial_panel >= 0:
+			_title.text = "TUTORIAL %d/%d  ·  %s" % [_tutorial_panel + 1, _tutorial_data().get("panels", []).size(), str(page.get("title", "")).to_upper()]
+		_progress_label.visible = _tutorial_panel < 0
 		_tier_band.color = TIER_COLOURS[_tier(page_index)]
 		_action.text = " ACTION!"
 		_fast_button.text = ""
