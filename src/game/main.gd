@@ -152,6 +152,10 @@ func _ready() -> void:
 	_build_ui()
 	_load_settings()
 	_setup_music()
+	_build_vignette()
+	get_tree().node_added.connect(_juice_button)
+	for node in find_children("*", "BaseButton", true, false):
+		_juice_button(node)
 	_load_progress()
 	_load_page(0)
 	_front = FRONT.new()
@@ -497,6 +501,7 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 		_legend.text = _legend_text()
 	_queue_story_cards()
 	_update_backdrop()
+	_iris_open()
 	_narrate("intro")
 	if page.id == "page_02" and not page.has("narration") and _cues.has("narrator_intro"):
 		_story_waiting = true
@@ -856,7 +861,8 @@ func _next_page() -> void:
 		_advance_tutorial_panel()
 		return
 	if page_index < PAGE_SCRIPTS.size() - 1:
-		_load_page(page_index + 1)
+		var next := page_index + 1
+		_iris_close(func(): _load_page(next))
 	else:
 		_open_edition()
 
@@ -1919,11 +1925,11 @@ func _restyle_hud() -> void:
 	_bonus_line.size = Vector2(880, 24)
 	_ui.add_child(_bonus_line)
 	_facts.size = Vector2(880, 24)
-	_instructions.position = Vector2(930, 56)
-	_instructions.size = Vector2(334, 62)
+	_instructions.position = Vector2(934, 60)
+	_instructions.size = Vector2(330, 78)
 	_instructions.clip_text = false
 	_instructions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_instructions.add_theme_font_size_override("font_size", 14)
+	_instructions.add_theme_font_size_override("font_size", 13)
 	for hook in _hooks:
 		hook.position = Vector2(-400, -400)
 	_stage.position = Vector2(0, 146)
@@ -2092,7 +2098,8 @@ func _show_result_card(result: Dictionary) -> void:
 		_stage.set_caption("~~ " + GOALS.evaluate(page, _original_run).caption + " ~~", 0.0)
 		get_tree().create_timer(1.3).timeout.connect(func():
 			if mode == "RESULT":
-				_show_tab(true))
+				_show_tab(true)
+				_stage.celebrate())
 	else:
 		_show_tab(true)
 
@@ -3154,3 +3161,101 @@ func _key_select() -> void:
 		_stage.key_picked = ""
 		_swap(first, cursor)
 	_stage.queue_redraw()
+
+
+
+# ------------------------------------------------------------ juice: iris, vignette, button pops
+const IRIS_SHADER = preload("res://presentation/iris.gdshader")
+var _iris: ColorRect
+var _iris_tween: Tween
+var _vignette: TextureRect
+
+
+func _ensure_iris() -> void:
+	if is_instance_valid(_iris):
+		return
+	_iris = ColorRect.new()
+	_iris.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_iris.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_iris.z_index = 400
+	var material := ShaderMaterial.new()
+	material.shader = IRIS_SHADER
+	material.set_shader_parameter("radius", 1.5)
+	_iris.material = material
+	add_child(_iris)
+
+
+func _iris_set(radius: float) -> void:
+	_iris.material.set_shader_parameter("radius", radius)
+	_iris.material.set_shader_parameter("aspect", size.x / maxf(1.0, size.y))
+
+
+## Close the iris on Bulby, then run the callback (which loads the next page).
+func _iris_close(then: Callable) -> void:
+	if DisplayServer.get_name() == "headless" or _motion.button_pressed:
+		then.call()
+		return
+	_ensure_iris()
+	if is_instance_valid(_iris_tween):
+		_iris_tween.kill()
+	_iris.show()
+	_iris_tween = create_tween()
+	_iris_tween.tween_method(_iris_set, 1.3, 0.0, 0.32).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_iris_tween.tween_callback(then)
+
+
+## Open the iris on the new page.
+func _iris_open() -> void:
+	if DisplayServer.get_name() == "headless" or _motion.button_pressed or not page_override.is_empty():
+		return
+	_ensure_iris()
+	if is_instance_valid(_iris_tween):
+		_iris_tween.kill()
+	_iris.show()
+	_iris_set(0.0)
+	_iris_tween = create_tween()
+	_iris_tween.tween_interval(0.06)
+	_iris_tween.tween_method(_iris_set, 0.0, 1.3, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_iris_tween.tween_callback(_iris.hide)
+
+
+## Every button in the game grows a little under the cursor and squashes on press.
+func _juice_button(node: Node) -> void:
+	if not node is BaseButton or node.has_meta("juiced"):
+		return
+	node.set_meta("juiced", true)
+	var button: Control = node
+	var bounce := func(target: float, seconds: float):
+		if not button.is_inside_tree() or _motion.button_pressed:
+			return
+		button.pivot_offset = button.size * 0.5
+		var tween := button.create_tween()
+		tween.tween_property(button, "scale", Vector2.ONE * target, seconds).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	button.mouse_entered.connect(func(): bounce.call(1.06, 0.12))
+	button.mouse_exited.connect(func(): bounce.call(1.0, 0.12))
+	button.focus_entered.connect(func(): bounce.call(1.05, 0.12))
+	button.focus_exited.connect(func(): bounce.call(1.0, 0.12))
+	button.button_down.connect(func(): bounce.call(0.94, 0.06))
+	button.button_up.connect(func(): bounce.call(1.04, 0.1))
+
+
+func _build_vignette() -> void:
+	# A soft dark edge around the whole screen pulls the eye to the lit stage.
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(0, 0, 0, 0))
+	gradient.set_color(1, Color(0.02, 0.02, 0.06, 0.55))
+	gradient.add_point(0.6, Color(0, 0, 0, 0))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.05, 1.05)
+	texture.width = 256
+	texture.height = 144
+	_vignette = TextureRect.new()
+	_vignette.texture = texture
+	_vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	_vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_vignette)
+	move_child(_vignette, _ui.get_index())

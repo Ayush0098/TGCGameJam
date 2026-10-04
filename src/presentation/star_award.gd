@@ -22,6 +22,7 @@ var _title := ""
 var _time := 0.0
 var _landed: Array[bool] = []
 var _sparks: Array[Dictionary] = []
+var _confetti: Array[Dictionary] = []
 var _reduced := false
 var _done := false
 var _font: Font
@@ -52,6 +53,11 @@ func play(before: int, after: int, total: int, title: String, font: Font, reduce
 	_time = 0.0
 	_done = false
 	_sparks.clear()
+	_confetti.clear()
+	if not reduced_motion and after > 0:
+		# Newsprint confetti rains over the ribbon.
+		for k in 90:
+			_confetti.append({"at": Vector2(randf() * size.x, -20.0 - randf() * 260.0), "vel": Vector2(randf_range(-60, 60), randf_range(140, 300)), "spin": randf_range(-8, 8), "angle": randf() * TAU, "size": Vector2(randf_range(8, 16), randf_range(5, 9)), "colour": [Color("f3ead8"), Color("e0453a"), Color("ffd27a"), Color("5684ba"), Color("4e9a43")][k % 5]})
 	_landed.clear()
 	for i in total:
 		_landed.append(i < _before)
@@ -82,6 +88,10 @@ func _process(delta: float) -> void:
 		spark.at += spark.vel * delta
 		spark.vel.y += 420.0 * delta
 	_sparks = _sparks.filter(func(spark): return spark.age < spark.life)
+	for piece in _confetti:
+		piece.at += piece.vel * delta
+		piece.vel.x += sin(_time * 3.0 + piece.angle) * 40.0 * delta
+		piece.angle += piece.spin * delta
 	var hold := _arrival(_after) + 1.4 if _after > _before else 1.6
 	if _time > hold:
 		_finish()
@@ -160,6 +170,10 @@ func _draw() -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		if i >= _before and i < _after and _landed[i] and _font != null:
 			draw_string(_font, centre + Vector2(-26, SIZE * 0.62), "NEW!", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("ff8a5c"))
+	for piece in _confetti:
+		draw_set_transform(piece.at, piece.angle, Vector2(1.0, absf(cos(piece.angle * 1.7)) * 0.8 + 0.2))
+		draw_rect(Rect2(-piece.size * 0.5, piece.size), piece.colour)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for spark in _sparks:
 		var fade: float = 1.0 - float(spark.age) / float(spark.life)
 		draw_circle(spark.at, 3.0 + 3.0 * fade, Color(spark.colour, fade))

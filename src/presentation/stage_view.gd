@@ -333,6 +333,8 @@ func _update_visuals() -> void:
 				rig.set_plan_expression(expression)
 				if not _reduced_motion:
 					rig.animation_player.play("idle")
+					# Random phase so the cast never breathes in unison.
+					rig.animation_player.seek(fposmod(float(str(record.id).hash() % 1000) / 1000.0 * 1.6, 1.6), true)
 				_actions[record.id] = "plan_" + expression
 		elif record.status != "READY":
 			if _actions.get(record.id, "") not in ["eat", "sit", "bonk", "rest"]:
@@ -938,6 +940,15 @@ func react_swap(first: String, second: String) -> void:
 		if _rigs.has(id):
 			_rigs[id].pop()
 	set_mood("scheme", 1.2)
+
+## Win: everyone still standing who took part throws their arms up.
+func celebrate() -> void:
+	if _reduced_motion:
+		return
+	for record in _world.get("characters", []):
+		if _rigs.has(record.id) and record.get("active", false) and record.status in ["READY", "FULL", "SATISFIED", "SMITTEN"]:
+			_rigs[record.id].play_action("celebrate", 1.0)
+			_rigs[record.id].animation_player.get_animation("celebrate").loop_mode = Animation.LOOP_LINEAR
 
 func _actor_at(point: Vector2) -> String:
 	var world := _shown()

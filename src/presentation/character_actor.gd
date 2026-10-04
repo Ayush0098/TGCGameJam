@@ -106,7 +106,7 @@ func set_plan_expression(expression: String) -> void:
 
 func show_terminal(status: String) -> void:
 	stop()
-	set_expression({"ASLEEP": "sleepy", "FULL": "pleased", "SATISFIED": "pleased", "KO": "surprised"}.get(status, "neutral"))
+	set_expression({"ASLEEP": "sleepy", "FULL": "pleased", "SATISFIED": "pleased", "SMITTEN": "pleased", "KO": "surprised"}.get(status, "neutral"))
 	if status == "ASLEEP":
 		_visual.position = -anchor + Vector2(0, 20)
 		if _parts.has("leg_left"):
@@ -193,8 +193,12 @@ func _build_animation(action: String) -> Animation:
 	var b := -anchor
 	match action:
 		"idle":
-			_track(animation, "Visual:scale", [[0.0, Vector2.ONE], [0.4, Vector2(1.009, 1.012)], [0.8, Vector2.ONE]])
-			_rotation(animation, "head", [[0, 0], [0.4, -1.5], [0.8, 0]])
+			# Breathing, a head tilt and loose arms: everyone looks alive.
+			animation.length = 1.6
+			_track(animation, "Visual:scale", [[0.0, Vector2.ONE], [0.8, Vector2(0.985, 1.03)], [1.6, Vector2.ONE]])
+			_rotation(animation, "head", [[0, 0], [0.5, -3.5], [1.1, 2.5], [1.6, 0]])
+			_rotation(animation, "arm_left", [[0, 0], [0.8, 5], [1.6, 0]])
+			_rotation(animation, "arm_right", [[0, 0], [0.8, -5], [1.6, 0]])
 		"walk", "run":
 			var amount := 17.0 if action == "walk" else 30.0
 			_rotation(animation, "leg_left", [[0, -amount], [0.4, amount], [0.8, -amount]])
@@ -220,8 +224,12 @@ func _build_animation(action: String) -> Animation:
 			_rotation(animation, "head", [[0, 12], [0.4, 15], [0.8, 12]])
 			_track(animation, "Visual:scale", [[0, Vector2.ONE], [0.4, Vector2(1.015, 1.012)], [0.8, Vector2.ONE]])
 		"bonk":
-			_rotation(animation, "arm_right", [[0, 0], [0.2, 34], [0.36, -70], [0.6, -25], [0.8, 0]])
+			# Wind up, lunge, follow through.
+			_rotation(animation, "arm_right", [[0, 0], [0.2, 34], [0.36, -80], [0.6, -25], [0.8, 0]])
+			_track(animation, "Visual:position", [[0, b], [0.2, b + Vector2(-10, 2)], [0.36, b + Vector2(18, -4)], [0.6, b + Vector2(6, 0)], [0.8, b]])
+			_track(animation, "Visual:rotation", [[0, 0.0], [0.2, -0.08], [0.36, 0.12], [0.8, 0.0]])
 		"ko":
+			_track(animation, "Visual:scale", [[0, Vector2.ONE], [0.08, Vector2(1.25, 0.75)], [0.2, Vector2(0.92, 1.08)], [0.35, Vector2.ONE]])
 			_track(animation, "Visual:rotation", [[0, 0.0], [0.12, -0.12], [0.3, 0.17], [0.5, -0.1], [0.8, 0.16]])
 			_track(animation, "Visual:position", [[0, b], [0.2, b + Vector2(0, -8)], [0.8, b + Vector2(0, 12)]])
 		"exit":

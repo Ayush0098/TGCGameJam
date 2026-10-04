@@ -24,6 +24,17 @@ const MUTED := Color("8c8a80")
 const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 
 var _title_panel: Control
+var _paper: ColorRect
+var _scene: ColorRect
+var _logo: Label
+var _swing_bulb: Control
+var _motes: Control
+var _light := Vector2(0.5, 0.42)
+var _light_target := Vector2(0.5, 0.42)
+var _idle_time := 0.0
+var _clock := 0.0
+var _flicker := 0.0
+const TITLE_SHADER = preload("res://presentation/title_light.gdshader")
 var _edition_panel: Control
 var _cards: GridContainer
 var _page_count := 10
@@ -35,11 +46,11 @@ var _close: Button
 func _ready() -> void:
 	size = Vector2(1280, 720)
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	var paper := ColorRect.new()
-	paper.color = PAPER
-	paper.size = size
-	paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(paper)
+	_paper = ColorRect.new()
+	_paper.color = PAPER
+	_paper.size = size
+	_paper.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_paper)
 	_build_title()
 	_build_edition()
 
@@ -74,29 +85,38 @@ func _build_title() -> void:
 	_title_panel = Control.new()
 	_title_panel.size = size
 	add_child(_title_panel)
-	var frame := Panel.new()
-	var box := StyleBoxFlat.new()
-	box.bg_color = Color("1d2740")
-	box.border_color = INK
-	box.set_border_width_all(6)
-	frame.add_theme_stylebox_override("panel", box)
-	frame.position = Vector2(140, 64)
-	frame.size = Vector2(1000, 290)
-	_title_panel.add_child(frame)
-	var bulb := _Bulb.new()
-	bulb.position = Vector2(640, 136)
-	_title_panel.add_child(bulb)
-	var title := _label("LIGHTBULB MOMENT", 88, Color("ffe08a"))
-	title.add_theme_font_override("font", COMIC_FONT)
-	title.add_theme_constant_override("outline_size", 10)
-	title.add_theme_color_override("font_outline_color", INK)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.position = Vector2(140, 206)
-	title.size = Vector2(1000, 80)
-	_title_panel.add_child(title)
-	var tagline := _label("Shine a light into the comic. Swap what they're thinking. Twist the punchline.", 22, Color("dfe5f2"))
+	_scene = ColorRect.new()
+	_scene.size = size
+	_scene.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var scene_material := ShaderMaterial.new()
+	scene_material.shader = TITLE_SHADER
+	scene_material.set_shader_parameter("painting", load("res://assets/backgrounds/living_room_stage.png"))
+	_scene.material = scene_material
+	_title_panel.add_child(_scene)
+	_motes = _Motes.new()
+	_motes.size = size
+	_motes.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_title_panel.add_child(_motes)
+	_swing_bulb = _Bulb.new()
+	_swing_bulb.position = Vector2(640, 0)
+	_title_panel.add_child(_swing_bulb)
+	_logo = _label("LIGHTBULB MOMENT", 96, Color("ffe08a"))
+	_logo.add_theme_font_override("font", COMIC_FONT)
+	_logo.add_theme_constant_override("outline_size", 14)
+	_logo.add_theme_color_override("font_outline_color", INK)
+	_logo.add_theme_constant_override("shadow_offset_x", 6)
+	_logo.add_theme_constant_override("shadow_offset_y", 8)
+	_logo.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.55))
+	_logo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_logo.position = Vector2(140, 196)
+	_logo.size = Vector2(1000, 100)
+	_logo.pivot_offset = _logo.size * 0.5
+	_title_panel.add_child(_logo)
+	var tagline := _label("Shine a light into the comic. Swap what they're thinking. Twist the punchline.", 22, Color("f2e8cf"))
+	tagline.add_theme_constant_override("outline_size", 6)
+	tagline.add_theme_color_override("font_outline_color", Color(INK, 0.9))
 	tagline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tagline.position = Vector2(140, 296)
+	tagline.position = Vector2(140, 300)
 	tagline.size = Vector2(1000, 40)
 	_title_panel.add_child(tagline)
 	var buttons := VBoxContainer.new()
@@ -130,12 +150,12 @@ func _build_title() -> void:
 		buttons.add_child(leave)
 	for button in buttons.get_children():
 		button.custom_minimum_size.y = 48
-	_star_total = _label("", 22)
+	_star_total = _label("", 22, Color("ffe08a"))
 	_star_total.position = Vector2(980, 20)
 	_star_total.size = Vector2(280, 30)
 	_star_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_title_panel.add_child(_star_total)
-	var masthead := _label("THE DAILY BULB  ·  VOL. 1  ·  TGC GAME JAM, INFINIUM 2026", 16, MUTED)
+	var masthead := _label("THE DAILY BULB  ·  VOL. 1  ·  TGC GAME JAM, INFINIUM 2026", 16, Color("c9c2b0"))
 	masthead.position = Vector2(20, 24)
 	_title_panel.add_child(masthead)
 	_build_credits()
@@ -294,6 +314,8 @@ func show_title(can_continue: bool) -> void:
 	_edition_from_title = false
 	_title_panel.show()
 	_edition_panel.hide()
+	_paper.hide()
+	_flicker = 0.0
 	_start.text = "CONTINUE" if can_continue else "PLAY"
 	show()
 	_start.grab_focus()
@@ -302,6 +324,7 @@ func show_title(can_continue: bool) -> void:
 func show_edition() -> void:
 	_title_panel.hide()
 	_edition_panel.show()
+	_paper.show()
 	show()
 	# Keyboard: start on the newest unlocked page; arrows move through the grid.
 	var focus: Control = _close
@@ -312,16 +335,48 @@ func show_edition() -> void:
 
 
 class _Bulb extends Control:
+	## Bulby hangs from the top of the screen on a cord and swings.
+	var angle := 0.0
+	var brightness := 1.0
+	const CORD := 120.0
+
 	func _draw() -> void:
-		draw_circle(Vector2.ZERO, 70, Color(1, 0.88, 0.45, 0.18))
-		draw_circle(Vector2.ZERO, 46, Color(1, 0.88, 0.45, 0.35))
-		draw_circle(Vector2.ZERO, 30, Color("ffe17a"))
-		draw_arc(Vector2.ZERO, 30, 0, TAU, 40, Color("243043"), 4, true)
-		draw_rect(Rect2(-14, 26, 28, 18), Color("243043"))
-		for i in 8:
-			var angle := TAU * i / 8.0
-			var direction := Vector2.from_angle(angle)
-			draw_line(direction * 54, direction * 70, Color("ffe08a"), 4, true)
+		var tip := Vector2(0, CORD).rotated(angle)
+		draw_line(Vector2.ZERO, tip, Color("2b2530"), 4, true)
+		var at := tip + Vector2(0, 30).rotated(angle)
+		var b := brightness
+		draw_circle(at, 120, Color(1, 0.88, 0.45, 0.10 * b))
+		draw_circle(at, 70, Color(1, 0.88, 0.45, 0.20 * b))
+		draw_circle(at, 46, Color(1, 0.88, 0.45, 0.35 * b))
+		draw_circle(at, 30, Color("ffe17a").lerp(Color("7a7462"), 1.0 - b))
+		draw_arc(at, 30, 0, TAU, 40, Color("243043"), 4, true)
+		draw_set_transform(at, angle, Vector2.ONE)
+		draw_rect(Rect2(-14, -42, 28, 16), Color("243043"))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		# Smile: Bulby is happy to see you.
+		draw_arc(at + Vector2(0, 4), 12, 0.3, PI - 0.3, 12, Color("243043"), 3, true)
+		draw_circle(at + Vector2(-9, -6), 3, Color("243043"))
+		draw_circle(at + Vector2(9, -6), 3, Color("243043"))
+		if b > 0.6:
+			for i in 8:
+				var direction := Vector2.from_angle(TAU * i / 8.0 + angle)
+				draw_line(at + direction * 54, at + direction * (66 + 6 * b), Color(Color("ffe08a"), b), 4, true)
+
+
+class _Motes extends Control:
+	## Dust drifting through the torch light.
+	var light := Vector2(640, 300)
+	var time := 0.0
+
+	func _draw() -> void:
+		for i in 46:
+			var seed := float(i) * 12.9898
+			var x := fposmod(sin(seed) * 43758.5453, 1.0) * size.x
+			var speed := 10.0 + fposmod(seed * 7.1, 1.0) * 18.0
+			var y := size.y - fposmod(time * speed + fposmod(seed * 3.7, 1.0) * size.y, size.y + 40.0)
+			var at := Vector2(x + sin(time * 0.6 + seed) * 14.0, y)
+			var near := clampf(1.0 - at.distance_to(light) / 260.0, 0.0, 1.0)
+			draw_circle(at, 1.5 + near * 1.8, Color(1, 0.93, 0.7, 0.08 + near * 0.55))
 
 
 class _Stars extends Control:
@@ -417,3 +472,39 @@ func _build_credits() -> void:
 	back.position = Vector2(260, 510)
 	back.pressed.connect(func(): _credits_panel.hide())
 	box.add_child(back)
+
+
+
+func _process(delta: float) -> void:
+	if not visible or not _title_panel.visible:
+		return
+	_clock += delta
+	_idle_time += delta
+	var mouse := get_local_mouse_position()
+	if Rect2(Vector2.ZERO, size).has_point(mouse) and _idle_time < 2.5:
+		_light_target = mouse / size
+	else:
+		# Nobody moving the mouse: the torch wanders by itself.
+		_light_target = Vector2(0.5 + 0.28 * sin(_clock * 0.45), 0.45 + 0.16 * sin(_clock * 0.71))
+	_light = _light.lerp(_light_target, clampf(delta * 6.0, 0.0, 1.0))
+	# Bulby flickers on when the title appears, then stays lit.
+	_flicker += delta
+	var on := 1.0
+	if _flicker < 0.9:
+		on = 1.0 if fmod(_flicker * 9.0, 2.0) > 0.7 or _flicker > 0.7 else 0.15
+	var material: ShaderMaterial = _scene.material
+	material.set_shader_parameter("light_pos", _light)
+	material.set_shader_parameter("glow", on * (0.94 + 0.06 * sin(_clock * 7.0)))
+	_swing_bulb.angle = 0.16 * sin(_clock * 1.3) + (_light.x - 0.5) * 0.25
+	_swing_bulb.brightness = on
+	_swing_bulb.queue_redraw()
+	_logo.rotation = 0.025 * sin(_clock * 1.7)
+	_logo.scale = Vector2.ONE * (1.0 + 0.02 * sin(_clock * 2.3))
+	_motes.light = _light * size
+	_motes.time = _clock
+	_motes.queue_redraw()
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_idle_time = 0.0
