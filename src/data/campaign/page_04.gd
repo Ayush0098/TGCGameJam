@@ -113,7 +113,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Kid ate the pie. The Cat ran out of the comic.",
-		"endings_total": 11,
+		"endings_total": 9,
 		"bonus": [
 			{
 				"id": "headline_1",

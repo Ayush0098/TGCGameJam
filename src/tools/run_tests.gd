@@ -14,6 +14,7 @@ const SUITES = [
 	preload("res://tests/stage_presentation_test.gd"),
 	preload("res://tests/front_end_test.gd"),
 	preload("res://tests/flick_test.gd"),
+	preload("res://tests/campaign_test.gd"),
 ]
 
 var _checks := 0

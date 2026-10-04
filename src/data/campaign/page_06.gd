@@ -108,7 +108,7 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Boss ate the birthday cake.",
-		"endings_total": 44,
+		"endings_total": 45,
 		"bonus": [
 			{
 				"id": "headline_1",
