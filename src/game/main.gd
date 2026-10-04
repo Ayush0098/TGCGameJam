@@ -159,6 +159,8 @@ func _ready() -> void:
 	_load_progress()
 	_load_page(0)
 	_front = FRONT.new()
+	# Menus sit above every in-game card (result card z 160, star award z 220).
+	_front.z_index = 360
 	_front.name = "FrontEnd"
 	# Above the stage, which draws its overlay at z 100.
 	_front.z_index = 200
@@ -758,6 +760,8 @@ func _show_facts(result: Dictionary) -> void:
 func _return_to_plan() -> void:
 	var from_original := mode == "ORIGINAL_END" or (mode == "INTRO" and _is_original)
 	_cancel_presentation()
+	# The result's "YOUR TWIST:" caption belongs to the result, not the plan.
+	_stage.set_caption("", 0.0)
 	if from_original and not _redpen_done:
 		_redpen_done = true
 		_narrate.call_deferred("redpen")
@@ -2063,6 +2067,9 @@ func _build_result_card() -> void:
 	_stamp.pivot_offset = _stamp.size * 0.5
 	_missing.get_parent().remove_child(_missing)
 	_result_card.add_child(_missing)
+	# Inside the card they only need to sit above its own text, not above menus.
+	_stamp.z_index = 1
+	_missing.z_index = 1
 	_missing.position = Vector2(24, 296)
 	_missing.size = Vector2(472, 44)
 	_missing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -2164,7 +2171,7 @@ func _close_pause() -> void:
 func _build_pause_sheet() -> void:
 	_pause_sheet = Control.new()
 	_pause_sheet.size = Vector2(1280, 720)
-	_pause_sheet.z_index = 190
+	_pause_sheet.z_index = 250
 	_pause_sheet.mouse_filter = Control.MOUSE_FILTER_STOP
 	_ui.add_child(_pause_sheet)
 	var dim := ColorRect.new()
