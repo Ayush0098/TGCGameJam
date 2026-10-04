@@ -482,7 +482,7 @@ func _draw() -> void:
 	_bulb_rects.clear()
 	if not _art:
 		draw_rect(Rect2(Vector2.ZERO, LOGICAL_SIZE), PAPER)
-		_label(self, Vector2(20, 32), "WORK IN PROGRESS / " + str(_page.title), INK, 16)
+		_label(self, Vector2(20, 32), str(_page.title), INK, 16)
 		for actor in world.get("characters", []):
 			if actor.status == "EXITED":
 				continue

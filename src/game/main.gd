@@ -8,6 +8,7 @@ const RULES = preload("res://core/rules.gd")
 const SIMULATOR = preload("res://core/simulator.gd")
 const GOALS = preload("res://core/goal_evaluator.gd")
 const STAGE = preload("res://presentation/stage_view.gd")
+const FRONT = preload("res://presentation/front_end.gd")
 
 var page: Dictionary = {}
 var plan: RefCounted
@@ -68,6 +69,12 @@ var _hooks: Array[Button] = []
 var _hook_drag := -1
 var _frame_cursor := 0
 var _playback_world: Dictionary = {}
+# Front end (title / Sunday Edition), contextual help and campaign progress.
+var _front: Control
+var _instructions: Label
+var _pages_button: Button
+var _lanterns_useful := true
+var skipped: Dictionary = {}
 const BEAT_SECONDS := 0.4
 const RECOVERY_SECONDS := 0.45
 const PHASE_TIME := {"DECIDE": 0.04, "MOVE": 0.26, "SWITCHES": 0.27, "BONKS": 0.31, "CLAIMS": 0.35}
@@ -79,6 +86,15 @@ func _ready() -> void:
 		return
 	_build_ui()
 	_load_page(0)
+	_front = FRONT.new()
+	_front.name = "FrontEnd"
+	# Above the stage, which draws its overlay at z 100.
+	_front.z_index = 200
+	_ui.add_child(_front)
+	_front.start_requested.connect(_on_front_start)
+	_front.page_requested.connect(_on_front_page)
+	_front.closed.connect(_update_buttons)
+	_front.show_title(false)
 
 
 func _exit_tree() -> void:
@@ -107,6 +123,12 @@ func _build_ui() -> void:
 	_title = _label("LIGHTBULB MOMENT", 24)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(_title)
+	_pages_button = Button.new()
+	_pages_button.text = "PAGES"
+	_pages_button.name = "Pages"
+	_pages_button.add_theme_font_size_override("font_size", 15)
+	_pages_button.pressed.connect(_open_edition)
+	heading.add_child(_pages_button)
 	_sound = CheckButton.new()
 	_sound.text = "Sound"
 	_sound.button_pressed = true
@@ -128,10 +150,11 @@ func _build_ui() -> void:
 	_facts.position = Vector2(16, 75)
 	_facts.size = Vector2(1248, 22)
 	_ui.add_child(_facts)
-	var instructions := _label("Swap lit thoughts. Space: ACTION / SKIP. 1 / 2: lantern; arrows: move; P: park. Drag a hook to deploy.", 15)
-	instructions.position = Vector2(16, 101)
-	instructions.size = Vector2(990, 23)
-	_ui.add_child(instructions)
+	_instructions = _label("", 15)
+	_instructions.position = Vector2(16, 101)
+	_instructions.size = Vector2(1010, 23)
+	_instructions.clip_text = true
+	_ui.add_child(_instructions)
 	for index in range(2):
 		var hook := Button.new()
 		hook.position = Vector2(1040 + index * 108, 98)
@@ -264,6 +287,7 @@ func _load_page(index: int) -> void:
 		_update_buttons()
 		return
 	page = validated.page
+	_lanterns_useful = _needs_lanterns(page)
 	plan = PLAN.from_page(page)
 	knowledge.clear()
 	attempts = 0
@@ -271,7 +295,7 @@ func _load_page(index: int) -> void:
 	_saved_plan = plan.to_data()
 	for view in [_stage, _original_stage, _result_stage]:
 		view.configure(page)
-	_title.text = "LIGHTBULB MOMENT / %s  (%d of 3)" % [page.title, index + 1]
+	_title.text = "LIGHTBULB MOMENT  ·  Page %d: %s" % [index + 1, page.title]
 	_goal.text = "TWIST: " + page.goal.twist_caption
 	_original_run = SIMULATOR.run(page, plan.to_data(), true)
 	_begin(_original_run, true)
@@ -473,6 +497,7 @@ func _refresh_plan() -> void:
 	_facts.text = "Goal facts become true during ACTION."
 	_facts.add_theme_color_override("font_color", Color("243043"))
 	_update_hooks()
+	_update_instructions()
 
 
 func _move_light(index: int, centre: int) -> void:
@@ -540,14 +565,13 @@ func _next_page() -> void:
 	if page_index < PAGE_SCRIPTS.size() - 1:
 		_load_page(page_index + 1)
 	else:
-		completed.clear()
-		run_history.clear()
-		_load_page(0)
+		_open_edition()
 
 
 func _skip_current_page() -> void:
 	if failures < 3 or mode not in ["PLAN", "RESULT"]:
 		return
+	skipped[page.id] = true
 	if page_index < PAGE_SCRIPTS.size() - 1:
 		_load_page(page_index + 1)
 	else:
@@ -565,14 +589,18 @@ func _update_buttons() -> void:
 	_fast_button.text = "1x" if _fast else "FAST"
 	_skip_run.disabled = not playing
 	_next.disabled = mode != "RESULT" or not _won_current
-	_next.text = "PLAY AGAIN" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
+	_next.text = "ALL PAGES" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
 	_skip_page.disabled = failures < 3 or mode not in ["PLAN", "RESULT"]
-	_status.text = "MVP: pages 2 / 4 / 6 | %s | Attempts %d | Failed runs %d | Three fresh-player tests pending" % [mode, attempts, failures]
-	if mode == "RESULT" and page_index == 2 and _won_current:
-		_status.text = "Sample complete. Ten-level production continues; fresh-player testing is deferred."
+	_status.text = "Page %d of %d   ·   Runs %d   ·   Pages solved %d / %d" % [page_index + 1, PAGE_SCRIPTS.size(), attempts, completed.size(), PAGE_SCRIPTS.size()]
+	if completed.size() == PAGE_SCRIPTS.size():
+		_status.text = "Every page solved. Try for different endings!"
+	_update_instructions()
 
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_front) and _front.visible:
+		# The title / Sunday Edition owns input; its buttons handle it via the GUI.
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed and mode == "PLAN":
 		var mouse := get_global_mouse_position()
 		if _hook_drag >= 0:
@@ -682,6 +710,9 @@ func _play_voice(id: String) -> void:
 
 func _replay_voice() -> void:
 	if _story_waiting:
+		# Starting the story is the explicit gesture that also leaves the title.
+		if is_instance_valid(_front):
+			_front.hide()
 		_story_waiting = false
 		# This callback runs inside the deliberate user gesture that unlocks Web audio.
 		_events_at(0)
@@ -713,6 +744,7 @@ func _update_hooks() -> void:
 		var enabled: bool = index < plan.lanterns.size() and plan.lanterns[index].enabled if plan != null else false
 		_hooks[index].text = "Hook %d: %s" % [index + 1, "out" if enabled else "park"]
 		_hooks[index].disabled = mode != "PLAN"
+		_hooks[index].visible = _lanterns_useful
 
 
 func _play_effect(kind: String) -> void:
@@ -757,3 +789,86 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 	stream.mix_rate = sample_rate
 	stream.data = bytes
 	return stream
+
+
+func _needs_lanterns(definition: Dictionary) -> bool:
+	# Lanterns are pointless (and their hooks confusing) when fixed lights
+	# already cover every slot.
+	if definition.get("lanterns", {}).is_empty():
+		return false
+	for slot in range(int(definition.get("width", 11))):
+		var covered := false
+		for zone in definition.get("fixed_lights", []):
+			if slot >= zone[0] and slot <= zone[1]:
+				covered = true
+		if not covered:
+			return true
+	return false
+
+
+func _update_instructions() -> void:
+	if not is_instance_valid(_instructions) or plan == null or page.is_empty():
+		return
+	var text := ""
+	match mode:
+		"INTRO", "ORIGINAL_END":
+			text = "The Original strip. Watch what normally happens, or click to skip it."
+		"PLAY":
+			text = "AND THEN...   (Space skips to the end)"
+		"RESULT":
+			text = "TWIST! Press NEXT PAGE, or hunt for another ending." if _won_current else "Not quite. REWIND keeps your plan; RESTART resets the page."
+		"PLAN":
+			var lit := _lit_ids()
+			if not _lanterns_useful:
+				text = "Everyone is lit. Drag one thought bubble onto the other character to swap, then ACTION! (Space)."
+			elif lit.is_empty():
+				text = "Nobody is lit. Drag a lantern from its hook into the room to reveal what someone is thinking."
+			elif lit.size() == 1:
+				text = "Light a second character to swap thoughts, or press ACTION! (Space).   Keys: 1/2 lantern, arrows move, P park"
+			else:
+				text = "Drag a lit thought onto another lit character to swap. ACTION! = Space.   Keys: 1/2 lantern, arrows move, P park"
+	_instructions.text = text
+	if is_instance_valid(_action):
+		_action.text = "ACTION! (nobody lit)" if mode == "PLAN" and _lit_ids().is_empty() else "ACTION!"
+
+
+func _progress() -> Array:
+	var pages: Array = []
+	for index in PAGE_SCRIPTS.size():
+		var definition: Dictionary = PAGE_SCRIPTS[index].definition()
+		var previous_done := index == 0
+		if index > 0:
+			var previous_id: String = PAGE_SCRIPTS[index - 1].definition().id
+			previous_done = completed.has(previous_id) or skipped.has(previous_id)
+		pages.append({
+			"title": definition.title,
+			"solved": completed.has(definition.id),
+			"unlocked": previous_done or index == page_index or completed.has(definition.id),
+			"current": index == page_index,
+			"caption": definition.goal.twist_caption,
+		})
+	return pages
+
+
+func _open_edition() -> void:
+	if mode in ["INTRO", "PLAY"]:
+		_finish_run()
+	var note := "Every page solved! Each page hides other endings too." if completed.size() == PAGE_SCRIPTS.size() else "Pick a page. Solved pages stay inked."
+	_front.set_pages(_progress(), note)
+	_front.show_edition()
+
+
+func _on_front_start() -> void:
+	if _story_waiting:
+		_replay_voice()
+	_front.hide()
+	_update_buttons()
+
+
+func _on_front_page(index: int) -> void:
+	_front.hide()
+	if index != page_index or mode == "ERROR":
+		_load_page(index)
+	if _story_waiting:
+		_replay_voice()
+	_update_buttons()
