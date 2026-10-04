@@ -2469,14 +2469,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_dinner_twist.mp3",
-      "duration_seconds": 2.592,
+      "duration_seconds": 2.3786,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.5768,
-      "active_rms_dbfs": -19.59,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "cdd35739822b12a95728412e7a8f28415efe2405dc0f59702f80dd0c13043d98"
+      "peak": 0.67299,
+      "active_rms_dbfs": -19.23,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0007,
+      "sha256": "c9300dfcb820e0c6edf5fa204fb408bed88d96efa7e6e54f1c0f75891d745169",
+      "spoken_as": "The Cat ate the fish."
     },
     {
       "id": "narr15_dinner_win",
@@ -2492,14 +2493,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_dinner_win.mp3",
-      "duration_seconds": 5.6866,
+      "duration_seconds": 5.1506,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.81056,
-      "active_rms_dbfs": -19.63,
+      "peak": 0.89343,
+      "active_rms_dbfs": -19.35,
       "leading_silence_seconds": 0.0008,
-      "trailing_silence_seconds": 0.0008,
-      "sha256": "b98d147aba2bae1f2a217e8cad7f87f6aea5bdb7a9ca07e77705d1d1d4c74bca"
+      "trailing_silence_seconds": 0.0009,
+      "sha256": "c9078d57a25d908366767682e4ba4f2033315546b19eaef48b83a7a5036ccf8e",
+      "spoken_as": "The Cat ate the... Who moved my lamp? Somebody Moved my Lamp."
     },
     {
       "id": "narr15_greens_intro",
@@ -2653,14 +2655,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_nap_twist.mp3",
-      "duration_seconds": 4.5273,
+      "duration_seconds": 4.1533,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.64733,
-      "active_rms_dbfs": -19.75,
+      "peak": 0.63818,
+      "active_rms_dbfs": -19.68,
       "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "9fa3942ebd956fbd2fa36448c3ccc96f5b2d632e70068b6fbaf095ff0774e937"
+      "sha256": "61680af4099a8dd35fedca1bbb0cb38ef8b926b39e76b78fca99a5ca2b840f18",
+      "spoken_as": "The Dog ate the cake. The Boss napped in the dog bed."
     },
     {
       "id": "narr15_nap_win",
@@ -2745,14 +2748,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_snack_twist.mp3",
-      "duration_seconds": 2.6246,
+      "duration_seconds": 2.3233,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.60646,
-      "active_rms_dbfs": -19.84,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "5cdee18b3fb0066979f5216edf70bb8b3431e0f2fd48abb6f512d0790a1db4f2"
+      "peak": 0.87215,
+      "active_rms_dbfs": -17.73,
+      "leading_silence_seconds": 0.001,
+      "trailing_silence_seconds": 0.0009,
+      "sha256": "4940db8426b709dd190bb48fd7d8b552f1ed4608c6777ddf2b48bf5e0095dbbd",
+      "spoken_as": "The Dog ate the pie."
     },
     {
       "id": "narr15_snack_win",
@@ -2837,14 +2841,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_stage_twist.mp3",
-      "duration_seconds": 4.9666,
+      "duration_seconds": 4.4066,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.72049,
-      "active_rms_dbfs": -19.36,
+      "peak": 0.66329,
+      "active_rms_dbfs": -19.47,
       "leading_silence_seconds": 0.0007,
       "trailing_silence_seconds": 0.0007,
-      "sha256": "e79605f9bffac2ed08d849b5b2acb395dec8e5f3ae509009df91c969fe56eb96"
+      "sha256": "fe801c7d70425457a4dcf541bb4d0032946f2c1b19e21c10ab9d6b64cbc8ae41",
+      "spoken_as": "The Boss hid from the spotlight. The Dog ate the prize cake."
     },
     {
       "id": "narr15_stage_win",
@@ -2929,14 +2934,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_birthday_twist.mp3",
-      "duration_seconds": 3.006,
+      "duration_seconds": 2.7287,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.63025,
-      "active_rms_dbfs": -19.77,
-      "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "aeb3cc1b822602bd4c1b3f61f56a558b9460262036b6927eb469303aeb10f45a"
+      "peak": 0.73654,
+      "active_rms_dbfs": -19.23,
+      "leading_silence_seconds": 0.0007,
+      "trailing_silence_seconds": 0.0008,
+      "sha256": "a532b9a8169889201e89c45b08d55a9224ea04f657d2f10b41b5916b02cebc0e",
+      "spoken_as": "The Dog ate the birthday cake."
     },
     {
       "id": "narr15_birthday_win",
@@ -3021,14 +3027,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_revenge_twist.mp3",
-      "duration_seconds": 3.872,
+      "duration_seconds": 3.5733,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.62153,
-      "active_rms_dbfs": -19.78,
+      "peak": 0.57705,
+      "active_rms_dbfs": -19.89,
       "leading_silence_seconds": 0.0006,
-      "trailing_silence_seconds": 0.0006,
-      "sha256": "3263188bf4484c9d82bf231e14bd56a7e72a5612ddf4836b17dd759693ca32b5"
+      "trailing_silence_seconds": 0.0005,
+      "sha256": "dd37916c2ac1eeb5b95e3b7f11ba821026e33261a675e6cd7c401e61034f4cd6",
+      "spoken_as": "Grandma bonked the Boss. The Dog ate the cake."
     },
     {
       "id": "narr15_revenge_win",
@@ -3390,14 +3397,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_powercut_twist.mp3",
-      "duration_seconds": 4.2487,
+      "duration_seconds": 3.9613,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.61834,
-      "active_rms_dbfs": -19.93,
+      "peak": 0.57749,
+      "active_rms_dbfs": -19.99,
       "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "02bd4b7c17b959885785765e29a6325cffe5a33e494b41e31e5c9503219611ae"
+      "sha256": "a63c80be6cadd13cf98a119abc24df97ad0e9ab7309ea46c465f3af890729fff",
+      "spoken_as": "The Mouse napped in the armchair. The Dog ate the cake."
     },
     {
       "id": "narr15_powercut_win",
@@ -3482,14 +3490,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_catmouse_twist.mp3",
-      "duration_seconds": 4.2173,
+      "duration_seconds": 3.674,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.68263,
-      "active_rms_dbfs": -19.52,
-      "leading_silence_seconds": 0.0007,
+      "peak": 0.56764,
+      "active_rms_dbfs": -19.82,
+      "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0006,
-      "sha256": "4b09f466e1bb06f9a53f47315396a5920c8e6f88f4c560f8176ba38e8918a50a"
+      "sha256": "62ddb670214f11a1b0082e5f932cfdc78fcafcf6456445d64ab1d33716d524a0",
+      "spoken_as": "The Mouse bonked the Cat. The Dog got the cheese."
     },
     {
       "id": "narr15_catmouse_win",
@@ -3666,14 +3675,15 @@
         "pitch": 1.0
       },
       "audio": "assets/audio/voice/narrator/narr15_wedding_twist.mp3",
-      "duration_seconds": 4.202,
+      "duration_seconds": 3.7766,
       "sample_rate": 44100,
       "channels": 1,
-      "peak": 0.57697,
-      "active_rms_dbfs": -20.09,
-      "leading_silence_seconds": 0.0005,
+      "peak": 0.61739,
+      "active_rms_dbfs": -19.79,
+      "leading_silence_seconds": 0.0006,
       "trailing_silence_seconds": 0.0005,
-      "sha256": "7a915c2ea7f741580fa5e3620a9cd01731282dc80520277cdea2ebf13e071c5f"
+      "sha256": "f1a50a3ad30a94c1e0c6209d15d2ba07cef497d72750bdd6da18a6fbfac2926c",
+      "spoken_as": "The Cat hugged the Mouse. The Dog ate the wedding cake."
     },
     {
       "id": "narr15_wedding_win",

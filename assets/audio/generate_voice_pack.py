@@ -62,6 +62,11 @@ def parse_request(path):
     assert len(cues)==len({c['id'] for c in cues}) and len(cues)>=115
     return cues
 
+def speakable(text):
+    # The phonemizer spells short all-caps words as letters (CAT -> C-A-T).
+    # Real acronyms stay; everything else is read as a word.
+    return re.sub(r"[A-Z][A-Z']+", lambda m: m[0] if m[0] in {'HR'} else m[0].capitalize(), text)
+
 def resample(samples, old_rate, pitch=1.0):
     # Linear-phase windowed sinc interpolation, also handles deliberate cartoon pitch.
     ratio=old_rate*pitch/SR
@@ -163,7 +168,7 @@ def main():
                 samples=generate_vocal(cue['id'],SR)
             else:
                 if model is None: model=Kokoro(str(ROOT/'.codex/tools/voice/kokoro-v1.0.onnx'),str(ROOT/'.codex/tools/voice/voices-v1.0.bin'))
-                text=cue.get('syllable') if cue['kind']=='blip' else cue['text']
+                text=cue.get('syllable') if cue['kind']=='blip' else speakable(cue['text'])
                 if cue['id']=='narr15_finale_win' and cue.get('performance_text'):
                     segments=re.split(r'(\[[^\]]*\])',cue['performance_text'])
                     performance=[]
@@ -177,7 +182,7 @@ def main():
                                 performance.append(vocal*.72)
                             performance.append(np.zeros(2400))
                         elif segment.strip():
-                            vocal,rate=model.create(segment.strip(),voice=profile['voice'],lang=profile['lang'],speed=profile['speed'],sentence_pause=.22,clause_pause=.13)
+                            vocal,rate=model.create(speakable(segment.strip()),voice=profile['voice'],lang=profile['lang'],speed=profile['speed'],sentence_pause=.22,clause_pause=.13)
                             performance.append(vocal)
                     samples=np.concatenate(performance)
                 else:
