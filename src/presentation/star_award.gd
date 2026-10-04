@@ -6,7 +6,7 @@ extends Control
 signal star_landed(index: int, fresh: bool)
 signal finished
 
-const INK := Color("243043")
+const INK := Color("1e1b2e")
 const GOLD := Color("ffd27a")
 const BULB_ON := '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="11" r="10" fill="#ffd27a" opacity=".45"/><path d="M12 4 A7 7 0 0 1 16.2 16.3 L16.2 18.5 L7.8 18.5 L7.8 16.3 A7 7 0 0 1 12 4 Z" fill="#ffe17a" stroke="#243043" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 20.5 H15.5 M9.5 22.5 H14.5" stroke="#243043" stroke-width="1.6" stroke-linecap="round"/></svg>'
 const BULB_OFF := '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M12 4 A7 7 0 0 1 16.2 16.3 L16.2 18.5 L7.8 18.5 L7.8 16.3 A7 7 0 0 1 12 4 Z" fill="#d9d2c3" stroke="#6d6a62" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.5 20.5 H15.5 M9.5 22.5 H14.5" stroke="#6d6a62" stroke-width="1.4" stroke-linecap="round"/></svg>'

@@ -84,6 +84,17 @@
   "rooms": {
     "living_room": "res://assets/backgrounds/living_room_stage.png",
     "kitchen": "res://assets/backgrounds/kitchen_stage.png",
-    "office": "res://assets/backgrounds/office_stage.png"
+    "office": "res://assets/backgrounds/office_stage.png",
+    "kadamba": "res://assets/art/rooms/room_kadamba.png",
+    "prof_lab": "res://assets/art/rooms/room_prof_lab.png",
+    "jc_night": "res://assets/art/rooms/room_jc_night.png",
+    "amphi": "res://assets/art/rooms/room_amphi.png",
+    "vindhya": "res://assets/art/rooms/room_vindhya.png",
+    "dasa_workspace": "res://assets/art/rooms/room_dasa_workspace.png",
+    "obh_dark": "res://assets/art/rooms/room_obh_dark.png",
+    "kalakshetra": "res://assets/art/rooms/room_kalakshetra.png",
+    "obh_washroom": "res://assets/art/rooms/room_obh_washroom.png",
+    "amphi_wedding": "res://assets/art/rooms/room_amphi_wedding.png",
+    "workspaces": "res://assets/art/rooms/room_workspaces.png"
   }
 }

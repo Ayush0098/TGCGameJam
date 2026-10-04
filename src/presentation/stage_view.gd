@@ -10,7 +10,7 @@ signal actor_revealed(id: String, thought: String)
 signal actor_poked(id: String, kind: String)
 signal flick_cleared()
 
-const INK := Color("243043")
+const INK := Color("1e1b2e")
 const PAPER := Color("f0eee5")
 const MEMORY := Color("a2adbd")
 const DARK := Color("18243a")

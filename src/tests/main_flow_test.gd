@@ -23,7 +23,7 @@ func run(check: Callable) -> bool:
 		check.call(game._make_effect(kind).data.size() > 0, "%s has an original synthesized sound" % kind)
 	check.call(game._run.has("presentation_frames") and not game._run.presentation_frames.is_empty(), "Playable flow requests recorded phase worlds")
 	check.call(game._stage.size == Vector2(1280, 460), "Playable stage receives the full-width logical band")
-	check.call(game._sound.get_theme_color("font_pressed_color") == Color("243043"), "Sound remains readable while pressed")
+	check.call(game._sound.get_theme_color("font_pressed_color") == game.INK, "Sound remains readable while pressed")
 	check.call(game._hooks.size() == 2, "Both lanterns have HUD parking hooks")
 	game._stop_voice()
 	check.call(game._voice.stream == null and game._active_cue.is_empty(), "Skip voice clears the active stream")

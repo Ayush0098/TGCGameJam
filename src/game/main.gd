@@ -132,8 +132,8 @@ const AIM_SLOWDOWN := 0.4
 ## Slow motion on the beat that completes the twist (known from the event log).
 const DECISIVE_SLOWDOWN := 0.45
 var _decisive_beat := -1
-const INK := Color("243043")
-const PAPER := Color("f2e8cf")
+const INK := Color("1e1b2e")
+const PAPER := Color("f4e9d2")
 const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
 const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 const SAVE_PATH := "user://lightbulb_campaign_v2.json"
@@ -226,7 +226,7 @@ func _build_ui() -> void:
 	_motion.toggled.connect(_motion_changed)
 	for toggle in [_sound, _motion]:
 		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_hover_pressed_color", "font_focus_color"]:
-			toggle.add_theme_color_override(state, Color("243043"))
+			toggle.add_theme_color_override(state, INK)
 	_goal = _label("", 24)
 	_goal.add_theme_font_override("font", COMIC_FONT)
 	_goal.position = Vector2(16, 46)
@@ -438,7 +438,7 @@ func _label(text: String, font_size: int) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", Color("243043"))
+	label.add_theme_color_override("font_color", INK)
 	return label
 
 
@@ -753,7 +753,7 @@ func _show_facts(result: Dictionary) -> void:
 	if is_instance_valid(_bonus_line):
 		_bonus_line.text = ("[b]Bonus stars:[/b]  " + "     ".join(bonus_lines)) if not bonus_lines.is_empty() else ""
 	_facts.mouse_filter = Control.MOUSE_FILTER_PASS
-	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
+	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else INK)
 
 
 func _return_to_plan() -> void:
@@ -788,7 +788,7 @@ func _refresh_plan() -> void:
 	call_deferred("_check_tutorial_gates")
 	_display(RULES.initial_world(page, plan.to_data()), true)
 	_show_facts({"facts": page.goal.facts.map(func(fact): return {"fact": fact, "met": false})})
-	_facts.add_theme_color_override("default_color", Color("243043"))
+	_facts.add_theme_color_override("default_color", INK)
 	_update_hooks()
 	_update_instructions()
 
@@ -1322,7 +1322,7 @@ func _show_payoff(result: Dictionary, rewards: Array[String] = []) -> void:
 	_stamp.text = "TWIST!" if won else "THE END...?"
 	_stamp.add_theme_font_size_override("font_size", 72 if won else 56)
 	_stamp.add_theme_color_override("font_color", Color("e0453a") if won else Color("f3ead8"))
-	_stamp.add_theme_color_override("font_outline_color", Color("243043"))
+	_stamp.add_theme_color_override("font_outline_color", INK)
 	_stamp.rotation = -0.12 if won else 0.06
 	_stamp.show()
 	var missing: Array[String] = []
@@ -1386,7 +1386,7 @@ func _emphasise(button: Button, primary: bool) -> void:
 	for state in ["normal", "hover", "pressed", "focus"]:
 		var box := StyleBoxFlat.new()
 		box.bg_color = Color("c0392b").lightened(0.1 if state == "hover" else 0.0)
-		box.border_color = Color("243043")
+		box.border_color = INK
 		box.set_border_width_all(2)
 		box.set_corner_radius_all(3)
 		box.content_margin_left = 14

@@ -16,8 +16,8 @@ var _star_total: Label
 var _credits_panel: Control
 var _credits_back: Button
 
-const INK := Color("243043")
-const PAPER := Color("f3ead8")
+const INK := Color("1e1b2e")
+const PAPER := Color("f4e9d2")
 const CARD := Color("fffaf0")
 const RED := Color("a4383e")
 const GOLD := Color("d9a521")
@@ -350,14 +350,14 @@ class _Bulb extends Control:
 		draw_circle(at, 70, Color(1, 0.88, 0.45, 0.20 * b))
 		draw_circle(at, 46, Color(1, 0.88, 0.45, 0.35 * b))
 		draw_circle(at, 30, Color("ffe17a").lerp(Color("7a7462"), 1.0 - b))
-		draw_arc(at, 30, 0, TAU, 40, Color("243043"), 4, true)
+		draw_arc(at, 30, 0, TAU, 40, INK, 4, true)
 		draw_set_transform(at, angle, Vector2.ONE)
-		draw_rect(Rect2(-14, -42, 28, 16), Color("243043"))
+		draw_rect(Rect2(-14, -42, 28, 16), INK)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		# Smile: Bulby is happy to see you.
-		draw_arc(at + Vector2(0, 4), 12, 0.3, PI - 0.3, 12, Color("243043"), 3, true)
-		draw_circle(at + Vector2(-9, -6), 3, Color("243043"))
-		draw_circle(at + Vector2(9, -6), 3, Color("243043"))
+		draw_arc(at + Vector2(0, 4), 12, 0.3, PI - 0.3, 12, INK, 3, true)
+		draw_circle(at + Vector2(-9, -6), 3, INK)
+		draw_circle(at + Vector2(9, -6), 3, INK)
 		if b > 0.6:
 			for i in 8:
 				var direction := Vector2.from_angle(TAU * i / 8.0 + angle)
@@ -393,7 +393,7 @@ class _Stars extends Control:
 				points.append(centre + Vector2.from_angle(-PI / 2 + k * PI / 5) * radius)
 			draw_colored_polygon(points, Color("f2c94c") if i < count else Color("e6dfcf"))
 			points.append(points[0])
-			draw_polyline(points, Color("243043"), 2.0, true)
+			draw_polyline(points, INK, 2.0, true)
 
 
 
