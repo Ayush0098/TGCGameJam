@@ -169,10 +169,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"If the Kid can see the cookie, he picks the cookie.",
 			"Light only the Kid and the broccoli. The cookie and the Dog stay dark.",
-			"Bulb at x 5.5, pulled all the way down: it lights x 4 to 7."
+			"Hang the bulb between the Kid and the broccoli and pull it low, so the light covers just those two."
 		],
 		"bonus_hints": [
 			"Leave the Kid dark. Light the Dog with the broccoli.",
-			"Give Grandma the Dog's hunger, then light Grandma, the Dog and the broccoli."
+			"Swap Grandma's and the Dog's thoughts so Grandma is hungry, then light Grandma, the Dog and the broccoli."
 		]
 	}

@@ -209,10 +209,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"Grandma can't see the cake behind the shelf, so a hungry Grandma just stands there.",
 			"Three-way swap: the Boss gets angry, Grandma gets hungry, the Kid gets scared.",
-			"Bulb at x 5: swap Boss and Grandma, then Grandma and the Kid."
+			"Light the Boss, the Kid and Grandma. Swap the Boss and Grandma, then swap Grandma and the Kid."
 		],
 		"bonus_hints": [
-			"Intern angry, Grandma scared, Boss hungry.",
-			"Swap only the Boss and Grandma."
+			"Give the Intern Grandma's anger, then swap Grandma and the Boss. Light the Kid, Grandma and the Intern.",
+			"Swap only the Boss and Grandma, and light the Boss, the Kid and Grandma."
 		]
 	}

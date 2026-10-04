@@ -196,10 +196,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"What if the Mouse was the angry one? A scared Cat just runs away.",
 			"Mouse angry, Cat sleepy: a three-way swap with Grandma. The Dog still needs waking.",
-			"Swap Cat and Mouse, then Cat and Grandma. Light the Cat and the Mouse (x 3.5, pulled down) and drop the spare bulb on the Dog (x 8)."
+			"Swap the Cat and the Mouse, then the Cat and Grandma. Light only the Cat and the Mouse, and drop the spare bulb on the Dog as ACTION starts."
 		],
 		"bonus_hints": [
-			"The twist's three-way swap, but light Grandma and the Cat and flick the Dog and the Mouse together.",
-			"Cat hungry, Dog angry. Light Grandma and the Cat and flick the Dog."
+			"Use the twist's swaps, but light Grandma and the Cat, then drop the spare bulb between the Mouse and the Dog.",
+			"Swap the Cat and the Dog. Light Grandma and the Cat, then drop the spare bulb on the Dog."
 		]
 	}

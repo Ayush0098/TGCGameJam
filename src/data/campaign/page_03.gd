@@ -183,10 +183,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"The Boss always beats the Dog to the cake. What if the Boss didn't want it?",
 			"Light the Dog and the Boss together and swap their thoughts.",
-			"Swap Dog and Boss, then pull the bulb down at x 5.5 so both stay lit."
+			"Swap the Dog's and the Boss's thoughts, and keep only those two in the light."
 		],
 		"bonus_hints": [
-			"Boss angry, Dog hungry, Intern sleepy: a three-way swap.",
-			"Dog angry, Intern hungry, Boss sleepy."
+			"Pass the Intern's anger along: swap the Intern and the Dog, then the Dog and the Boss. End with the Dog and the Boss lit.",
+			"Swap the Dog and the Boss first, then the Intern and the Dog. End with the Dog and the Intern lit."
 		]
 	}

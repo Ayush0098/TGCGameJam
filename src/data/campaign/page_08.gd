@@ -223,10 +223,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"The Mouse panics next to the Dog. What if it was sleepy instead?",
 			"Swap the Mouse and the Boss, and light the Dog and the Mouse. The cake corner still needs light.",
-			"Bulb at x 3. During ACTION, drop the spare bulb on the Cat (x 8): she bolts onto the pedal."
+			"Light only the Dog and the Mouse. As soon as ACTION starts, drop the spare bulb on the Cat: she panics onto the pedal."
 		],
 		"bonus_hints": [
-			"Mouse hungry, Dog scared. Light the Boss and the Mouse and flick the Intern awake.",
-			"Mouse hungry, Boss scared, Cat sleepy. Flick the Cat."
+			"Swap the Dog and the Mouse. Light the Mouse and the Boss, then drop the spare bulb on the Intern.",
+			"Swap the Dog and the Mouse, and the Boss and the Cat. Light the Mouse and the Boss, then drop the spare bulb on the Cat."
 		]
 	}

@@ -16,7 +16,7 @@ const FLICK_BEATS := 8
 
 
 func _initialize() -> void:
-	var only := Array(OS.get_cmdline_user_args()).filter(func(arg): return arg != "dump")
+	var only := Array(OS.get_cmdline_user_args()).filter(func(arg): return arg not in ["dump", "ideas"])
 	for script in MAIN.CAMPAIGN:
 		var checked: Dictionary = VALIDATOR.new().validate(script.definition())
 		if not checked.errors.is_empty():
@@ -155,8 +155,9 @@ func _audit(page: Dictionary) -> void:
 						woken.append(event.actor)
 				woken.sort()
 				var idea := str(a) + "|" + str(configs[key].lit) + "|" + str(woken)
-				if result.won:
-					star_ideas.twist[idea] = true
+				var example := "lanterns %s flick %s" % [str(configs[key].lanterns.filter(func(l): return l.enabled).map(func(l): return [l.x, l.y])), str(flick)]
+				if result.won and not star_ideas.twist.has(idea):
+					star_ideas.twist[idea] = example
 				if result.won:
 					wins += 1
 					win_arrangements[str(a)] = true
@@ -167,10 +168,15 @@ func _audit(page: Dictionary) -> void:
 					challenge.goal = {"facts": bonus.facts, "twist_caption": bonus.caption}
 					if GOALS.evaluate(challenge, run).won:
 						bonus_hits[bonus.id] = bonus_hits.get(bonus.id, 0) + 1
-						star_ideas.get_or_add(bonus.id, {})[idea] = true
+						if not star_ideas.get_or_add(bonus.id, {}).has(idea):
+							star_ideas[bonus.id][idea] = example
 	print("== %s %s: %d lit configs x %d arrangements x %d flick options = %d plans; wins %d (%.1f%%), wins without flick %d, winning arrangements %d; endings %d (endings_total %s); nothing %d; original wins: %s; %d ms" % [
 		page.id, page.title, configs.size(), arrangements.size(), flicks.size(), plans, wins, 100.0 * wins / maxf(1, plans), plain_wins, win_arrangements.size(), endings.size(), str(page.get("endings_total", "-")), nothing, str(original_won), Time.get_ticks_msec() - start])
 	print("   twist: %d ideas" % star_ideas.twist.size())
+	if "ideas" in OS.get_cmdline_user_args():
+		for star in star_ideas:
+			for idea in star_ideas[star]:
+				print("   IDEA %s: %s  e.g. %s" % [star, idea, star_ideas[star][idea]])
 	if "dump" in OS.get_cmdline_user_args():
 		var captions := endings.keys()
 		captions.sort()

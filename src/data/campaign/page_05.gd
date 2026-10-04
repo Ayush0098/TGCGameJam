@@ -195,10 +195,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"The Boss will always reach the cake before the Dog wakes up.",
 			"Take away the Boss's hunger, but someone still has to step on the pedal.",
-			"Bulb at x 3: swap Grandma and the Boss, and keep both lit."
+			"Swap Grandma's and the Boss's thoughts, and keep both of them in the light."
 		],
 		"bonus_hints": [
 			"Swap Grandma and the Intern, then light Grandma and the Boss.",
-			"Make the Boss scared and light him next to Grandma."
+			"Give the Boss Grandma's fear, and keep the Boss and Grandma lit."
 		]
 	}

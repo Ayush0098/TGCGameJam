@@ -1062,7 +1062,7 @@ static func definition() -> Dictionary:
 		"hints": [
 			"The Cat only goes for fish it can see.",
 			"Light the Cat and the fish, and keep the Dog in the dark.",
-			"Put the bulb at x 3: it lights the Cat and the fish but not the Dog."
+			"Hang the bulb between the Cat and the fish. Its light should reach both of them but stop before the Dog."
 		],
 		"bonus_hints": [
 			"Light the Dog and the cookie, not the fish."

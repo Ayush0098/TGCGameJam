@@ -202,10 +202,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"The Kid always reaches the pie first.",
 			"Give the Kid Grandma's sleepiness. A sleepy Kid heads for the armchair and steps on the pedal on the way.",
-			"Bulb at x 1: swap Kid and Grandma. Then move it to x 2.5, pulled down, so Grandma is dark."
+			"Light Grandma and the Kid and swap their thoughts. Then slide the bulb right so only the Kid stays lit."
 		],
 		"bonus_hints": [
-			"Same swap as the twist, but light hungry Grandma and leave the Kid's armchair dark.",
-			"Same swap as the twist: the Cat panics when the lamp comes on."
+			"Same swap as the twist, but this time keep Grandma in the light.",
+			"The twist solution earns this one too: the sleepy Kid steps on the pedal and the lamp scares the Cat away."
 		]
 	}

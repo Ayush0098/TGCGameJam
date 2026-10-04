@@ -197,10 +197,10 @@ static func definition() -> Dictionary:
 		"hints": [
 			"Grandma bonks whoever comes close. Who could walk past her?",
 			"Keep the Dog and the Kid dark. Light Grandma, the cake and the Boss.",
-			"Bulbs at x 6 and x 9: the Boss marches to the cake, clicks the pedal and meets Grandma."
+			"Hang one bulb over Grandma and the cake, the other over the Boss. He marches to the cake, steps on the pedal and meets Grandma."
 		],
 		"bonus_hints": [
-			"A big shuffle: Boss angry, Kid and Grandma hungry, Dog sleepy. One bulb on each side.",
-			"No swaps: light the Kid, the Dog and Grandma on the left."
+			"Swap Grandma and the Boss, and swap the Kid and the Dog. Then light the Boss and the Kid, one bulb on each side.",
+			"No swaps needed: light the Kid, the Dog and Grandma, and leave the Boss dark."
 		]
 	}

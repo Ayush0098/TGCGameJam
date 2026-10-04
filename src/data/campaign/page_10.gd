@@ -232,11 +232,11 @@ static func definition() -> Dictionary:
 		"hints": [
 			"Every lamp needs someone to cross its pedal, and two people are out of your reach.",
 			"Make the Boss hungry: swap Intern and Dog, then Boss and Intern.",
-			"Bulb at x 4. During ACTION, drop the spare bulb at x 1 so it wakes the Kid AND the Boss."
+			"Light the Intern and the Dog. As ACTION starts, drop the spare bulb between the Kid and the Boss so it wakes them both."
 		],
 		"bonus_hints": [
-			"Pass the Dog's hunger down the line to the Kid.",
-			"No swaps: light the Boss and flick the Cat awake."
+			"Pass the Dog's hunger down the line to the Kid: Dog to Intern, Intern to Boss, Boss to Kid.",
+			"No swaps needed: light only the Boss, then drop the spare bulb on the Cat."
 		],
 		"finale": true
 	}
