@@ -125,7 +125,7 @@ const INK := Color("243043")
 const PAPER := Color("f2e8cf")
 const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
 const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
-const SAVE_PATH := "user://lightbulb_campaign_v1.json"
+const SAVE_PATH := "user://lightbulb_campaign_v2.json"
 const BEAT_SECONDS := 0.4
 ## Visual walk time per beat; arrival lands just before CLAIMS (0.35).
 const MOVE_SECONDS := 0.34
@@ -801,7 +801,7 @@ func _update_buttons() -> void:
 	_next.disabled = mode != "RESULT" or not _won_current
 	_next.text = "THE END" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
 	_skip_page.disabled = failures < 3 or mode not in ["PLAN", "RESULT"]
-	var hints: Array = page.get("hints", [])
+	var hints: Array = _all_hints()
 	_hint_button.visible = not hints.is_empty() and _hints_shown < hints.size()
 	if is_instance_valid(_hint_hud):
 		_hint_hud.visible = mode == "PLAN" and not hints.is_empty()
@@ -1405,7 +1405,7 @@ func _clear_flick() -> void:
 
 func _show_hint() -> void:
 	# Bulby's hints: a nudge, the key character, then the move itself.
-	var hints: Array = page.get("hints", [])
+	var hints: Array = _all_hints()
 	if _hints_shown >= hints.size() or mode not in ["PLAN", "RESULT"]:
 		return
 	var text := str(hints[_hints_shown]).trim_prefix("ghost: ")
@@ -2373,3 +2373,12 @@ func _show_intro_card() -> void:
 			_finish_tutorial())
 		card.add_child(skip)
 	_intro_card.show()
+
+
+
+func _all_hints() -> Array:
+	# Main-goal hints first (step by step), then one hint per bonus headline.
+	var hints: Array = page.get("hints", []).duplicate()
+	for line in page.get("bonus_hints", []):
+		hints.append("Bonus: " + str(line))
+	return hints

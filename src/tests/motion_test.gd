@@ -9,7 +9,12 @@ func run(check: Callable) -> bool:
 	(Engine.get_main_loop() as SceneTree).root.add_child(game)
 	game._on_front_start()
 	game._stop_voice()
-	game._load_page(5)
+	var birthday := 0
+	for index in game.PAGE_SCRIPTS.size():
+		if game.PAGE_SCRIPTS[index].definition().title == "The Boss's Birthday":
+			birthday = index
+	game.tutorial_done = true
+	game._load_page(birthday)
 	game._finish_run()
 	game._process(0.7)
 	game._move_lantern(0, Vector2(3.0, -0.6))

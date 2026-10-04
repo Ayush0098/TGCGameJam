@@ -200,8 +200,12 @@ static func definition() -> Dictionary:
 			"Stepping on a pedal turns on its lamp. Anyone it lights wakes up next beat."
 		],
 		"hints": [
-			"The Kid steps on the pedal on the way.",
-			"Give the Kid Grandma's sleepiness, then leave Grandma in the dark.",
-			"ghost: lantern x 1, swap Kid and Grandma, lantern x 3"
+			"The Kid always reaches the pie first.",
+			"Give the Kid Grandma's sleepiness. A sleepy Kid heads for the armchair and steps on the pedal on the way.",
+			"Bulb at x 1: swap Kid and Grandma. Then move it to x 2.5, pulled down, so Grandma is dark."
+		],
+		"bonus_hints": [
+			"Same swap as the twist, but light hungry Grandma and leave the Kid's armchair dark.",
+			"Same swap as the twist: the Cat panics when the lamp comes on."
 		]
 	}

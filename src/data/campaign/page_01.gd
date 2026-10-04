@@ -870,8 +870,11 @@ static func definition() -> Dictionary:
 			"resume_panel_on_reopen": true
 		},
 		"hints": [
-			"The Cat can't eat what it can't see.",
-			"Light the Cat and the fish together, not the Dog.",
-			"ghost: lantern at x 3, y -0.6"
+			"The Cat only goes for fish it can see.",
+			"Light the Cat and the fish, and keep the Dog in the dark.",
+			"Put the bulb at x 3: it lights the Cat and the fish but not the Dog."
+		],
+		"bonus_hints": [
+			"Light the Dog and the cookie, not the fish."
 		]
 	}

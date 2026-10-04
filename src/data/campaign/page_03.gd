@@ -7,9 +7,9 @@ static func definition() -> Dictionary:
 	return {
 		"id": "page_03",
 		"number": 3,
-		"room": "kitchen",
-		"narration_key": "greens",
-		"title": "Eat Your Greens",
+		"room": "living_room",
+		"narration_key": "nap",
+		"title": "Nap Time",
 		"difficulty": "green",
 		"width": 11,
 		"rail_span": [
@@ -19,7 +19,7 @@ static func definition() -> Dictionary:
 		"spotlights": {
 			"count": 1,
 			"default_centres": [
-				3
+				7
 			]
 		},
 		"lanterns": {
@@ -33,7 +33,7 @@ static func definition() -> Dictionary:
 			"count": 1,
 			"defaults": [
 				{
-					"x": 3.0,
+					"x": 7.0,
 					"y": -0.6,
 					"enabled": true
 				},
@@ -46,79 +46,82 @@ static func definition() -> Dictionary:
 		},
 		"obstacles": [],
 		"flick": 0,
-		"fixed_lights": [],
+		"fixed_lights": [
+			[
+				1,
+				2
+			],
+			[
+				9,
+				9
+			]
+		],
 		"lamps": [],
 		"characters": [
 			{
-				"id": "kid",
-				"name": "Kid",
-				"art": "kid",
-				"slot": 4,
+				"id": "intern",
+				"name": "Intern",
+				"art": "intern",
+				"slot": 3,
 				"facing": "R",
-				"thought": "HUNGRY",
-				"contradiction": false
+				"thought": "ANGRY",
+				"contradiction": true
 			},
 			{
 				"id": "dog",
 				"name": "Dog",
 				"art": "dog",
-				"slot": 8,
-				"facing": "L",
-				"thought": "HUNGRY",
+				"slot": 5,
+				"facing": "R",
+				"thought": "SLEEPY",
 				"contradiction": false
 			},
 			{
-				"id": "grandma",
-				"name": "Grandma",
-				"art": "grandma",
-				"slot": 10,
+				"id": "boss",
+				"name": "Boss",
+				"art": "boss",
+				"slot": 7,
 				"facing": "L",
-				"thought": "SLEEPY",
-				"contradiction": true
+				"thought": "HUNGRY",
+				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "armchair",
+				"id": "dog_bed",
 				"type": "SEAT",
-				"art": "armchair",
-				"slot": 0
-			},
-			{
-				"id": "cookie",
-				"type": "FOOD",
-				"art": "cookie",
+				"art": "dog_bed",
 				"slot": 2
 			},
 			{
-				"id": "broccoli",
+				"id": "cake",
 				"type": "FOOD",
-				"art": "broccoli",
-				"slot": 7
+				"art": "cake",
+				"slot": 9
 			}
 		],
-		"original_caption": "The Kid ate the cookie.",
-		"endings_total": 5,
+		"original_caption": "The Boss ate the cake.",
+		"endings_total": 17,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE DOG EATS HIS GREENS",
+				"caption": "THE BOSS BONKS THE DOG",
 				"facts": [
 					{
-						"type": "ATE",
-						"character": "dog",
-						"object": "broccoli"
+						"type": "BONKED",
+						"character": "boss",
+						"target": "dog"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "GRANDMA EATS THE BROCCOLI",
+				"caption": "THE DOG BONKS THE INTERN",
 				"facts": [
 					{
-						"type": "ATE",
-						"character": "grandma",
-						"object": "broccoli"
+						"type": "BONKED",
+						"character": "dog",
+						"target": "intern"
 					}
 				]
 			}
@@ -127,48 +130,63 @@ static func definition() -> Dictionary:
 			"facts": [
 				{
 					"type": "ATE",
-					"character": "kid",
-					"object": "broccoli"
+					"character": "dog",
+					"object": "cake"
+				},
+				{
+					"type": "ASLEEP",
+					"character": "boss",
+					"object": "dog_bed"
 				}
 			],
-			"twist_caption": "The Kid ate the BROCCOLI.",
+			"twist_caption": "The DOG ate the cake. The BOSS napped in the dog bed.",
 			"red_pen_words": [
-				"BROCCOLI"
+				"DOG",
+				"BOSS"
 			]
 		},
 		"narration": {
-			"intro": "Dinner rules: greens first. The Kid has other plans, and the Dog has a nose.",
-			"win": "The Kid ate the broccoli. Nobody saw the cookie. Nobody will ever know.",
-			"fail": "The broccoli survives another day."
+			"intro": "Sunday afternoon. The fire is warm, the cake is waiting, and the Boss is in charge. As usual.",
+			"win": "The Dog got the cake. The Boss got the dog bed. Nobody is telling HR.",
+			"fail": "That's one ending. Not the one we wanted."
 		},
 		"dialogue": [
 			{
-				"character": "kid",
+				"character": "boss",
 				"when": "lit",
-				"line": "Cookie! Cookie! Cookie!"
+				"line": "Cake time. Boss privileges."
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Is someone not eating that?"
+				"line": "Five more minutes..."
 			},
 			{
-				"character": "grandma",
+				"character": "intern",
 				"when": "lit",
-				"line": "Eat your greens, dear."
+				"line": "Don't look at me like that."
 			},
 			{
-				"character": "kid",
+				"character": "boss",
+				"when": "swap",
+				"line": "Suddenly... so... sleepy..."
+			},
+			{
+				"character": "dog",
 				"when": "win",
-				"line": "...Huh. Not bad."
+				"line": "Best. Nap. Ever. Wait, I ate cake."
 			}
 		],
 		"tutorial": [
-			"Pull the bulb down for a wider light."
+			"Drag a thought bubble onto another lit character to swap their thoughts."
 		],
 		"hints": [
-			"If the Kid can see the cookie, he picks the cookie.",
-			"Light only the Kid and the broccoli. Pull the bulb down to reach both.",
-			"ghost: lantern at x 5.5, pulled all the way down"
+			"The Boss always beats the Dog to the cake. What if the Boss didn't want it?",
+			"Light the Dog and the Boss together and swap their thoughts.",
+			"Swap Dog and Boss, then pull the bulb down at x 5.5 so both stay lit."
+		],
+		"bonus_hints": [
+			"Boss angry, Dog hungry, Intern sleepy: a three-way swap.",
+			"Dog angry, Intern hungry, Boss sleepy."
 		]
 	}

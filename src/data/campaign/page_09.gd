@@ -7,9 +7,9 @@ static func definition() -> Dictionary:
 	return {
 		"id": "page_09",
 		"number": 9,
-		"room": "office",
-		"narration_key": "powercut",
-		"title": "Power Cut",
+		"room": "living_room",
+		"narration_key": "catmouse",
+		"title": "Cat & Mouse",
 		"difficulty": "red",
 		"width": 11,
 		"rail_span": [
@@ -25,10 +25,10 @@ static func definition() -> Dictionary:
 		"lanterns": {
 			"radius": 1.6,
 			"bounds": [
-				3.0,
+				0.0,
 				-1.2,
-				6.0,
-				-0.6
+				10.0,
+				0.6
 			],
 			"count": 1,
 			"defaults": [
@@ -38,7 +38,7 @@ static func definition() -> Dictionary:
 					"enabled": true
 				},
 				{
-					"x": 3.0,
+					"x": 0.0,
 					"y": -0.6,
 					"enabled": false
 				}
@@ -47,41 +47,13 @@ static func definition() -> Dictionary:
 		"obstacles": [],
 		"flick": 1,
 		"fixed_lights": [],
-		"lamps": [
-			{
-				"id": "lamp",
-				"zone": [
-					0,
-					2
-				],
-				"switch_id": "pedal",
-				"initially_on": false
-			}
-		],
+		"lamps": [],
 		"characters": [
 			{
-				"id": "dog",
-				"name": "Dog",
-				"art": "dog",
-				"slot": 2,
-				"facing": "R",
-				"thought": "HUNGRY",
-				"contradiction": false
-			},
-			{
-				"id": "mouse",
-				"name": "Mouse",
-				"art": "mouse",
-				"slot": 3,
-				"facing": "L",
-				"thought": "SCARED",
-				"contradiction": true
-			},
-			{
-				"id": "boss",
-				"name": "Boss",
-				"art": "boss",
-				"slot": 5,
+				"id": "grandma",
+				"name": "Grandma",
+				"art": "grandma",
+				"slot": 0,
 				"facing": "R",
 				"thought": "SLEEPY",
 				"contradiction": false
@@ -90,78 +62,75 @@ static func definition() -> Dictionary:
 				"id": "cat",
 				"name": "Cat",
 				"art": "cat",
-				"slot": 7,
+				"slot": 3,
 				"facing": "R",
-				"thought": "SCARED",
+				"thought": "ANGRY",
 				"contradiction": false
 			},
 			{
-				"id": "intern",
-				"name": "Intern",
-				"art": "intern",
-				"slot": 10,
-				"facing": "R",
-				"thought": "ANGRY",
+				"id": "mouse",
+				"name": "Mouse",
+				"art": "mouse",
+				"slot": 5,
+				"facing": "L",
+				"thought": "SCARED",
+				"contradiction": true
+			},
+			{
+				"id": "dog",
+				"name": "Dog",
+				"art": "dog",
+				"slot": 7,
+				"facing": "L",
+				"thought": "HUNGRY",
 				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "pie",
-				"type": "FOOD",
-				"art": "pie",
-				"slot": 0
-			},
-			{
-				"id": "armchair",
+				"id": "rocker",
 				"type": "SEAT",
-				"art": "armchair",
+				"art": "rocker",
 				"slot": 1
 			},
 			{
-				"id": "pedal",
-				"type": "SWITCH",
-				"art": "pedal",
-				"slot": 8
-			},
-			{
-				"id": "cake",
+				"id": "cheese",
 				"type": "FOOD",
-				"art": "cake",
+				"art": "cheese",
 				"slot": 9
 			}
 		],
-		"original_caption": "The Mouse ran out of the comic.",
-		"endings_total": 113,
+		"original_caption": "The Cat chased the Mouse out of the comic.",
+		"endings_total": 132,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "THE BOSS NAPS, THE INTERN BONKS THE MOUSE",
+				"caption": "GRANDMA RUNS OFF, THE MOUSE BONKS THE DOG",
 				"facts": [
 					{
-						"type": "ASLEEP",
-						"character": "boss",
-						"object": "armchair"
+						"type": "EXITED",
+						"character": "grandma"
 					},
 					{
 						"type": "BONKED",
-						"character": "intern",
-						"target": "mouse"
+						"character": "mouse",
+						"target": "dog"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE BOSS FLEES, THE MOUSE GETS THE CAKE",
+				"caption": "GRANDMA NAPS, THE DOG BONKS THE CAT",
 				"facts": [
 					{
-						"type": "EXITED",
-						"character": "boss"
+						"type": "ASLEEP",
+						"character": "grandma",
+						"object": "rocker"
 					},
 					{
-						"type": "ATE",
-						"character": "mouse",
-						"object": "cake"
+						"type": "BONKED",
+						"character": "dog",
+						"target": "cat"
 					}
 				]
 			}
@@ -169,58 +138,68 @@ static func definition() -> Dictionary:
 		"goal": {
 			"facts": [
 				{
-					"type": "ASLEEP",
+					"type": "BONKED",
 					"character": "mouse",
-					"object": "armchair"
+					"target": "cat"
 				},
 				{
 					"type": "ATE",
 					"character": "dog",
-					"object": "cake"
+					"object": "cheese"
 				}
 			],
-			"twist_caption": "The MOUSE napped in the armchair. The DOG ate the cake.",
+			"twist_caption": "The MOUSE bonked the CAT. The DOG got the cheese.",
 			"red_pen_words": [
 				"MOUSE",
+				"CAT",
 				"DOG"
 			]
 		},
 		"narration": {
-			"intro": "The power's out. Only your bulb, one lamp pedal and one spare bulb. The cake is somewhere in the dark.",
-			"win": "The lights came back on. The Mouse was asleep and the cake was gone. Good Dog.",
-			"fail": "Still dark in here."
+			"intro": "Every day the Cat chases the Mouse off the page. Today, you have a spare bulb.",
+			"win": "The Mouse bonked the Cat, and the Dog got the cheese. Small, but furious.",
+			"fail": "The chase went the usual way."
 		},
 		"dialogue": [
 			{
+				"character": "cat",
+				"when": "lit",
+				"line": "Here, mousey mousey."
+			},
+			{
 				"character": "mouse",
 				"when": "lit",
-				"line": "Who turned off the lights?!"
-			},
-			{
-				"character": "dog",
-				"when": "lit",
-				"line": "I can smell it, I just can't see it."
-			},
-			{
-				"character": "boss",
-				"when": "lit",
-				"line": "Is this a fire drill?"
+				"line": "Eep!"
 			},
 			{
 				"character": "mouse",
 				"when": "swap",
-				"line": "Actually... dark is cosy."
+				"line": "Oh, it's ON."
+			},
+			{
+				"character": "cat",
+				"when": "swap",
+				"line": "Is it nap time already?"
 			},
 			{
 				"character": "dog",
+				"when": "lit",
+				"line": "Cheese? Cheese."
+			},
+			{
+				"character": "mouse",
 				"when": "win",
-				"line": "Found it!"
+				"line": "And STAY out!"
 			}
 		],
 		"tutorial": [],
 		"hints": [
-			"The Mouse panics next to the Dog. What if it was sleepy instead?",
-			"Swap the Mouse and the Boss, then light up the cake corner right away.",
-			"ghost: swap Mouse and Boss, spare bulb on x 8 at beat 1"
+			"What if the Mouse was the angry one? A scared Cat just runs away.",
+			"Mouse angry, Cat sleepy: a three-way swap with Grandma. The Dog still needs waking.",
+			"Swap Cat and Mouse, then Cat and Grandma. Light the Cat and the Mouse (x 3.5, pulled down) and drop the spare bulb on the Dog (x 8)."
+		],
+		"bonus_hints": [
+			"The twist's three-way swap, but light Grandma and the Cat and flick the Dog and the Mouse together.",
+			"Cat hungry, Dog angry. Light Grandma and the Cat and flick the Dog."
 		]
 	}

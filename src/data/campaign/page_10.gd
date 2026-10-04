@@ -69,6 +69,15 @@ static func definition() -> Dictionary:
 		],
 		"characters": [
 			{
+				"id": "kid",
+				"name": "Kid",
+				"art": "kid",
+				"slot": 0,
+				"facing": "R",
+				"thought": "ANGRY",
+				"contradiction": false
+			},
+			{
 				"id": "boss",
 				"name": "Boss",
 				"art": "boss",
@@ -141,19 +150,15 @@ static func definition() -> Dictionary:
 			}
 		],
 		"original_caption": "The Boss and the Intern had the same bad idea.",
-		"endings_total": 19,
+		"endings_total": 57,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "GRANDMA RUNS OFF, THE DOG GETS THE CAKE",
+				"caption": "THE KID GETS THE CAKE",
 				"facts": [
 					{
-						"type": "EXITED",
-						"character": "grandma"
-					},
-					{
 						"type": "ATE",
-						"character": "dog",
+						"character": "kid",
 						"object": "cake"
 					}
 				]
@@ -216,13 +221,22 @@ static func definition() -> Dictionary:
 				"character": "cat",
 				"when": "win",
 				"line": "Fine. That was a good one."
+			},
+			{
+				"character": "kid",
+				"when": "lit",
+				"line": "Is it my turn yet?"
 			}
 		],
 		"tutorial": [],
 		"hints": [
-			"Each lamp needs someone to walk over its pedal.",
-			"Somebody has to cross the room, and your spare bulb can give them a reason.",
-			"ghost: swaps Intern-Dog then Boss-Intern, lantern at x 4, spare bulb on the Boss at beat 1"
+			"Every lamp needs someone to cross its pedal, and two people are out of your reach.",
+			"Make the Boss hungry: swap Intern and Dog, then Boss and Intern.",
+			"Bulb at x 4. During ACTION, drop the spare bulb at x 1 so it wakes the Kid AND the Boss."
+		],
+		"bonus_hints": [
+			"Pass the Dog's hunger down the line to the Kid.",
+			"No swaps: light the Boss and flick the Cat awake."
 		],
 		"finale": true
 	}

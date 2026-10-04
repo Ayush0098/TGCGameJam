@@ -7,9 +7,9 @@ static func definition() -> Dictionary:
 	return {
 		"id": "page_06",
 		"number": 6,
-		"room": "office",
-		"narration_key": "birthday",
-		"title": "The Boss's Birthday",
+		"room": "living_room",
+		"narration_key": "revenge",
+		"title": "Grandma's Revenge",
 		"difficulty": "yellow",
 		"width": 11,
 		"rail_span": [
@@ -17,9 +17,9 @@ static func definition() -> Dictionary:
 			10
 		],
 		"spotlights": {
-			"count": 1,
+			"count": 2,
 			"default_centres": [
-				5
+				4
 			]
 		},
 		"lanterns": {
@@ -27,13 +27,13 @@ static func definition() -> Dictionary:
 			"bounds": [
 				0.0,
 				-1.2,
-				5.0,
-				-0.6
+				10.0,
+				0.6
 			],
-			"count": 1,
+			"count": 2,
 			"defaults": [
 				{
-					"x": 5.0,
+					"x": 4.0,
 					"y": -0.6,
 					"enabled": true
 				},
@@ -51,8 +51,8 @@ static func definition() -> Dictionary:
 			{
 				"id": "lamp",
 				"zone": [
-					6,
-					10
+					3,
+					4
 				],
 				"switch_id": "pedal",
 				"initially_on": false
@@ -60,37 +60,37 @@ static func definition() -> Dictionary:
 		],
 		"characters": [
 			{
-				"id": "intern",
-				"name": "Intern",
-				"art": "intern",
+				"id": "kid",
+				"name": "Kid",
+				"art": "kid",
 				"slot": 1,
 				"facing": "R",
-				"thought": "ANGRY",
-				"contradiction": true
-			},
-			{
-				"id": "grandma",
-				"name": "Grandma",
-				"art": "grandma",
-				"slot": 2,
-				"facing": "R",
-				"thought": "SCARED",
-				"contradiction": true
-			},
-			{
-				"id": "boss",
-				"name": "Boss",
-				"art": "boss",
-				"slot": 4,
-				"facing": "R",
-				"thought": "HUNGRY",
+				"thought": "SLEEPY",
 				"contradiction": false
 			},
 			{
 				"id": "dog",
 				"name": "Dog",
 				"art": "dog",
-				"slot": 9,
+				"slot": 4,
+				"facing": "R",
+				"thought": "HUNGRY",
+				"contradiction": false
+			},
+			{
+				"id": "grandma",
+				"name": "Grandma",
+				"art": "grandma",
+				"slot": 5,
+				"facing": "L",
+				"thought": "ANGRY",
+				"contradiction": true
+			},
+			{
+				"id": "boss",
+				"name": "Boss",
+				"art": "boss",
+				"slot": 10,
 				"facing": "L",
 				"thought": "HUNGRY",
 				"contradiction": false
@@ -98,45 +98,51 @@ static func definition() -> Dictionary:
 		],
 		"objects": [
 			{
-				"id": "office_chair",
+				"id": "chair",
 				"type": "SEAT",
-				"art": "office_chair",
+				"art": "chair",
 				"slot": 0
 			},
 			{
 				"id": "cake",
 				"type": "FOOD",
 				"art": "cake",
-				"slot": 6
+				"slot": 7
 			},
 			{
 				"id": "pedal",
 				"type": "SWITCH",
 				"art": "pedal",
-				"slot": 7
+				"slot": 8
 			}
 		],
-		"original_caption": "The Boss ate the birthday cake.",
-		"endings_total": 12,
+		"original_caption": "Grandma bonked the Dog.",
+		"endings_total": 58,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "GRANDMA BONKS THE BOSS",
+				"caption": "THE BOSS BONKS THE KID",
 				"facts": [
 					{
 						"type": "BONKED",
-						"character": "grandma",
-						"target": "boss"
+						"character": "boss",
+						"target": "kid"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "THE BOSS RUNS OUT OF HIS OWN PARTY",
+				"caption": "THE KID NAPS THROUGH THE BONKING",
 				"facts": [
 					{
-						"type": "EXITED",
-						"character": "boss"
+						"type": "ASLEEP",
+						"character": "kid",
+						"object": "chair"
+					},
+					{
+						"type": "BONKED",
+						"character": "grandma",
+						"target": "dog"
 					}
 				]
 			}
@@ -144,57 +150,57 @@ static func definition() -> Dictionary:
 		"goal": {
 			"facts": [
 				{
+					"type": "BONKED",
+					"character": "grandma",
+					"target": "boss"
+				},
+				{
 					"type": "ATE",
 					"character": "dog",
 					"object": "cake"
 				}
 			],
-			"twist_caption": "The DOG ate the birthday cake.",
+			"twist_caption": "Grandma bonked the BOSS. The DOG ate the cake.",
 			"red_pen_words": [
+				"BOSS",
 				"DOG"
 			]
 		},
 		"narration": {
-			"intro": "It's the Boss's birthday. There's cake. There's a desk lamp on a pedal. There's a very hungry Dog in the dark.",
-			"win": "Happy birthday, Boss. The Dog says thanks for the cake.",
-			"fail": "The party went on without the twist."
+			"intro": "Grandma has had enough of everyone. Somebody's getting bonked. Let's choose who.",
+			"win": "Grandma got her revenge on the right person, and the Dog got the cake. Justice!",
+			"fail": "Wrong target, Grandma."
 		},
 		"dialogue": [
 			{
+				"character": "grandma",
+				"when": "lit",
+				"line": "Somebody is getting it."
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Cake? Cake!"
+			},
+			{
 				"character": "boss",
 				"when": "lit",
-				"line": "My cake. My party. My cake."
+				"line": "Is that cake for me?"
 			},
 			{
 				"character": "grandma",
-				"when": "lit",
-				"line": "Oh my, so many people!"
-			},
-			{
-				"character": "intern",
-				"when": "lit",
-				"line": "Nobody invited me."
-			},
-			{
-				"character": "dog",
-				"when": "lit",
-				"line": "I heard cake."
-			},
-			{
-				"character": "boss",
-				"when": "swap",
-				"line": "Why is everyone looking at me?!"
-			},
-			{
-				"character": "dog",
 				"when": "win",
-				"line": "Best party ever."
+				"line": "That's for the birthday!"
 			}
 		],
 		"tutorial": [],
 		"hints": [
-			"Sweet Grandma isn't as calm as she looks.",
-			"Make someone run right past the pedal.",
-			"ghost: swap Grandma and Boss, lantern at x 3"
+			"Grandma bonks whoever comes close. Who could walk past her?",
+			"Keep the Dog and the Kid dark. Light Grandma, the cake and the Boss.",
+			"Bulbs at x 6 and x 9: the Boss marches to the cake, clicks the pedal and meets Grandma."
+		],
+		"bonus_hints": [
+			"A big shuffle: Boss angry, Kid and Grandma hungry, Dog sleepy. One bulb on each side.",
+			"No swaps: light the Kid, the Dog and Grandma on the left."
 		]
 	}

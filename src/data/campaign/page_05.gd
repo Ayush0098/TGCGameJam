@@ -7,9 +7,9 @@ static func definition() -> Dictionary:
 	return {
 		"id": "page_05",
 		"number": 5,
-		"room": "living_room",
-		"narration_key": "catmouse",
-		"title": "Cat & Mouse",
+		"room": "office",
+		"narration_key": "birthday",
+		"title": "The Boss's Birthday",
 		"difficulty": "yellow",
 		"width": 11,
 		"rail_span": [
@@ -19,7 +19,7 @@ static func definition() -> Dictionary:
 		"spotlights": {
 			"count": 1,
 			"default_centres": [
-				4
+				5
 			]
 		},
 		"lanterns": {
@@ -27,13 +27,13 @@ static func definition() -> Dictionary:
 			"bounds": [
 				0.0,
 				-1.2,
-				10.0,
-				0.6
+				5.0,
+				-0.6
 			],
 			"count": 1,
 			"defaults": [
 				{
-					"x": 4.0,
+					"x": 5.0,
 					"y": -0.6,
 					"enabled": true
 				},
@@ -45,42 +45,52 @@ static func definition() -> Dictionary:
 			]
 		},
 		"obstacles": [],
-		"flick": 1,
+		"flick": 0,
 		"fixed_lights": [],
-		"lamps": [],
+		"lamps": [
+			{
+				"id": "lamp",
+				"zone": [
+					6,
+					10
+				],
+				"switch_id": "pedal",
+				"initially_on": false
+			}
+		],
 		"characters": [
+			{
+				"id": "intern",
+				"name": "Intern",
+				"art": "intern",
+				"slot": 1,
+				"facing": "R",
+				"thought": "ANGRY",
+				"contradiction": true
+			},
 			{
 				"id": "grandma",
 				"name": "Grandma",
 				"art": "grandma",
-				"slot": 0,
+				"slot": 2,
 				"facing": "R",
-				"thought": "SLEEPY",
-				"contradiction": false
-			},
-			{
-				"id": "cat",
-				"name": "Cat",
-				"art": "cat",
-				"slot": 3,
-				"facing": "R",
-				"thought": "ANGRY",
-				"contradiction": false
-			},
-			{
-				"id": "mouse",
-				"name": "Mouse",
-				"art": "mouse",
-				"slot": 5,
-				"facing": "L",
 				"thought": "SCARED",
 				"contradiction": true
+			},
+			{
+				"id": "boss",
+				"name": "Boss",
+				"art": "boss",
+				"slot": 4,
+				"facing": "R",
+				"thought": "HUNGRY",
+				"contradiction": false
 			},
 			{
 				"id": "dog",
 				"name": "Dog",
 				"art": "dog",
-				"slot": 7,
+				"slot": 9,
 				"facing": "L",
 				"thought": "HUNGRY",
 				"contradiction": false
@@ -88,49 +98,45 @@ static func definition() -> Dictionary:
 		],
 		"objects": [
 			{
-				"id": "rocker",
+				"id": "office_chair",
 				"type": "SEAT",
-				"art": "rocker",
-				"slot": 1
+				"art": "office_chair",
+				"slot": 0
 			},
 			{
-				"id": "cheese",
+				"id": "cake",
 				"type": "FOOD",
-				"art": "cheese",
-				"slot": 9
+				"art": "cake",
+				"slot": 6
+			},
+			{
+				"id": "pedal",
+				"type": "SWITCH",
+				"art": "pedal",
+				"slot": 7
 			}
 		],
-		"original_caption": "The Cat chased the Mouse out of the comic.",
-		"endings_total": 132,
+		"original_caption": "The Boss ate the birthday cake.",
+		"endings_total": 12,
 		"bonus": [
 			{
 				"id": "headline_1",
-				"caption": "GRANDMA RUNS OFF, THE MOUSE BONKS THE DOG",
+				"caption": "GRANDMA BONKS THE BOSS",
 				"facts": [
 					{
-						"type": "EXITED",
-						"character": "grandma"
-					},
-					{
 						"type": "BONKED",
-						"character": "mouse",
-						"target": "dog"
+						"character": "grandma",
+						"target": "boss"
 					}
 				]
 			},
 			{
 				"id": "headline_2",
-				"caption": "GRANDMA NAPS, THE DOG BONKS THE CAT",
+				"caption": "THE BOSS RUNS OUT OF HIS OWN PARTY",
 				"facts": [
 					{
-						"type": "ASLEEP",
-						"character": "grandma",
-						"object": "rocker"
-					},
-					{
-						"type": "BONKED",
-						"character": "dog",
-						"target": "cat"
+						"type": "EXITED",
+						"character": "boss"
 					}
 				]
 			}
@@ -138,66 +144,61 @@ static func definition() -> Dictionary:
 		"goal": {
 			"facts": [
 				{
-					"type": "BONKED",
-					"character": "mouse",
-					"target": "cat"
-				},
-				{
 					"type": "ATE",
 					"character": "dog",
-					"object": "cheese"
+					"object": "cake"
 				}
 			],
-			"twist_caption": "The MOUSE bonked the CAT. The DOG got the cheese.",
+			"twist_caption": "The DOG ate the birthday cake.",
 			"red_pen_words": [
-				"MOUSE",
-				"CAT",
 				"DOG"
 			]
 		},
 		"narration": {
-			"intro": "Every day the Cat chases the Mouse off the page. Today, you have a spare bulb.",
-			"win": "The Mouse bonked the Cat, and the Dog got the cheese. Small, but furious.",
-			"fail": "The chase went the usual way."
+			"intro": "It's the Boss's birthday. There's cake. There's a desk lamp on a pedal. There's a very hungry Dog in the dark.",
+			"win": "Happy birthday, Boss. The Dog says thanks for the cake.",
+			"fail": "The party went on without the twist."
 		},
 		"dialogue": [
 			{
-				"character": "cat",
+				"character": "boss",
 				"when": "lit",
-				"line": "Here, mousey mousey."
+				"line": "My cake. My party. My cake."
 			},
 			{
-				"character": "mouse",
+				"character": "grandma",
 				"when": "lit",
-				"line": "Eep!"
+				"line": "Oh my, so many people!"
 			},
 			{
-				"character": "mouse",
-				"when": "swap",
-				"line": "Oh, it's ON."
-			},
-			{
-				"character": "cat",
-				"when": "swap",
-				"line": "Is it nap time already?"
+				"character": "intern",
+				"when": "lit",
+				"line": "Nobody invited me."
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Cheese? Cheese."
+				"line": "I heard cake."
 			},
 			{
-				"character": "mouse",
+				"character": "boss",
+				"when": "swap",
+				"line": "Why is everyone looking at me?!"
+			},
+			{
+				"character": "dog",
 				"when": "win",
-				"line": "And STAY out!"
+				"line": "Best party ever."
 			}
 		],
-		"tutorial": [
-			"During ACTION, click the rail once to drop your spare bulb. It lights the spot from that moment on."
-		],
+		"tutorial": [],
 		"hints": [
-			"What if the Mouse was the angry one? A scared Cat just runs away.",
-			"Mouse angry, Cat sleepy: a three-way swap with Grandma. Then wake the Dog with your spare bulb.",
-			"ghost: swap Cat-Mouse, then Cat-Grandma, lantern at x 3.5, spare bulb on x 8 at beat 1"
+			"The Boss will always reach the cake before the Dog wakes up.",
+			"Take away the Boss's hunger, but someone still has to step on the pedal.",
+			"Bulb at x 3: swap Grandma and the Boss, and keep both lit."
+		],
+		"bonus_hints": [
+			"Swap Grandma and the Intern, then light Grandma and the Boss.",
+			"Make the Boss scared and light him next to Grandma."
 		]
 	}
