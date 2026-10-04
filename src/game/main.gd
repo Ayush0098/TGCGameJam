@@ -85,6 +85,22 @@ var _pages_button: Button
 var _lanterns_useful := true
 var skipped: Dictionary = {}
 var _hint_button: Button
+# Game HUD (design/ui.md §5): title top-centre, goal clipping, ☰ / ⟲ / ACTION.
+var _pause_button: Button
+var _goal_card: Panel
+var _result_card: Panel
+var _result_title: Label
+var _result_caption: Label
+var _result_facts: RichTextLabel
+var _result_restart: Button
+var _levels_button: Button
+var _compare_button: Button
+var _tab_bar: HBoxContainer
+var _tab_original: Button
+var _tab_twist: Button
+var _legend: Label
+var _tier_band: ColorRect
+const TIER_COLOURS := [Color("3a8d4f"), Color("d9a521"), Color("c0392b")]
 var _hints_shown := 0
 var _stamp: Label
 var _stamp_tween: Tween
@@ -120,6 +136,7 @@ func _ready() -> void:
 		return
 	PAGE_SCRIPTS = page_override if not page_override.is_empty() else CAMPAIGN
 	_build_ui()
+	_load_settings()
 	_load_progress()
 	_load_page(0)
 	_front = FRONT.new()
@@ -130,6 +147,9 @@ func _ready() -> void:
 	_front.start_requested.connect(_on_front_start)
 	_front.page_requested.connect(_on_front_page)
 	_front.closed.connect(_update_buttons)
+	_front.settings_requested.connect(_open_settings)
+	_update_star_total()
+	_update_star_total()
 	_front.show_title(not completed.is_empty())
 
 
@@ -324,6 +344,7 @@ func _build_ui() -> void:
 			if cue is Dictionary and ResourceLoader.exists(cue.get("audio", "")):
 				_cues[cue.id] = cue
 	_update_voice_buttons()
+	_restyle_hud()
 
 
 func _layout_ui() -> void:
@@ -586,9 +607,10 @@ func _finish_run() -> void:
 	_twist_caption.text = result.caption
 	_original_stage.pose(_original_run.snapshots.back(), _original_run.plan, {}, false)
 	_result_stage.pose(_run.snapshots.back(), _run.plan, knowledge, false)
-	_stage.hide()
-	_comparison.show()
+	_stage.show()
+	_comparison.hide()
 	_show_payoff(result, _record_progress(result))
+	_show_result_card(result)
 	if result.won:
 		_narrate("twist")
 	else:
@@ -607,10 +629,19 @@ func _show_facts(result: Dictionary) -> void:
 		var fact: Dictionary = item.fact
 		var mark := _icon("check") if item.met else (_icon("cross") if mode == "RESULT" else _icon("box"))
 		labels.append(mark + GOALS.fact_text(fact))
+	var bonus_icons := ""
+	var bonus_tips: Array[String] = []
 	for bonus in page.get("bonus", []):
 		var done: bool = bonus.id in bonus_done.get(page.id, [])
-		labels.append(_icon("star_on" if done else "star_off") + "Bonus: " + str(bonus.caption).trim_suffix("."))
+		bonus_icons += _icon("star_on" if done else "star_off")
+		bonus_tips.append(("[done] " if done else "") + str(bonus.caption))
+	if not bonus_icons.is_empty():
+		labels.append("Bonus " + bonus_icons + "[i](hover)[/i]")
 	_facts.text = "   /   ".join(labels)
+	_facts.tooltip_text = "Bonus stars:
+" + "
+".join(bonus_tips) if not bonus_tips.is_empty() else ""
+	_facts.mouse_filter = Control.MOUSE_FILTER_PASS
 	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else Color("243043"))
 
 
@@ -629,7 +660,7 @@ func _return_to_plan() -> void:
 			knowledge[id] = plan.thoughts[id]
 	_stage.show()
 	_comparison.hide()
-	_caption.text = "HUNGRY > food   /   SLEEPY > seat   /   ANGRY > bonk   /   SCARED > flee"
+	_caption.text = ""
 	_stage.set_mood("idle")
 	_pop.text = ""
 	_refresh_plan()
@@ -748,11 +779,34 @@ func _update_buttons() -> void:
 	_update_instructions()
 	_update_progress_label()
 	_emphasise(_action, mode == "PLAN")
+	if is_instance_valid(_pause_button):
+		var playing_now := mode in ["INTRO", "PLAY", "ORIGINAL_END"]
+		_action.visible = mode == "PLAN"
+		_restart.visible = mode == "PLAN"
+		_fast_button.visible = playing_now
+		_skip_run.visible = playing_now
+		_legend.visible = mode == "PLAN"
+		_title.text = "PAGE %d  ·  %s" % [page_index + 1, str(page.get("title", "")).to_upper()]
+		_tier_band.color = TIER_COLOURS[_tier(page_index)]
+		_action.text = " ACTION!"
+		_fast_button.text = ""
 	_emphasise(_next, mode == "RESULT" and _won_current)
 	_emphasise(_rewind, mode == "RESULT" and not _won_current)
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+		# Esc always goes back one step.
+		if is_instance_valid(_settings_sheet) and _settings_sheet.visible:
+			_settings_sheet.hide()
+		elif is_instance_valid(_pause_sheet) and _pause_sheet.visible:
+			_close_pause()
+		elif not (is_instance_valid(_front) and _front.visible):
+			_open_pause()
+		get_viewport().set_input_as_handled()
+		return
+	if (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible):
+		return
 	if is_instance_valid(_front) and _front.visible:
 		# The title / Sunday Edition owns input; its buttons handle it via the GUI.
 		return
@@ -1031,6 +1085,7 @@ func _progress() -> Array:
 			"unlocked": previous_done or index == page_index or completed.has(definition.id),
 			"current": index == page_index,
 			"caption": definition.goal.twist_caption,
+			"tier": _tier(index),
 			"stars": _stars(definition),
 			"max_stars": 1 + definition.get("bonus", []).size(),
 			"endings": endings_found.get(definition.id, []).size(),
@@ -1039,7 +1094,20 @@ func _progress() -> Array:
 	return pages
 
 
+func _update_star_total() -> void:
+	if not is_instance_valid(_front):
+		return
+	var stars := 0
+	var total := 0
+	for script in PAGE_SCRIPTS:
+		var definition: Dictionary = script.definition()
+		stars += _stars(definition)
+		total += 1 + definition.get("bonus", []).size()
+	_front.set_star_total(stars, total)
+
+
 func _open_edition() -> void:
+	_update_star_total()
 	if mode in ["INTRO", "PLAY"]:
 		_finish_run()
 	var note := "Every page solved! Each page hides other endings too." if completed.size() == PAGE_SCRIPTS.size() else "Pick a page. Solved pages stay inked."
@@ -1110,6 +1178,7 @@ func _show_payoff(result: Dictionary, rewards: Array[String] = []) -> void:
 
 
 func _hide_payoff() -> void:
+	_hide_result_card()
 	if is_instance_valid(_stamp_tween):
 		_stamp_tween.kill()
 	if is_instance_valid(_stamp):
@@ -1443,3 +1512,462 @@ func _narrate(moment: String) -> void:
 	if is_instance_valid(_result_stage):
 		_result_stage.set_caption(text if moment == "twist" or moment.begins_with("fail") else "", 0.0)
 	_play_voice_file("narrator/" + key, _voice)
+
+
+
+func _icon_texture(name: String) -> Texture2D:
+	return load("res://assets/ui/%s.svg" % name)
+
+
+func _icon_button(parent: Node, name: String, tip: String, callback: Callable, size := Vector2(56, 56)) -> Button:
+	var button := Button.new()
+	button.name = name.capitalize().replace(" ", "")
+	button.icon = _icon_texture(name)
+	button.expand_icon = true
+	button.tooltip_text = tip
+	button.custom_minimum_size = size
+	button.size = size
+	button.pressed.connect(callback)
+	parent.add_child(button)
+	return button
+
+
+func _paper_panel(rect: Rect2, tilt: float = 0.0) -> Panel:
+	var panel := Panel.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color("fffaf0")
+	box.border_color = INK
+	box.set_border_width_all(3)
+	box.shadow_color = Color(INK, 0.9)
+	box.shadow_offset = Vector2(5, 5)
+	box.shadow_size = 0
+	panel.add_theme_stylebox_override("panel", box)
+	panel.position = rect.position
+	panel.size = rect.size
+	panel.rotation = tilt
+	return panel
+
+
+func _restyle_hud() -> void:
+	# Structure is standard game UI; the skin is the newspaper (ui.md §0).
+	var heading: Node = _title.get_parent()
+	heading.remove_child(_title)
+	_ui.add_child(_title)
+	heading.hide()
+	for node in [_sound, _motion, _pages_button]:
+		node.hide()
+	_title.position = Vector2(240, 4)
+	_title.size = Vector2(800, 44)
+	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_title.add_theme_font_size_override("font_size", 34)
+	_tier_band = ColorRect.new()
+	_tier_band.position = Vector2(520, 46)
+	_tier_band.size = Vector2(240, 5)
+	_tier_band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ui.add_child(_tier_band)
+	_pause_button = _icon_button(_ui, "pause", "Pause (Esc)", _open_pause, Vector2(52, 48))
+	_pause_button.position = Vector2(16, 4)
+	_progress_label.position = Vector2(930, 10)
+	_progress_label.size = Vector2(334, 34)
+	# Goal clipping: twist in red pen plus the headline (bonus) lines.
+	_goal_card = _paper_panel(Rect2(16, 56, 900, 62), 0.0)
+	_goal_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ui.add_child(_goal_card)
+	_ui.move_child(_goal_card, _goal.get_index())
+	_goal.position = Vector2(30, 58)
+	_goal.size = Vector2(880, 30)
+	_goal.add_theme_font_size_override("font_size", 22)
+	_facts.position = Vector2(30, 90)
+	_facts.size = Vector2(880, 24)
+	_instructions.position = Vector2(930, 56)
+	_instructions.size = Vector2(334, 62)
+	_instructions.clip_text = false
+	_instructions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_instructions.add_theme_font_size_override("font_size", 14)
+	for hook in _hooks:
+		hook.position = Vector2(-400, -400)
+	_stage.position = Vector2(16, 124)
+	_stage.size = Vector2(1248, 460)
+	_comparison.position = _stage.position
+	# Bottom bar: legend, narration line, ⟲ and ACTION.
+	_legend = _label("HUNGRY > food   ·   SLEEPY > seat   ·   ANGRY > bonk   ·   SCARED > flee", 14)
+	_legend.position = Vector2(16, 594)
+	_legend.size = Vector2(700, 20)
+	_legend.add_theme_color_override("font_color", Color("6d6a62"))
+	_ui.add_child(_legend)
+	_caption.position = Vector2(16, 616)
+	_caption.size = Vector2(880, 24)
+	_subtitle.position = Vector2(16, 642)
+	_subtitle.size = Vector2(880, 70)
+	_status.hide()
+	for node in [_voice_replay, _voice_skip]:
+		node.get_parent().hide()
+	var bar: Node = _action.get_parent()
+	for node in [_action, _restart, _fast_button, _skip_run]:
+		bar.remove_child(node)
+		_ui.add_child(node)
+	_restart.text = ""
+	_restart.icon = _icon_texture("restart")
+	_restart.expand_icon = true
+	_restart.tooltip_text = "Restart the page (clears your plan)"
+	_restart.position = Vector2(1000, 616)
+	_restart.size = Vector2(64, 64)
+	_restart.custom_minimum_size = Vector2(64, 64)
+	_action.icon = _icon_texture("play")
+	_action.expand_icon = false
+	_action.add_theme_constant_override("icon_max_width", 30)
+	_action.add_theme_font_override("font", COMIC_FONT)
+	_action.add_theme_font_size_override("font_size", 30)
+	_action.position = Vector2(1080, 612)
+	_action.size = Vector2(184, 72)
+	_action.custom_minimum_size = Vector2(184, 72)
+	_fast_button.text = ""
+	_fast_button.icon = _icon_texture("fast")
+	_fast_button.expand_icon = true
+	_fast_button.tooltip_text = "Fast forward"
+	_fast_button.position = Vector2(1080, 616)
+	_fast_button.size = Vector2(88, 64)
+	_skip_run.text = ""
+	_skip_run.icon = _icon_texture("skip")
+	_skip_run.expand_icon = true
+	_skip_run.tooltip_text = "Skip to the end (Space)"
+	_skip_run.position = Vector2(1176, 616)
+	_skip_run.size = Vector2(88, 64)
+	_build_result_card()
+	bar.hide()
+
+
+func _build_result_card() -> void:
+	# Completion popup (ui.md §7): pasted clipping over the stage's right side.
+	_result_card = _paper_panel(Rect2(724, 140, 520, 430), 0.012)
+	_result_card.z_index = 160
+	_result_card.hide()
+	_ui.add_child(_result_card)
+	_result_title = _label("", 18)
+	_result_title.position = Vector2(24, 112)
+	_result_title.size = Vector2(472, 24)
+	_result_card.add_child(_result_title)
+	_result_caption = _label("", 20)
+	_result_caption.position = Vector2(24, 136)
+	_result_caption.size = Vector2(472, 60)
+	_result_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_result_card.add_child(_result_caption)
+	_result_facts = _rich(16)
+	_result_facts.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_result_facts.position = Vector2(24, 200)
+	_result_facts.size = Vector2(472, 96)
+	_result_card.add_child(_result_facts)
+	var row := HBoxContainer.new()
+	row.position = Vector2(24, 312)
+	row.size = Vector2(472, 56)
+	row.add_theme_constant_override("separation", 12)
+	_result_card.add_child(row)
+	for node in [_rewind, _next]:
+		node.get_parent().remove_child(node)
+		row.add_child(node)
+		node.custom_minimum_size = Vector2(150, 52)
+		node.add_theme_font_override("font", COMIC_FONT)
+		node.add_theme_font_size_override("font_size", 24)
+	_result_restart = _button(row, "RESTART", _restart_page)
+	_result_restart.custom_minimum_size = Vector2(130, 52)
+	var small := HBoxContainer.new()
+	small.position = Vector2(24, 376)
+	small.add_theme_constant_override("separation", 8)
+	_result_card.add_child(small)
+	_levels_button = _button(small, "LEVELS", _open_edition)
+	_compare_button = _button(small, "COMPARE", _toggle_compare)
+	for node in [_hint_button, _skip_page]:
+		node.get_parent().remove_child(node)
+		small.add_child(node)
+	# Original / Your Twist tabs replay on the one full-size stage.
+	_tab_bar = HBoxContainer.new()
+	_tab_bar.position = Vector2(16, 596)
+	_tab_bar.z_index = 150
+	_tab_bar.add_theme_constant_override("separation", 4)
+	_tab_bar.hide()
+	_ui.add_child(_tab_bar)
+	_tab_original = _button(_tab_bar, "THE ORIGINAL", func(): _show_tab(false))
+	_tab_twist = _button(_tab_bar, "YOUR TWIST", func(): _show_tab(true))
+	_button(_tab_bar, "RESULT", func(): _result_card.show())
+	# The stamp sits at the top of the card.
+	_stamp.get_parent().remove_child(_stamp)
+	_result_card.add_child(_stamp)
+	_stamp.position = Vector2(50, 8)
+	_stamp.size = Vector2(420, 96)
+	_stamp.pivot_offset = _stamp.size * 0.5
+	_missing.get_parent().remove_child(_missing)
+	_result_card.add_child(_missing)
+	_missing.position = Vector2(24, 286)
+	_missing.size = Vector2(472, 24)
+	_missing.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_missing.add_theme_font_size_override("font_size", 15)
+
+
+func _show_result_card(result: Dictionary) -> void:
+	var won: bool = result.won
+	_result_title.text = "YOUR ENDING:"
+	_result_caption.text = str(result.caption)
+	var lines: Array[String] = []
+	for item in result.facts:
+		lines.append((_icon("check") if item.met else _icon("cross")) + ("Twist: " if lines.is_empty() else "") + GOALS.fact_text(item.fact))
+	for bonus in page.get("bonus", []):
+		var done: bool = bonus.id in bonus_done.get(page.id, [])
+		lines.append(_icon("star_on" if done else "star_off") + str(bonus.caption))
+	_result_facts.text = "\n".join(lines)
+	_rewind.text = "REPLAY" if won else "RETRY"
+	_next.visible = won
+	_result_restart.visible = not won
+	_compare_button.visible = true
+	_result_card.show()
+	_stage.show()
+	_comparison.hide()
+	_tab_bar.show()
+	_tab_twist.button_pressed = true
+	if won and not _motion.button_pressed:
+		# After a win, first show the Original's ending struck out, then flip to yours.
+		_show_tab(false)
+		_stage.set_caption("~~ " + GOALS.evaluate(page, _original_run).caption + " ~~", 0.0)
+		get_tree().create_timer(1.3).timeout.connect(func():
+			if mode == "RESULT":
+				_show_tab(true))
+	else:
+		_show_tab(true)
+
+
+func _show_tab(twist: bool) -> void:
+	if mode != "RESULT":
+		return
+	var shown: Dictionary = _run if twist else _original_run
+	_stage.pose(shown.snapshots.back(), shown.plan, knowledge if twist else {}, false)
+	_stage.set_caption(("YOUR TWIST: " if twist else "THE ORIGINAL: ") + GOALS.evaluate(page, shown).caption, 0.0)
+	_tab_original.disabled = not twist
+	_tab_twist.disabled = twist
+
+
+func _toggle_compare() -> void:
+	_result_card.visible = not _result_card.visible
+	_compare_button.text = "COMPARE"
+
+
+func _hide_result_card() -> void:
+	if is_instance_valid(_result_card):
+		_result_card.hide()
+	if is_instance_valid(_tab_bar):
+		_tab_bar.hide()
+
+
+
+func _tier(index: int) -> int:
+	# Agreed difficulty split: pages 1–4 green, 5–7 yellow, 8–10 red.
+	if index < 4:
+		return 0
+	return 1 if index < 7 else 2
+
+
+# ------------------------------------------------------------ pause sheet
+var _pause_sheet: Control
+var _pause_hint: Button
+var _pause_skip: Button
+
+
+func _open_pause() -> void:
+	if not is_instance_valid(_pause_sheet):
+		_build_pause_sheet()
+	_pause_hint.visible = _hint_button.visible
+	_pause_skip.visible = failures >= 3
+	_pause_sheet.show()
+
+
+func _close_pause() -> void:
+	if is_instance_valid(_pause_sheet):
+		_pause_sheet.hide()
+
+
+func _build_pause_sheet() -> void:
+	_pause_sheet = Control.new()
+	_pause_sheet.size = Vector2(1280, 720)
+	_pause_sheet.z_index = 190
+	_pause_sheet.mouse_filter = Control.MOUSE_FILTER_STOP
+	_ui.add_child(_pause_sheet)
+	var dim := ColorRect.new()
+	dim.color = Color(INK, 0.5)
+	dim.size = Vector2(1280, 720)
+	dim.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed:
+			_close_pause())
+	_pause_sheet.add_child(dim)
+	var sheet := _paper_panel(Rect2(40, 60, 380, 600), -0.012)
+	_pause_sheet.add_child(sheet)
+	var heading := _label("PAUSED", 40)
+	heading.add_theme_font_override("font", COMIC_FONT)
+	heading.position = Vector2(30, 16)
+	sheet.add_child(heading)
+	var sub := _label("", 16)
+	sub.name = "Sub"
+	sub.position = Vector2(30, 68)
+	sheet.add_child(sub)
+	var list := VBoxContainer.new()
+	list.position = Vector2(30, 110)
+	list.size = Vector2(320, 460)
+	list.add_theme_constant_override("separation", 10)
+	sheet.add_child(list)
+	var entries := [
+		["play", "RESUME", _close_pause],
+		["restart", "RESTART PAGE", func(): _close_pause(); _restart_page()],
+		["eye", "WATCH THE ORIGINAL", func(): _close_pause(); _replay_original()],
+		["hint", "HINT", func(): _close_pause(); _show_hint()],
+		["skip", "SKIP PAGE", func(): _close_pause(); _skip_current_page()],
+		["settings", "SETTINGS", func(): _open_settings()],
+		["levels", "LEVELS", func(): _close_pause(); _open_edition()],
+		["home", "MAIN MENU", func(): _close_pause(); _front.show_title(not completed.is_empty())],
+	]
+	for entry in entries:
+		var button := Button.new()
+		button.text = "  " + entry[1]
+		button.icon = _icon_texture(entry[0])
+		button.add_theme_constant_override("icon_max_width", 30)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.custom_minimum_size = Vector2(320, 46)
+		button.add_theme_font_size_override("font_size", 18)
+		button.pressed.connect(entry[2])
+		list.add_child(button)
+		if entry[1] == "HINT":
+			_pause_hint = button
+		elif entry[1] == "SKIP PAGE":
+			_pause_skip = button
+	_pause_sheet.visibility_changed.connect(func():
+		sub.text = "Page %d  ·  %s" % [page_index + 1, str(page.get("title", ""))])
+	_pause_sheet.hide()
+
+
+# ------------------------------------------------------------ settings sheet
+var _settings_sheet: Control
+const SETTINGS_PATH := "user://settings.cfg"
+const BUSES := ["Music", "SFX", "Voice"]
+
+
+func _setup_audio_buses() -> void:
+	for bus in BUSES:
+		if AudioServer.get_bus_index(bus) == -1:
+			AudioServer.add_bus()
+			AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
+			AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
+	for player in _players:
+		player.bus = "SFX"
+	if is_instance_valid(_voice):
+		_voice.bus = "Voice"
+
+
+func _set_volume(bus: String, value: float) -> void:
+	var index := AudioServer.get_bus_index(bus)
+	if index >= 0:
+		AudioServer.set_bus_volume_db(index, linear_to_db(maxf(value, 0.0001)))
+		AudioServer.set_bus_mute(index, value <= 0.001)
+
+
+func _save_settings() -> void:
+	if not _persistent():
+		return
+	var config := ConfigFile.new()
+	for bus in ["Master"] + BUSES:
+		config.set_value("audio", bus, db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(bus))))
+	config.set_value("game", "reduce_motion", _motion.button_pressed)
+	config.set_value("game", "sound", _sound.button_pressed)
+	config.save(SETTINGS_PATH)
+
+
+func _load_settings() -> void:
+	_setup_audio_buses()
+	if not _persistent():
+		return
+	var config := ConfigFile.new()
+	if config.load(SETTINGS_PATH) != OK:
+		return
+	for bus in ["Master"] + BUSES:
+		_set_volume(bus, float(config.get_value("audio", bus, 1.0)))
+	_motion.button_pressed = bool(config.get_value("game", "reduce_motion", false))
+	_sound.button_pressed = bool(config.get_value("game", "sound", true))
+
+
+func _open_settings() -> void:
+	if not is_instance_valid(_settings_sheet):
+		_build_settings_sheet()
+	_settings_sheet.show()
+
+
+func _build_settings_sheet() -> void:
+	_settings_sheet = Control.new()
+	_settings_sheet.size = Vector2(1280, 720)
+	_settings_sheet.z_index = 240
+	_settings_sheet.mouse_filter = Control.MOUSE_FILTER_STOP
+	_ui.add_child(_settings_sheet)
+	var dim := ColorRect.new()
+	dim.color = Color(INK, 0.5)
+	dim.size = Vector2(1280, 720)
+	_settings_sheet.add_child(dim)
+	var sheet := _paper_panel(Rect2(400, 70, 480, 580), 0.01)
+	_settings_sheet.add_child(sheet)
+	var heading := _label("SETTINGS", 40)
+	heading.add_theme_font_override("font", COMIC_FONT)
+	heading.position = Vector2(30, 16)
+	sheet.add_child(heading)
+	var y := 84.0
+	for bus in ["Master", "Music", "SFX", "Voice"]:
+		var name := _label({"Master": "Master", "Music": "Music", "SFX": "Sound effects", "Voice": "Voices"}[bus], 18)
+		name.position = Vector2(30, y)
+		sheet.add_child(name)
+		var slider := HSlider.new()
+		slider.min_value = 0.0
+		slider.max_value = 1.0
+		slider.step = 0.05
+		slider.value = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index(bus)))
+		slider.position = Vector2(200, y + 4)
+		slider.size = Vector2(240, 24)
+		slider.value_changed.connect(func(value: float):
+			_set_volume(bus, value)
+			_save_settings())
+		sheet.add_child(slider)
+		y += 44
+	for toggle in [_sound, _motion]:
+		toggle.get_parent().remove_child(toggle)
+		sheet.add_child(toggle)
+		toggle.show()
+		toggle.position = Vector2(30, y)
+		toggle.add_theme_font_size_override("font_size", 18)
+		toggle.toggled.connect(func(_on: bool): _save_settings())
+		y += 44
+	_sound.text = "Sound on"
+	var fullscreen := CheckButton.new()
+	fullscreen.text = "Fullscreen"
+	fullscreen.position = Vector2(30, y)
+	fullscreen.add_theme_font_size_override("font_size", 18)
+	fullscreen.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	fullscreen.toggled.connect(func(on: bool):
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if on else DisplayServer.WINDOW_MODE_WINDOWED))
+	sheet.add_child(fullscreen)
+	y += 56
+	var reset := Button.new()
+	reset.text = "THROW AWAY ALL PROGRESS"
+	reset.position = Vector2(30, y)
+	reset.add_theme_font_size_override("font_size", 15)
+	reset.pressed.connect(func():
+		if reset.text == "SURE? CLICK AGAIN":
+			completed.clear()
+			skipped.clear()
+			bonus_done.clear()
+			endings_found.clear()
+			_save_progress()
+			reset.text = "PROGRESS CLEARED"
+			_update_buttons()
+		else:
+			reset.text = "SURE? CLICK AGAIN")
+	sheet.add_child(reset)
+	var back := Button.new()
+	back.text = "BACK"
+	back.position = Vector2(340, 510)
+	back.custom_minimum_size = Vector2(110, 48)
+	back.add_theme_font_override("font", COMIC_FONT)
+	back.add_theme_font_size_override("font_size", 24)
+	back.pressed.connect(func(): _settings_sheet.hide())
+	sheet.add_child(back)
+	_settings_sheet.hide()

@@ -25,6 +25,8 @@ func run(check: Callable) -> bool:
 		if game.mode != "PLAY":
 			break
 		game._process(1.0 / 60.0)
+		if game.mode != "PLAY":
+			break
 		for id in game._stage._rigs:
 			var rig = game._stage._rigs[id]
 			if last.has(id):
