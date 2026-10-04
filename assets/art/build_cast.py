@@ -20,6 +20,8 @@ DEFS = '''<defs>
 <linearGradient id="cardigan" x2=".4" y2="1"><stop stop-color="#c7b1e0"/><stop offset="1" stop-color="#7f68a8"/></linearGradient>
 <linearGradient id="tee" x2=".4" y2="1"><stop stop-color="#ef6a5d"/><stop offset="1" stop-color="#bb3b3f"/></linearGradient>
 <linearGradient id="oxford" x2="1" y2="1"><stop stop-color="#dcebfb"/><stop offset="1" stop-color="#8fb0d6"/></linearGradient>
+<linearGradient id="catfur" x2=".5" y2="1"><stop stop-color="#ffb767"/><stop offset="1" stop-color="#d9772f"/></linearGradient>
+<linearGradient id="mousefur" x2=".5" y2="1"><stop stop-color="#d9d4de"/><stop offset="1" stop-color="#9890a6"/></linearGradient>
 </defs>'''
 
 
@@ -144,13 +146,49 @@ intern = {
 }
 
 
+# ------------------------------------------------- animals (Dog skeleton)
+DOG_HEAD = 'M102 104 Q121 70 161 70 Q205 72 222 111 L217 176 Q207 215 161 222 Q115 214 105 179 Z'
+
+
+def animal_limbs(fur, toe):
+    return {
+        'leg_left': ((122, 299), -2, path('M104 278 Q129 270 140 288 L135 355 Q150 360 150 373 Q128 384 100 377 Q87 374 91 363 L105 352 Z', fur) + path('M105 368 L105 376 M119 367 L120 378', stroke=toe, width=3)),
+        'leg_right': ((218, 300), -1, path('M204 277 Q228 271 241 290 L239 354 Q262 359 260 373 Q243 383 212 378 Q200 375 203 361 L211 348 Z', fur) + path('M225 368 L225 377 M240 366 L241 376', stroke=toe, width=3)),
+        'arm_left': ((110, 245), 1, path('M102 237 Q88 249 98 279 L109 327 Q100 346 111 353 Q127 359 138 345 L131 327 L123 256 Z', fur) + path('M114 342 L115 351 M126 342 L127 352', stroke=toe, width=3)),
+        'arm_right': ((220, 245), 1, path('M217 237 Q234 245 230 277 L222 327 Q240 340 230 351 Q213 359 202 346 L204 328 L204 260 Z', fur) + path('M212 342 L213 353 M223 341 L224 351', stroke=toe, width=3)),
+    }
+
+
+WHISKERS = path('M118 182 L88 176 M118 190 L88 194 M204 182 L234 176 M204 190 L234 194', stroke=INK, width=2)
+BODY = 'M100 220 Q133 206 180 220 Q225 229 244 270 Q256 316 223 335 Q174 352 118 331 Q81 321 83 278 Q85 244 100 220 Z'
+
+cat = dict(animal_limbs('url(#catfur)', '#9c5a2a'))
+cat.update({
+    'tail': ((86, 259), -3, path('M92 292 Q42 292 44 246 Q46 206 30 186 Q22 176 32 170 Q56 182 62 232 Q64 268 92 270 Z', 'url(#catfur)') + path('M44 222 l14 -4 M42 246 l16 -2 M52 270 l12 -8', stroke='#b45f24', width=4)),
+    'body': ((160, 271), 0, path(BODY, 'url(#catfur)') + path('M138 235 Q171 223 194 245 Q226 275 207 310 Q172 329 138 311 Q123 276 138 235 Z', '#ffe9cf', width=3) + path('M96 262 l14 4 M224 262 l-14 4 M98 290 l14 2 M226 292 l-14 2', stroke='#b45f24', width=4)),
+    'head': ((160, 149), 2, path(DOG_HEAD, 'url(#catfur)') + path('M146 80 l4 18 M161 76 v20 M176 80 l-4 18', stroke='#b45f24', width=5) + ellipse(161, 186, 34, 22, '#ffe9cf', width=3) + path('M152 172 L170 172 L161 182 Z', '#e8798a', width=3) + WHISKERS),
+    'ear_left': ((112, 98), 3, path('M106 104 L100 40 L148 80 Z', 'url(#catfur)') + path('M112 90 L109 58 L134 80 Z', '#f5a7b1', stroke='none', width=0)),
+    'ear_right': ((210, 98), 3, path('M216 104 L222 40 L174 80 Z', 'url(#catfur)') + path('M210 90 L213 58 L188 80 Z', '#f5a7b1', stroke='none', width=0)),
+    'bandana': ((160, 222), 4, path('M112 212 Q160 232 210 210 L208 224 Q160 246 114 226 Z', '#c9483f') + ellipse(161, 240, 8, 8, '#f0c45a', width=3)),
+})
+
+mouse = dict(animal_limbs('url(#mousefur)', '#6f6880'))
+mouse.update({
+    'tail': ((86, 259), -3, path('M94 300 Q44 330 30 276 Q24 244 52 236', stroke=INK, width=9) + path('M94 300 Q44 330 30 276 Q24 244 52 236', stroke='#f2b6c1', width=5)),
+    'body': ((160, 271), 0, path(BODY, 'url(#mousefur)') + path('M138 240 Q171 228 194 248 Q222 276 205 308 Q172 326 140 310 Q125 278 138 240 Z', '#f1edf4', width=3)),
+    'head': ((160, 149), 2, path(DOG_HEAD, 'url(#mousefur)') + ellipse(161, 186, 30, 20, '#f1edf4', width=3) + ellipse(161, 174, 8, 7, '#e8798a', width=3) + WHISKERS),
+    'ear_left': ((112, 96), 3, ellipse(100, 82, 36, 36, 'url(#mousefur)') + ellipse(100, 82, 22, 22, '#f5b9c3', stroke='none', width=0)),
+    'ear_right': ((210, 96), 3, ellipse(222, 82, 36, 36, 'url(#mousefur)') + ellipse(222, 82, 22, 22, '#f5b9c3', stroke='none', width=0)),
+})
+
+
 def human_face(name):
     # Boss faces end with the moustache path; the rest of the cast has none.
     out = face('boss', name)
     return out[:out.rfind('<path')]
 
 
-def write_character(kind, layers):
+def write_character(kind, layers, face_kind='human'):
     master = ROOT / 'assets/art/characters' / kind
     runtime = ROOT / 'src/assets/characters' / kind
     for folder in (master, runtime):
@@ -162,13 +200,13 @@ def write_character(kind, layers):
         parts.append({'name': name, 'texture': f'res://assets/characters/{kind}/{name}.svg', 'pivot': list(pivot), 'z': z})
     for exp in EXPRESSIONS:
         for folder in (master, runtime):
-            (folder / f'face_{exp}.svg').write_text(svg(human_face(exp)), encoding='utf-8')
+            (folder / f'face_{exp}.svg').write_text(svg(human_face(exp) if face_kind == 'human' else face('dog', exp)), encoding='utf-8')
     manifest = {'id': kind, 'canvas': [320, 400], 'anchor': [160, 380], 'parts': parts,
                 'expressions': {x: f'res://assets/characters/{kind}/face_{x}.svg' for x in EXPRESSIONS},
                 'animations': ACTIONS, 'author': 'Original LIGHTBULB MOMENT production artwork'}
     for folder in (master, runtime):
         (folder / 'rig.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
-    assembled = ''.join(item[2] for _, item in sorted(layers.items(), key=lambda i: i[1][1])) + human_face('neutral')
+    assembled = ''.join(item[2] for _, item in sorted(layers.items(), key=lambda i: i[1][1])) + (human_face('neutral') if face_kind == 'human' else face('dog', 'neutral'))
     (master / 'assembled.svg').write_text(svg(assembled), encoding='utf-8')
 
 
@@ -181,6 +219,15 @@ PROPS = {
     'office_chair': ((84, 108), G + '<path d="M18 10 Q42 2 66 10 L64 56 Q42 62 20 56 Z" fill="#4f5d73"/><path d="M12 60 Q42 52 72 60 L70 72 Q42 78 14 72 Z" fill="#5d6c84"/><path d="M42 74 L42 94" stroke-width="5"/><path d="M16 100 L68 100 M42 94 L22 104 M42 94 L62 104" stroke-width="4" fill="none"/><circle cx="20" cy="104" r="3.5" fill="#2a2a33"/><circle cx="64" cy="104" r="3.5" fill="#2a2a33"/></g>'),
     'pedal': ((60, 22), G + '<path d="M6 18 L54 18 L52 22 L8 22 Z" fill="#6b6370"/><path d="M10 6 L50 2 L52 14 L10 16 Z" fill="#c64b3d"/><path d="M18 9 L44 6" stroke="#f1b3a9"/></g>'),
     'pedal_down': ((60, 22), G + '<path d="M6 18 L54 18 L52 22 L8 22 Z" fill="#6b6370"/><path d="M10 12 L50 11 L52 17 L10 18 Z" fill="#8e3329"/></g>'),
+    'fish': ((96, 44), G + '<ellipse cx="48" cy="36" rx="44" ry="7" fill="#d6cfbd"/><path d="M14 22 Q34 4 62 16 L82 6 L80 34 L62 26 Q34 40 14 22 Z" fill="#7fb3d5"/><path d="M38 12 Q44 20 38 30" fill="none" stroke="#4f86ad"/><circle cx="24" cy="20" r="2.5" fill="#2b2733"/></g>'),
+    'fish_empty': ((96, 44), G + '<ellipse cx="48" cy="36" rx="44" ry="7" fill="#d6cfbd"/><path d="M22 28 L70 28 M32 22 L32 34 M42 22 L42 34 M52 22 L52 34 M62 22 L62 34" fill="none" stroke="#8c8679" stroke-width="3"/><path d="M70 28 L80 20 L80 36 Z" fill="#efe9dc"/></g>'),
+    'cookie': ((64, 40), G + '<ellipse cx="32" cy="32" rx="30" ry="6" fill="#d6cfbd"/><ellipse cx="32" cy="22" rx="22" ry="11" fill="#d9a05b"/><circle cx="24" cy="20" r="2.5" fill="#5a3b2c"/><circle cx="36" cy="16" r="2.2" fill="#5a3b2c"/><circle cx="40" cy="25" r="2.5" fill="#5a3b2c"/><circle cx="28" cy="27" r="2" fill="#5a3b2c"/></g>'),
+    'cookie_empty': ((64, 40), G + '<ellipse cx="32" cy="32" rx="30" ry="6" fill="#d6cfbd"/><circle cx="26" cy="29" r="2" fill="#d9a05b"/><circle cx="38" cy="30" r="1.6" fill="#d9a05b"/></g>'),
+    'broccoli': ((64, 70), G + '<ellipse cx="32" cy="62" rx="30" ry="6" fill="#d6cfbd"/><path d="M26 58 L28 36 L36 36 L38 58 Z" fill="#9cc77a"/><circle cx="20" cy="30" r="12" fill="#4f9a4a"/><circle cx="44" cy="30" r="12" fill="#4f9a4a"/><circle cx="32" cy="18" r="14" fill="#5fae55"/><circle cx="26" cy="16" r="3" fill="#7cc46c" stroke="none"/></g>'),
+    'broccoli_empty': ((64, 70), G + '<ellipse cx="32" cy="62" rx="30" ry="6" fill="#d6cfbd"/><path d="M28 58 L29 50 L35 50 L36 58 Z" fill="#9cc77a"/></g>'),
+    'cheese': ((72, 52), G + '<ellipse cx="36" cy="44" rx="34" ry="7" fill="#d6cfbd"/><path d="M8 38 L60 38 L64 18 L16 10 Z" fill="#f4c84a"/><path d="M16 10 L64 18 L60 24 L12 16 Z" fill="#ffe08a"/><circle cx="26" cy="28" r="4" fill="#d9a92e"/><circle cx="46" cy="30" r="3" fill="#d9a92e"/><circle cx="38" cy="22" r="2.5" fill="#d9a92e"/></g>'),
+    'cheese_empty': ((72, 52), G + '<ellipse cx="36" cy="44" rx="34" ry="7" fill="#d6cfbd"/><circle cx="30" cy="40" r="2" fill="#f4c84a"/><circle cx="42" cy="41" r="1.6" fill="#f4c84a"/></g>'),
+    'rocker': ((108, 108), G + '<path d="M14 98 Q54 112 98 92" fill="none" stroke-width="5"/><path d="M24 10 L34 10 L38 70 L26 70 Z" fill="#9a6a45"/><path d="M28 14 L84 14 L80 22 L30 22 Z" fill="#9a6a45"/><path d="M30 26 L78 26 L76 62 L34 62 Z" fill="#c69a6b"/><path d="M22 66 L92 66 L90 76 L24 76 Z" fill="#9a6a45"/><path d="M30 76 L28 98 M84 76 L86 94" stroke-width="5"/><path d="M28 70 Q60 60 88 70" fill="none" stroke="#e8c79b"/></g>'),
     'lamp_off': ((80, 72), G + '<path d="M40 0 L40 22" fill="none"/><path d="M20 22 L60 22 L76 52 L4 52 Z" fill="#5b6478"/><path d="M8 50 L72 50" stroke="#8e97aa"/><ellipse cx="40" cy="58" rx="10" ry="6" fill="#8e97aa"/></g>'),
     'lamp_on': ((80, 72), G + '<path d="M40 0 L40 22" fill="none"/><path d="M20 22 L60 22 L76 52 L4 52 Z" fill="#e7b54a"/><path d="M8 50 L72 50" stroke="#fff1c4"/><ellipse cx="40" cy="58" rx="12" ry="8" fill="#fff4d6"/></g>'),
 }
@@ -197,5 +244,7 @@ if __name__ == '__main__':
     write_character('grandma', grandma)
     write_character('kid', kid)
     write_character('intern', intern)
+    write_character('cat', cat, face_kind='dog')
+    write_character('mouse', mouse, face_kind='dog')
     write_props()
-    print('Produced Grandma, Kid and Intern rigs (7 expressions each) and', len(PROPS), 'props.')
+    print('Produced Grandma, Kid, Intern, Cat and Mouse rigs (7 expressions each) and', len(PROPS), 'props.')

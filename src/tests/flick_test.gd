@@ -3,6 +3,7 @@ extends RefCounted
 
 const PAGE = preload("res://data/pages/page_06.gd")
 const MAIN = preload("res://scenes/main.tscn")
+const LEGACY_PAGES = [preload("res://data/pages/page_02.gd"), preload("res://data/pages/page_04.gd"), preload("res://data/pages/page_06.gd")]
 const PLAN = preload("res://core/plan_state.gd")
 const SIM = preload("res://core/simulator.gd")
 const RULES = preload("res://core/rules.gd")
@@ -33,6 +34,7 @@ func run(check: Callable) -> bool:
 	dark_plan.flick = {"beat": 5, "centre": 9}
 	var quiet: Dictionary = SIM.run(dark, dark_plan)
 	check.call(quiet.events.any(func(e): return e.type == "DING" and e.beat == 5) and quiet.end_beat > 5, "Quiet beats keep passing until a pending flick switches on")
+	load("res://game/main.gd").page_override = LEGACY_PAGES
 	var game = MAIN.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(game)
 	game._on_front_page(2)
@@ -50,4 +52,5 @@ func run(check: Callable) -> bool:
 	game._clear_flick()
 	check.call(game.plan.flick.is_empty(), "Clicking the ghost clears the kept flick")
 	game.free()
+	load("res://game/main.gd").page_override = []
 	return true

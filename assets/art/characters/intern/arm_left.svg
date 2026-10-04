@@ -5,4 +5,6 @@
 <linearGradient id="cardigan" x2=".4" y2="1"><stop stop-color="#c7b1e0"/><stop offset="1" stop-color="#7f68a8"/></linearGradient>
 <linearGradient id="tee" x2=".4" y2="1"><stop stop-color="#ef6a5d"/><stop offset="1" stop-color="#bb3b3f"/></linearGradient>
 <linearGradient id="oxford" x2="1" y2="1"><stop stop-color="#dcebfb"/><stop offset="1" stop-color="#8fb0d6"/></linearGradient>
+<linearGradient id="catfur" x2=".5" y2="1"><stop stop-color="#ffb767"/><stop offset="1" stop-color="#d9772f"/></linearGradient>
+<linearGradient id="mousefur" x2=".5" y2="1"><stop stop-color="#d9d4de"/><stop offset="1" stop-color="#9890a6"/></linearGradient>
 </defs><path d="M107 171 Q80 171 70 202 L67 250 Q71 260 88 261 L111 206 Z" fill="url(#oxford)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M68 241 L90 246 L87 263 L65 258 Z" fill="#eef5fd" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M66 258 Q54 274 63 286 Q68 294 74 284 Q77 301 83 291 Q88 296 91 282 L90 260 Z" fill="url(#skin_deep)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /></svg>

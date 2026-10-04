@@ -2,6 +2,7 @@ extends RefCounted
 ## Integrated flow checks; actual mouse gestures are also tested in the Web build.
 
 const MAIN = preload("res://scenes/main.tscn")
+const LEGACY_PAGES = [preload("res://data/pages/page_02.gd"), preload("res://data/pages/page_04.gd"), preload("res://data/pages/page_06.gd")]
 const VALIDATOR = preload("res://core/page_validator.gd")
 const SIM = preload("res://core/simulator.gd")
 const GOALS = preload("res://core/goal_evaluator.gd")
@@ -9,6 +10,7 @@ const PLAN = preload("res://core/plan_state.gd")
 
 
 func run(check: Callable) -> bool:
+	load("res://game/main.gd").page_override = LEGACY_PAGES
 	var game = MAIN.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(game)
 	check.call(game.mode == "INTRO" and game.page.id == "page_02", "MVP launches directly into the first Original")
@@ -151,4 +153,5 @@ func run(check: Callable) -> bool:
 	game._input(space)
 	check.call(game.mode == "RESULT", "Global Space skips recorded playback")
 	game.free()
+	load("res://game/main.gd").page_override = []
 	return true

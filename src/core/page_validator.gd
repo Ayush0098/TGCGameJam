@@ -4,7 +4,7 @@ extends RefCounted
 
 const THOUGHTS = ["HUNGRY", "SLEEPY", "ANGRY", "SCARED"]
 const OBJECT_TYPES = ["FOOD", "SEAT", "SWITCH"]
-const FACT_TYPES = ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "UNEATEN", "ALL_ACTIVATED"]
+const FACT_TYPES = ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "UNEATEN", "ALL_ACTIVATED", "CLONK"]
 
 var _errors := PackedStringArray()
 var _page_id := "<unknown>"
@@ -98,6 +98,8 @@ func validate(content: Variant) -> Dictionary:
 					_error("bonus", bonus, "expected {id, caption, facts}")
 					continue
 				_validate_goal({"twist_caption": bonus.caption, "red_pen_words": ["BONUS"], "facts": bonus.get("facts")}, cast, props)
+	if page.has("hints") and (not page.hints is Array or page.hints.size() > 3 or not page.hints.all(func(hint): return hint is String)):
+		_error("hints", page.hints, "expected up to 3 hint strings")
 	if page.has("flick") and (not page.flick is int or page.flick < 0 or page.flick > 1):
 		_error("flick", page.flick, "expected 0 or 1 spare bulbs")
 	if page.has("endings_total") and (not page.endings_total is int or page.endings_total < 1):
@@ -140,6 +142,8 @@ func _validate_lanterns(value: Variant) -> void:
 		bounds_valid = bounds[0] >= 0.0 and bounds[2] <= _width - 1 and bounds[0] < bounds[2] and bounds[1] < bounds[3]
 	if not bounds_valid:
 		_error("lanterns.bounds", bounds, "expected finite nonempty [min_x,min_y,max_x,max_y] bounds inside stage x")
+	if value.has("count") and (not value.count is int or value.count < 1 or value.count > 2):
+		_error("lanterns.count", value.count, "expected 1 or 2 usable lanterns")
 	var defaults: Variant = value.get("defaults")
 	if not defaults is Array or defaults.size() != 2:
 		_error("lanterns.defaults", defaults, "expected exactly two lantern records")
@@ -213,7 +217,7 @@ func _validate_goal(value: Variant, cast: Dictionary, props: Dictionary) -> void
 			continue
 		var type: String = fact.type
 		var allowed_keys := ["type"]
-		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED"]:
+		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "CLONK"]:
 			allowed_keys.append("character")
 		if type == "BONKED":
 			allowed_keys.append("target")
@@ -222,7 +226,7 @@ func _validate_goal(value: Variant, cast: Dictionary, props: Dictionary) -> void
 		for key in fact:
 			if key not in allowed_keys:
 				_error(path + "." + str(key), fact[key], "unknown argument for %s" % type)
-		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED"]:
+		if type in ["ATE", "ASLEEP", "BONKED", "KO", "EXITED", "CLONK"]:
 			if _field(fact, "character", TYPE_STRING, path + ".character"):
 				_reference(cast, fact.character, "", path + ".character")
 		if type == "BONKED":

@@ -1,7 +1,16 @@
 extends Control
 ## MVP flow: recorded simulation -> playback -> result -> exact-plan retry.
 
-const PAGE_SCRIPTS = [preload("res://data/pages/page_02.gd"), preload("res://data/pages/page_04.gd"), preload("res://data/pages/page_06.gd")]
+## The eight-page campaign in story order (design/levels.md).
+const CAMPAIGN = [
+	preload("res://data/campaign/page_01.gd"), preload("res://data/campaign/page_02.gd"),
+	preload("res://data/campaign/page_03.gd"), preload("res://data/campaign/page_04.gd"),
+	preload("res://data/campaign/page_05.gd"), preload("res://data/campaign/page_06.gd"),
+	preload("res://data/campaign/page_07.gd"), preload("res://data/campaign/page_08.gd"),
+]
+## Integration tests swap in the original MVP fixture pages before instancing.
+static var page_override: Array = []
+var PAGE_SCRIPTS: Array = []
 const VALIDATOR = preload("res://core/page_validator.gd")
 const PLAN = preload("res://core/plan_state.gd")
 const RULES = preload("res://core/rules.gd")
@@ -75,6 +84,8 @@ var _instructions: Label
 var _pages_button: Button
 var _lanterns_useful := true
 var skipped: Dictionary = {}
+var _hint_button: Button
+var _hints_shown := 0
 var _stamp: Label
 var _stamp_tween: Tween
 var _missing: Label
@@ -90,7 +101,7 @@ const FLICK_WINDOW_BEATS := 8
 const AIM_SLOWDOWN := 0.4
 const INK := Color("243043")
 const PAPER := Color("f2e8cf")
-const SAVE_PATH := "user://lightbulb_progress.json"
+const SAVE_PATH := "user://lightbulb_campaign_v1.json"
 const BEAT_SECONDS := 0.4
 const RECOVERY_SECONDS := 0.45
 const PHASE_TIME := {"DECIDE": 0.04, "MOVE": 0.26, "SWITCHES": 0.27, "BONKS": 0.31, "CLAIMS": 0.35}
@@ -100,6 +111,7 @@ func _ready() -> void:
 	if OS.has_feature("production_reference") or "--production-reference" in OS.get_cmdline_user_args():
 		get_tree().change_scene_to_file.call_deferred("res://scenes/production_reference.tscn")
 		return
+	PAGE_SCRIPTS = page_override if not page_override.is_empty() else CAMPAIGN
 	_build_ui()
 	_load_progress()
 	_load_page(0)
@@ -278,6 +290,7 @@ func _build_ui() -> void:
 	_skip_run = _button(buttons, "SKIP RUN", _finish_run)
 	_next = _button(buttons, "NEXT PAGE", _next_page)
 	_skip_page = _button(buttons, "SKIP PAGE", _skip_current_page)
+	_hint_button = _button(buttons, "HINT", _show_hint)
 	_status = _label("", 12)
 	_status.position = Vector2(16, 705)
 	_status.size = Vector2(1248, 15)
@@ -338,6 +351,7 @@ func _load_page(index: int) -> void:
 	_lanterns_useful = _needs_lanterns(page)
 	plan = PLAN.from_page(page)
 	knowledge.clear()
+	_hints_shown = 0
 	attempts = 0
 	failures = 0
 	_saved_plan = plan.to_data()
@@ -347,7 +361,7 @@ func _load_page(index: int) -> void:
 	_goal.text = "TWIST: " + page.goal.twist_caption
 	_original_run = SIMULATOR.run(page, plan.to_data(), true)
 	_begin(_original_run, true)
-	if page.id == "page_02" and _cues.has("narrator_intro"):
+	if index == 0 and _cues.has("narrator_intro"):
 		_story_waiting = true
 		_last_cue = "narrator_intro"
 		_subtitle.text = "Start the story to hear the narrator, or skip voice to watch the Original."
@@ -663,6 +677,10 @@ func _update_buttons() -> void:
 	_next.disabled = mode != "RESULT" or not _won_current
 	_next.text = "ALL PAGES" if page_index == PAGE_SCRIPTS.size() - 1 else "NEXT PAGE"
 	_skip_page.disabled = failures < 3 or mode not in ["PLAN", "RESULT"]
+	var hints: Array = page.get("hints", [])
+	_hint_button.visible = not hints.is_empty() and failures >= 2 and _hints_shown < hints.size()
+	_hint_button.disabled = mode not in ["PLAN", "RESULT"]
+	_hint_button.text = "HINT %d/%d" % [_hints_shown + 1, hints.size()]
 	_status.text = "Page %d of %d   ·   Runs %d   ·   Pages solved %d / %d" % [page_index + 1, PAGE_SCRIPTS.size(), attempts, completed.size(), PAGE_SCRIPTS.size()]
 	if completed.size() == PAGE_SCRIPTS.size():
 		_status.text = "Every page solved. Try for different endings!"
@@ -827,7 +845,7 @@ func _update_hooks() -> void:
 		var enabled: bool = index < plan.lanterns.size() and plan.lanterns[index].enabled if plan != null else false
 		_hooks[index].text = "Hook %d: %s" % [index + 1, "out" if enabled else "park"]
 		_hooks[index].disabled = mode != "PLAN"
-		_hooks[index].visible = _lanterns_useful
+		_hooks[index].visible = _lanterns_useful and index < int(page.get("lanterns", {}).get("count", 2))
 
 
 func _play_effect(kind: String) -> void:
@@ -923,7 +941,9 @@ func _update_instructions() -> void:
 			text = "TWIST! Press NEXT PAGE, or hunt for another ending." if _won_current else "Not quite. REWIND keeps your plan; RESTART resets the page."
 		"PLAN":
 			var lit := _lit_ids()
-			if not _lanterns_useful:
+			if page.has("coach") and not completed.has(page.id):
+				text = str(page.coach)
+			elif not _lanterns_useful:
 				text = "Everyone is lit. Drag one thought bubble onto the other character to swap, then ACTION! (Space)."
 			elif lit.is_empty():
 				text = "Nobody is lit. Drag a lantern from its hook into the room to reveal what someone is thinking."
@@ -1198,3 +1218,19 @@ func _clear_flick() -> void:
 		plan.flick = {}
 		_saved_plan = plan.to_data()
 		_refresh_plan()
+
+
+
+func _show_hint() -> void:
+	# Bulby's hints: a nudge, the key character, then the move itself.
+	var hints: Array = page.get("hints", [])
+	if _hints_shown >= hints.size() or mode not in ["PLAN", "RESULT"]:
+		return
+	var text := str(hints[_hints_shown]).trim_prefix("ghost: ")
+	if str(hints[_hints_shown]).begins_with("ghost: "):
+		text = "Try this: " + text
+	_hints_shown += 1
+	_subtitle.text = "Bulby whispers: " + text
+	_stage.set_mood("scheme", 1.5)
+	_play_effect("SWAP")
+	_update_buttons()

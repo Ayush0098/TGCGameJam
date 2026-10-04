@@ -5,4 +5,6 @@
 <linearGradient id="cardigan" x2=".4" y2="1"><stop stop-color="#c7b1e0"/><stop offset="1" stop-color="#7f68a8"/></linearGradient>
 <linearGradient id="tee" x2=".4" y2="1"><stop stop-color="#ef6a5d"/><stop offset="1" stop-color="#bb3b3f"/></linearGradient>
 <linearGradient id="oxford" x2="1" y2="1"><stop stop-color="#dcebfb"/><stop offset="1" stop-color="#8fb0d6"/></linearGradient>
+<linearGradient id="catfur" x2=".5" y2="1"><stop stop-color="#ffb767"/><stop offset="1" stop-color="#d9772f"/></linearGradient>
+<linearGradient id="mousefur" x2=".5" y2="1"><stop stop-color="#d9d4de"/><stop offset="1" stop-color="#9890a6"/></linearGradient>
 </defs><path d="M111 287 Q130 278 151 290 L148 357 Q138 369 116 357 Z" fill="#b9a27a" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M114 348 Q138 343 149 354 L148 379 Q122 386 92 378 Q89 369 103 362 Z" fill="#5a3b2c" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M100 372 Q122 377 146 371" fill="none" stroke="#fbf1e2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>

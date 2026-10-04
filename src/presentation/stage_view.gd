@@ -468,6 +468,8 @@ func _process(delta: float) -> void:
 			_bulb_mood = _mood_after
 	if not _reduced_motion and not _plan.get("lanterns", []).is_empty():
 		queue_redraw()
+		if is_instance_valid(_props):
+			_props.queue_redraw()
 	for effect in _effects:
 		effect.age += delta * _playback_speed
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
@@ -497,6 +499,10 @@ func _draw_props(canvas: CanvasItem) -> void:
 			canvas.draw_set_transform(at + Vector2(0, -2), 0, Vector2(1, 0.18))
 			canvas.draw_circle(Vector2.ZERO, 28, Color(0.06, 0.06, 0.1, 0.25))
 			canvas.draw_set_transform(Vector2.ZERO)
+	# Bulby hangs behind the cast so a lantern never hides a face.
+	for index in _plan.get("lanterns", []).size():
+		if _plan.lanterns[index].get("enabled", false):
+			_draw_bulby(canvas, index, _light_position(_plan.lanterns[index]))
 	for zone in _page.get("fixed_lights", []):
 		var at := Vector2(_x((float(zone[0]) + float(zone[1])) * 0.5), 50)
 		canvas.draw_line(Vector2(at.x, 0), at, Color("524b51"), 3, true)
@@ -694,7 +700,6 @@ func _draw_lanterns() -> void:
 		var opacity := 1.0 if _planning else 0.3
 		for segment in range(48):
 			draw_arc(at, LIGHTING.radius(_page) * _spacing(), TAU * segment / 48.0, TAU * (segment + 0.55) / 48.0, 3, Color(0.97, 0.78, 0.33, opacity * 0.7), 1.5, true)
-		_draw_bulby(index, at)
 		if _planning and index == _selected_lantern:
 			draw_arc(at, 27, 0, TAU, 32, Color("d8b575"), 2, true)
 		_bulb_rects.append(Rect2(at - Vector2(25, 27), Vector2(50, 54)))
@@ -796,6 +801,8 @@ func set_mood(mood: String, seconds: float = 0.0) -> void:
 	_bulb_mood = mood
 	_mood_left = seconds
 	queue_redraw()
+	if is_instance_valid(_props):
+		_props.queue_redraw()
 
 func react_swap(first: String, second: String) -> void:
 	for id in [first, second]:
@@ -827,7 +834,7 @@ func poke(id: String) -> String:
 	actor_poked.emit(id, kind)
 	return kind
 
-func _draw_bulby(index: int, at: Vector2) -> void:
+func _draw_bulby(canvas: CanvasItem, index: int, at: Vector2) -> void:
 	# The lantern bulb is Bulby, the player. Faces never change the light radius.
 	var mood := _bulb_mood
 	if _drag_bulb == index:
@@ -838,19 +845,19 @@ func _draw_bulby(index: int, at: Vector2) -> void:
 	var bob := 0.0 if _reduced_motion or _drag_bulb == index else sin(_bulb_clock * 2.2 + index) * 2.0
 	var squash := Vector2(0.9, 1.14) if mood == "grab" else Vector2.ONE
 	var centre := at + Vector2(0, bob)
-	draw_line(Vector2(at.x, 6), centre - Vector2(0, r + 10), Color("524b51"), 2, true)
+	canvas.draw_line(Vector2(at.x, 6), centre - Vector2(0, r + 10), Color("524b51"), 2, true)
 	var glow := 0.18 if mood == "fail" else (0.55 if mood == "win" else 0.32)
 	if mood == "win" and not _reduced_motion:
 		for ray in 10:
 			var direction := Vector2.from_angle(TAU * ray / 10.0 + _bulb_clock)
-			draw_line(centre + direction * (r + 8), centre + direction * (r + 20), Color(1, 0.86, 0.45, 0.8), 3, true)
-	draw_circle(centre, r * 1.9, Color(tint, glow * 0.5))
-	draw_set_transform(_offset() + centre * _fit(), 0, squash * _fit())
-	draw_rect(Rect2(-r * 0.45, r * 0.7, r * 0.9, r * 0.55), Color("8e97aa"))
-	draw_rect(Rect2(-r * 0.45, r * 0.7, r * 0.9, r * 0.55), INK, false, 2)
-	draw_line(Vector2(-r * 0.45, r * 0.95), Vector2(r * 0.45, r * 0.95), INK, 1.5)
-	draw_circle(Vector2.ZERO, r, tint if mood != "fail" else tint.darkened(0.35))
-	draw_arc(Vector2.ZERO, r, 0, TAU, 28, INK, 2.5, true)
+			canvas.draw_line(centre + direction * (r + 8), centre + direction * (r + 20), Color(1, 0.86, 0.45, 0.8), 3, true)
+	canvas.draw_circle(centre, r * 1.9, Color(tint, glow * 0.5))
+	canvas.draw_set_transform(centre, 0, squash)
+	canvas.draw_rect(Rect2(-r * 0.45, r * 0.7, r * 0.9, r * 0.55), Color("8e97aa"))
+	canvas.draw_rect(Rect2(-r * 0.45, r * 0.7, r * 0.9, r * 0.55), INK, false, 2)
+	canvas.draw_line(Vector2(-r * 0.45, r * 0.95), Vector2(r * 0.45, r * 0.95), INK, 1.5)
+	canvas.draw_circle(Vector2.ZERO, r, tint if mood != "fail" else tint.darkened(0.35))
+	canvas.draw_arc(Vector2.ZERO, r, 0, TAU, 28, INK, 2.5, true)
 	var look := Vector2.ZERO
 	if _look != Vector2.ZERO:
 		look = (_look - centre).limit_length(1.0) * 2.0
@@ -859,31 +866,31 @@ func _draw_bulby(index: int, at: Vector2) -> void:
 	match mood:
 		"grab", "watch":
 			for side in [-1, 1]:
-				draw_circle(Vector2(side * ex, ey), 4.2, Color.WHITE)
-				draw_arc(Vector2(side * ex, ey), 4.2, 0, TAU, 12, INK, 1.2, true)
-				draw_circle(Vector2(side * ex, ey) + look, 2.0, INK)
-			draw_circle(Vector2(0, r * 0.42), 3.0 if mood == "grab" else 2.2, INK)
+				canvas.draw_circle(Vector2(side * ex, ey), 4.2, Color.WHITE)
+				canvas.draw_arc(Vector2(side * ex, ey), 4.2, 0, TAU, 12, INK, 1.2, true)
+				canvas.draw_circle(Vector2(side * ex, ey) + look, 2.0, INK)
+			canvas.draw_circle(Vector2(0, r * 0.42), 3.0 if mood == "grab" else 2.2, INK)
 		"scheme":
 			for side in [-1, 1]:
-				draw_line(Vector2(side * ex - 3.5, ey - side * 1.5), Vector2(side * ex + 3.5, ey + side * 1.5), INK, 2.2, true)
-			draw_arc(Vector2(0, r * 0.18), r * 0.42, 0.15, PI - 0.15, 10, INK, 2.2, true)
+				canvas.draw_line(Vector2(side * ex - 3.5, ey - side * 1.5), Vector2(side * ex + 3.5, ey + side * 1.5), INK, 2.2, true)
+			canvas.draw_arc(Vector2(0, r * 0.18), r * 0.42, 0.15, PI - 0.15, 10, INK, 2.2, true)
 		"win":
 			for side in [-1, 1]:
-				draw_arc(Vector2(side * ex, ey + 1.5), 3.2, PI, TAU, 8, INK, 2.2, true)
-			draw_circle(Vector2(0, r * 0.3), r * 0.3, Color("8d4b59"))
+				canvas.draw_arc(Vector2(side * ex, ey + 1.5), 3.2, PI, TAU, 8, INK, 2.2, true)
+			canvas.draw_circle(Vector2(0, r * 0.3), r * 0.3, Color("8d4b59"))
 		"fail":
 			for side in [-1, 1]:
-				draw_line(Vector2(side * ex - 3, ey + 1), Vector2(side * ex + 3, ey + 1), INK, 2.2, true)
-			draw_arc(Vector2(0, r * 0.62), r * 0.3, PI + 0.3, TAU - 0.3, 8, INK, 2.2, true)
+				canvas.draw_line(Vector2(side * ex - 3, ey + 1), Vector2(side * ex + 3, ey + 1), INK, 2.2, true)
+			canvas.draw_arc(Vector2(0, r * 0.62), r * 0.3, PI + 0.3, TAU - 0.3, 8, INK, 2.2, true)
 		"flinch":
 			for side in [-1, 1]:
-				draw_polyline(PackedVector2Array([Vector2(side * ex - 3 * side, ey - 3), Vector2(side * ex + 2 * side, ey), Vector2(side * ex - 3 * side, ey + 3)]), INK, 2.0, true)
-			draw_polyline(PackedVector2Array([Vector2(-5, r * 0.45), Vector2(-2, r * 0.35), Vector2(1, r * 0.45), Vector2(4, r * 0.35)]), INK, 1.8, true)
+				canvas.draw_polyline(PackedVector2Array([Vector2(side * ex - 3 * side, ey - 3), Vector2(side * ex + 2 * side, ey), Vector2(side * ex - 3 * side, ey + 3)]), INK, 2.0, true)
+			canvas.draw_polyline(PackedVector2Array([Vector2(-5, r * 0.45), Vector2(-2, r * 0.35), Vector2(1, r * 0.45), Vector2(4, r * 0.35)]), INK, 1.8, true)
 		_:
 			for side in [-1, 1]:
-				draw_circle(Vector2(side * ex, ey) + look * 0.6, 2.4, INK)
-			draw_arc(Vector2(0, r * 0.12), r * 0.32, 0.4, PI - 0.4, 8, INK, 2.0, true)
-	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
+				canvas.draw_circle(Vector2(side * ex, ey) + look * 0.6, 2.4, INK)
+			canvas.draw_arc(Vector2(0, r * 0.12), r * 0.32, 0.4, PI - 0.4, 8, INK, 2.0, true)
+	canvas.draw_set_transform(Vector2.ZERO)
 
 
 func set_flick_ready(ready: bool, aim_slot: int = -1) -> void:

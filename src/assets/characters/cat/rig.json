@@ -1,0 +1,126 @@
+{
+  "id": "cat",
+  "canvas": [
+    320,
+    400
+  ],
+  "anchor": [
+    160,
+    380
+  ],
+  "parts": [
+    {
+      "name": "leg_left",
+      "texture": "res://assets/characters/cat/leg_left.svg",
+      "pivot": [
+        122,
+        299
+      ],
+      "z": -2
+    },
+    {
+      "name": "leg_right",
+      "texture": "res://assets/characters/cat/leg_right.svg",
+      "pivot": [
+        218,
+        300
+      ],
+      "z": -1
+    },
+    {
+      "name": "arm_left",
+      "texture": "res://assets/characters/cat/arm_left.svg",
+      "pivot": [
+        110,
+        245
+      ],
+      "z": 1
+    },
+    {
+      "name": "arm_right",
+      "texture": "res://assets/characters/cat/arm_right.svg",
+      "pivot": [
+        220,
+        245
+      ],
+      "z": 1
+    },
+    {
+      "name": "tail",
+      "texture": "res://assets/characters/cat/tail.svg",
+      "pivot": [
+        86,
+        259
+      ],
+      "z": -3
+    },
+    {
+      "name": "body",
+      "texture": "res://assets/characters/cat/body.svg",
+      "pivot": [
+        160,
+        271
+      ],
+      "z": 0
+    },
+    {
+      "name": "head",
+      "texture": "res://assets/characters/cat/head.svg",
+      "pivot": [
+        160,
+        149
+      ],
+      "z": 2
+    },
+    {
+      "name": "ear_left",
+      "texture": "res://assets/characters/cat/ear_left.svg",
+      "pivot": [
+        112,
+        98
+      ],
+      "z": 3
+    },
+    {
+      "name": "ear_right",
+      "texture": "res://assets/characters/cat/ear_right.svg",
+      "pivot": [
+        210,
+        98
+      ],
+      "z": 3
+    },
+    {
+      "name": "bandana",
+      "texture": "res://assets/characters/cat/bandana.svg",
+      "pivot": [
+        160,
+        222
+      ],
+      "z": 4
+    }
+  ],
+  "expressions": {
+    "neutral": "res://assets/characters/cat/face_neutral.svg",
+    "hungry": "res://assets/characters/cat/face_hungry.svg",
+    "sleepy": "res://assets/characters/cat/face_sleepy.svg",
+    "angry": "res://assets/characters/cat/face_angry.svg",
+    "frightened": "res://assets/characters/cat/face_frightened.svg",
+    "surprised": "res://assets/characters/cat/face_surprised.svg",
+    "pleased": "res://assets/characters/cat/face_pleased.svg"
+  },
+  "animations": [
+    "idle",
+    "walk",
+    "startle",
+    "run",
+    "eat",
+    "sit",
+    "sleep",
+    "bonk",
+    "ko",
+    "exit",
+    "celebrate"
+  ],
+  "author": "Original LIGHTBULB MOMENT production artwork"
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "status": "playable_all_pages",
+  "status": "campaign_eight_pages",
   "background": {
     "texture": "res://assets/backgrounds/living_room_stage.png",
     "crop": [
@@ -30,6 +30,14 @@
     "intern": {
       "rig": "res://assets/characters/intern/rig.json",
       "scale": 0.5
+    },
+    "cat": {
+      "rig": "res://assets/characters/cat/rig.json",
+      "scale": 0.27
+    },
+    "mouse": {
+      "rig": "res://assets/characters/mouse/rig.json",
+      "scale": 0.2
     }
   },
   "props": {
@@ -45,7 +53,17 @@
     "pedal": "res://assets/props/pedal.svg",
     "pedal_down": "res://assets/props/pedal_down.svg",
     "lamp_off": "res://assets/props/lamp_off.svg",
-    "lamp_on": "res://assets/props/lamp_on.svg"
+    "lamp_on": "res://assets/props/lamp_on.svg",
+    "fish": "res://assets/props/fish.svg",
+    "fish_empty": "res://assets/props/fish_empty.svg",
+    "cookie": "res://assets/props/cookie.svg",
+    "cookie_empty": "res://assets/props/cookie_empty.svg",
+    "broccoli": "res://assets/props/broccoli.svg",
+    "broccoli_empty": "res://assets/props/broccoli_empty.svg",
+    "rocker": "res://assets/props/rocker.svg",
+    "chair": "res://assets/props/office_chair.svg",
+    "cheese": "res://assets/props/cheese.svg",
+    "cheese_empty": "res://assets/props/cheese_empty.svg"
   },
   "thoughts": {
     "hungry": "res://assets/thoughts/hungry.svg",

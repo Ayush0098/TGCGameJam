@@ -38,6 +38,12 @@ static func _met(page: Dictionary, world: Dictionary, events: Array, fact: Dicti
 			return not actor.is_empty() and not target.is_empty() and _event_matches(
 				events, "BONK", fact.character, "target", fact.target
 			)
+		"CLONK":
+			# KO'd in a clash over the same food or seat.
+			for event in events:
+				if event.get("type") == "CLASH" and str(fact.get("character")) in event.get("actors", []):
+					return true
+			return false
 		"KO", "EXITED":
 			return not actor.is_empty() and final_actor.get("status") == fact.type
 		"UNEATEN":
@@ -137,4 +143,6 @@ static func fact_text(fact: Dictionary) -> String:
 			return "Nobody eats the %s" % what
 		"ALL_ACTIVATED":
 			return "Everyone gets a bright idea"
+		"CLONK":
+			return "%s gets clonked in a food fight" % who
 	return str(fact.get("type", ""))

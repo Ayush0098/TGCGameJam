@@ -2,9 +2,11 @@ extends RefCounted
 ## Title screen, Sunday Edition page select and contextual help (Claude batch 1).
 
 const MAIN = preload("res://scenes/main.tscn")
+const LEGACY_PAGES = [preload("res://data/pages/page_02.gd"), preload("res://data/pages/page_04.gd"), preload("res://data/pages/page_06.gd")]
 
 
 func run(check: Callable) -> bool:
+	load("res://game/main.gd").page_override = LEGACY_PAGES
 	var game = MAIN.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(game)
 	check.call(game._front.visible and game._story_waiting, "Launch shows the title over the waiting first page")
@@ -53,4 +55,5 @@ func run(check: Callable) -> bool:
 	check.call(game._record_progress({"caption": "Grandma ate the pie.", "won": false, "facts": []}).is_empty(), "Repeated endings and bonuses are not re-awarded")
 	check.call(game._progress()[1].stars == 1 and game._progress()[1].max_stars == 3, "Sunday Edition reports stars per page")
 	game.free()
+	load("res://game/main.gd").page_override = []
 	return true

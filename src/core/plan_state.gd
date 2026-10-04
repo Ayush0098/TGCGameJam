@@ -61,6 +61,9 @@ func move_lantern(page: Dictionary, index: int, position: Vector2, enabled := tr
 	var bounds: Array = page.lanterns.bounds
 	if position.x < bounds[0] or position.y < bounds[1] or position.x > bounds[2] or position.y > bounds[3]:
 		return false
+	# Pages may limit how many lanterns can be deployed (lanterns.count).
+	if enabled and index >= int(page.lanterns.get("count", 2)):
+		return false
 	lanterns[index] = {"x": position.x, "y": position.y, "enabled": enabled}
 	return true
 
