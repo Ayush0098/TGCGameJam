@@ -55,6 +55,10 @@ var _art := false
 var _root: Node2D
 var _room: ColorRect
 var _props: PropLayer
+# Living light: additive glow pools, flicker, dust motes and lamp cones. They are
+# decoration inside the mask's lit area and never change who is lit.
+var _glow: GlowLayer
+var _glow_texture: Texture2D
 var _rigs: Dictionary = {}
 var _prop_sprites: Dictionary = {}
 var _actions: Dictionary = {}
@@ -79,6 +83,11 @@ const WORD_COLOURS := {"DING": Color("ffd27a"), "EAT": Color("f28c28"), "BONK": 
 const WORD_TRAUMA := {"BONK": 0.5, "CLASH": 0.55, "EXIT": 0.4, "EAT": 0.22, "STARTLE": 0.12}
 var _manifest: Dictionary = {}
 
+class GlowLayer extends Node2D:
+	var stage: Control
+	func _draw() -> void:
+		stage._draw_glow(self)
+
 class PropLayer extends Node2D:
 	var stage: Control
 	func _draw() -> void:
@@ -100,6 +109,14 @@ func _ready() -> void:
 	material.set_shader_parameter("painting", load(_manifest.background.texture))
 	_room.material = material
 	_root.add_child(_room)
+	_glow = GlowLayer.new()
+	_glow.stage = self
+	_glow.z_index = -50
+	var additive := CanvasItemMaterial.new()
+	additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_glow.material = additive
+	_root.add_child(_glow)
+	_glow_texture = _radial_texture()
 	_props = PropLayer.new()
 	_props.stage = self
 	_props.z_index = -45
@@ -187,6 +204,7 @@ func configure(page: Dictionary) -> void:
 		painting = room_path
 	_room.material.set_shader_parameter("painting", load(painting))
 	_room.visible = _art
+	_glow.visible = _art
 	_props.visible = _art
 	clear_preview()
 
@@ -300,6 +318,8 @@ func _update_visuals() -> void:
 		sprite.position = Vector2(_x(object.slot) - sprite.texture.get_width() * 0.5, FLOOR_Y - sprite.texture.get_height())
 		sprite.material.set_shader_parameter("lit", 1.0 if _lit(object.slot, world) else 0.0)
 	_props.queue_redraw()
+	if is_instance_valid(_glow):
+		_glow.queue_redraw()
 	queue_redraw()
 
 func _figure_height(art: String) -> float:
@@ -478,6 +498,8 @@ func _process(delta: float) -> void:
 		queue_redraw()
 		if is_instance_valid(_props):
 			_props.queue_redraw()
+		if is_instance_valid(_glow):
+			_glow.queue_redraw()
 	for effect in _effects:
 		effect.age += delta * _playback_speed
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
@@ -590,8 +612,6 @@ func _draw() -> void:
 		if lamp.get("id", "") == "flick":
 			continue
 		var centre := Vector2(_x((float(lamp.zone[0]) + float(lamp.zone[1])) * 0.5), 65)
-		if lamp.on:
-			draw_colored_polygon(PackedVector2Array([centre, Vector2(_x(lamp.zone[0]) - _spacing() * 0.45, FLOOR_Y), Vector2(_x(lamp.zone[1]) + _spacing() * 0.45, FLOOR_Y)]), Color(1, 0.86, 0.55, 0.055))
 		if _art and _textures.has("lamp_on"):
 			draw_line(Vector2(centre.x, 0), centre - Vector2(0, 30), Color("524b51"), 3, true)
 			draw_texture(_textures["lamp_on" if lamp.on else "lamp_off"], centre - Vector2(40, 30))
@@ -954,3 +974,55 @@ func _draw_flick(world: Dictionary) -> void:
 		else:
 			var wiggle := 0.0 if _reduced_motion else sin(_bulb_clock * 9.0) * 3.0
 			_draw_spare_bulb(Vector2(40 + wiggle, 60), 1.0, "spare bulb: click the room!")
+
+
+func _radial_texture() -> Texture2D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1, 1, 1, 1))
+	gradient.set_color(1, Color(1, 1, 1, 0))
+	gradient.add_point(0.45, Color(1, 1, 1, 0.55))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.0, 0.5)
+	texture.width = 128
+	texture.height = 128
+	return texture
+
+func _draw_glow(canvas: CanvasItem) -> void:
+	var world := _shown()
+	var warm := Color(1.0, 0.78, 0.42)
+	var t := 0.0 if _reduced_motion else _bulb_clock
+	for index in _plan.get("lanterns", []).size():
+		var light: Dictionary = _plan.lanterns[index]
+		if not light.get("enabled", false):
+			continue
+		var at := _light_position(light)
+		var radius := LIGHTING.radius(_page) * _spacing() * 1.15
+		var flicker := 1.0 + 0.05 * sin(t * 7.3 + index) + 0.03 * sin(t * 17.1)
+		canvas.draw_texture_rect(_glow_texture, Rect2(at - Vector2(radius, radius), Vector2(radius, radius) * 2.0), false, Color(warm, 0.30 * flicker))
+		# Dust motes drift up through the pool.
+		for mote in 14:
+			var seed := float(mote) * 12.9898 + float(index) * 78.233
+			var angle := fmod(seed * 43.7, TAU)
+			var distance := radius * 0.75 * fmod(seed * 0.618, 1.0)
+			var rise := fmod(t * (6.0 + fmod(seed, 5.0)) + seed * 9.0, 60.0)
+			var point := at + Vector2(cos(angle), sin(angle)) * distance - Vector2(0, rise)
+			if point.distance_to(at) < radius * 0.85:
+				canvas.draw_circle(point, 1.6, Color(1, 0.9, 0.65, 0.35 * (1.0 - rise / 60.0)))
+	for lamp in world.get("lamps", []):
+		if not lamp.get("on", false):
+			continue
+		# Cone from the fixture to the exact lit floor footprint (zone +/- 0.45).
+		var left := _x(float(lamp.zone[0]) - 0.45)
+		var right := _x(float(lamp.zone[1]) + 0.45)
+		var top := Vector2((left + right) * 0.5, 86.0 if lamp.get("id", "") != "flick" else 74.0)
+		var polygon := PackedVector2Array([top + Vector2(-22, 0), top + Vector2(22, 0), Vector2(right, FLOOR_Y + 30), Vector2(left, FLOOR_Y + 30)])
+		var colours := PackedColorArray([Color(warm, 0.38), Color(warm, 0.38), Color(warm, 0.05), Color(warm, 0.05)])
+		canvas.draw_polygon(polygon, colours)
+	for zone in _page.get("fixed_lights", []):
+		var left := _x(float(zone[0]) - 0.45)
+		var right := _x(float(zone[1]) + 0.45)
+		var top := Vector2((left + right) * 0.5, 74.0)
+		canvas.draw_polygon(PackedVector2Array([top + Vector2(-18, 0), top + Vector2(18, 0), Vector2(right, FLOOR_Y + 30), Vector2(left, FLOOR_Y + 30)]), PackedColorArray([Color(warm, 0.22), Color(warm, 0.22), Color(warm, 0.03), Color(warm, 0.03)]))
