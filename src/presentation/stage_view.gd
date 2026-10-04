@@ -150,6 +150,11 @@ func painting() -> Texture2D:
 	return _room.material.get_shader_parameter("painting")
 
 
+## Keyboard play: the character under the cursor and the thought picked to swap.
+var key_cursor := ""
+var key_picked := ""
+
+
 func _fit() -> float:
 	return maxf(0.0001, minf(size.x / LOGICAL_SIZE.x, size.y / LOGICAL_SIZE.y))
 
@@ -716,6 +721,13 @@ func _draw() -> void:
 			_actor_rects[actor.id] = Rect2(at - Vector2(42, _figure_height(actor.art)), Vector2(84, _figure_height(actor.art)))
 		if actor.id == _target:
 			draw_rect(rect.grow(5), Color("42a88c"), false, 3)
+		if _planning and actor.id == key_picked:
+			draw_rect(rect.grow(8), Color("ffd27a"), false, 5)
+			_label(self, rect.position + Vector2(10, -16), "PICKED", Color("ffd27a"), 14)
+		if _planning and actor.id == key_cursor:
+			var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() * 0.008)
+			draw_rect(rect.grow(4), Color(Color("42a88c"), pulse), false, 3)
+			draw_colored_polygon(PackedVector2Array([rect.position + Vector2(40, -22), rect.position + Vector2(56, -22), rect.position + Vector2(48, -10)]), Color("42a88c"))
 	for effect in _effects:
 		_draw_word(effect)
 	for saying in _sayings:

@@ -920,6 +920,13 @@ func _update_buttons() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and not _stage.key_picked.is_empty() and mode == "PLAN":
+		# Esc first drops a thought picked with the keyboard.
+		_stage.key_picked = ""
+		_stage.clear_preview()
+		_stage.queue_redraw()
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
 		# Esc always goes back one step.
 		if is_instance_valid(_settings_sheet) and _settings_sheet.visible:
@@ -979,6 +986,9 @@ func _input(event: InputEvent) -> void:
 			_start_action()
 		elif mode in ["INTRO", "PLAY", "ORIGINAL_END"]:
 			_finish_run()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and _keyboard(event):
 		get_viewport().set_input_as_handled()
 
 
@@ -1199,7 +1209,7 @@ func _update_instructions() -> void:
 		"PLAY":
 			text = "AND THEN...   (Space skips to the end)"
 			if _flick_available():
-				text = "Click the room to drop your spare bulb: it lights 3 slots from the next beat (FLICK!)"
+				text = "Drop your spare bulb: click the room, or aim with left/right and press F. It lights 3 spots from the next beat."
 		"RESULT":
 			text = "TWIST! Press NEXT PAGE, or hunt for another ending." if _won_current else "Not quite. REWIND keeps your plan; RESTART resets the page."
 		"PLAN":
@@ -1212,11 +1222,13 @@ func _update_instructions() -> void:
 			elif not _lanterns_useful:
 				text = "Everyone is lit. Drag one thought bubble onto the other character to swap, then ACTION! (Space)."
 			elif lit.is_empty():
-				text = "Nobody is lit. Drag a lantern from its hook into the room to reveal what someone is thinking."
+				text = "Nobody is lit. Drag the bulb into the room (or use the arrow keys) to reveal what someone is thinking."
 			elif lit.size() == 1:
-				text = "Light a second character to swap thoughts, or press ACTION! (Space).   Keys: 1/2 lantern, arrows move, P park"
+				text = "Light a second character to swap thoughts, or press ACTION!
+Keys: arrows/WASD move bulb · Tab pick · Enter swap · Space ACTION · H hint"
 			else:
-				text = "Drag a lit thought onto another lit character to swap. ACTION! = Space.   Keys: 1/2 lantern, arrows move, P park"
+				text = "Drag a lit thought onto another lit character to swap.
+Keys: arrows/WASD move bulb · Tab pick · Enter swap · Space ACTION · H hint"
 	_instructions.text = text
 	if is_instance_valid(_action):
 		# The label never changes length (it must fit its button); a dark stage
@@ -1492,6 +1504,8 @@ func _flick_available() -> bool:
 func _aim_slot() -> int:
 	if not _flick_available() or not is_instance_valid(_stage) or not _stage.is_inside_tree():
 		return -1
+	if _key_aim >= 0:
+		return _key_aim
 	var local: Vector2 = _stage.get_local_mouse_position()
 	if not Rect2(Vector2.ZERO, _stage.size).has_point(local):
 		return -1
@@ -2067,6 +2081,7 @@ func _show_result_card(result: Dictionary) -> void:
 	_result_restart.visible = not won
 	_compare_button.visible = true
 	_result_card.show()
+	(_next if won else _rewind).grab_focus.call_deferred()
 	_stage.show()
 	_comparison.hide()
 	_tab_bar.show()
@@ -2127,6 +2142,11 @@ func _open_pause() -> void:
 	_pause_skip.visible = failures >= 3 and _tutorial_panel < 0
 	_pause_tutorial.visible = _tutorial_panel >= 0
 	_pause_sheet.show()
+	# Keyboard: Up/Down walk the list, Enter picks, Esc resumes.
+	for child in _pause_hint.get_parent().get_children():
+		if child is Button and child.visible:
+			child.grab_focus.call_deferred()
+			break
 
 
 func _close_pause() -> void:
@@ -2705,6 +2725,7 @@ func _show_intro_card() -> void:
 	_intro_page = 0
 	_fill_intro_card()
 	_intro_card.show()
+	_intro_next.grab_focus.call_deferred()
 
 
 func _fill_intro_card() -> void:
@@ -2785,6 +2806,7 @@ func _open_endings_book() -> void:
 	_emphasise(close, true)
 	close.pressed.connect(func(): _endings_book.queue_free())
 	card.add_child(close)
+	close.grab_focus.call_deferred()
 	_play_effect("SWAP")
 	_tutorial_event("endings_opened")
 
@@ -2910,6 +2932,7 @@ func _show_story_card(card: Dictionary) -> void:
 		_story_card.hide()
 		_story_card.queue_free())
 	panel.add_child(go)
+	go.grab_focus.call_deferred()
 
 
 ## Running gags (story.md §4): where the runaway was last seen, and the Dog's career.
@@ -2995,3 +3018,139 @@ func _show_star_award(before: int, after: int, won: bool) -> void:
 	var total: int = 1 + page.get("bonus", []).size()
 	var title := "PERFECT PAGE!" if after == total else ("PAGE CLEAR!" if won else "BONUS STAR!")
 	_star_award.play(before, after, total, title, COMIC_FONT, _motion.button_pressed)
+
+
+
+# ------------------------------------------------------------ keyboard play
+## Every action has a key, like a usual game:
+##   PLAN   arrows/WASD move the bulb (up/down raise/lower), 1/2 pick a bulb,
+##          P park/hang it, Tab/Q/E cycle lit characters, Enter picks a thought
+##          and Enter on another swaps them, Esc drops it, H hint, R restart,
+##          O replay the Original, B Endings book, Space ACTION.
+##   PLAY   Space skips, left/right aim the spare bulb, F/Enter drops it.
+##   RESULT Enter next page (after a win) or retry, R restart, L levels.
+var _key_aim := -1
+
+
+func _keyboard(event: InputEventKey) -> bool:
+	var key := event.keycode
+	match mode:
+		"PLAN":
+			if key in [KEY_A, KEY_D, KEY_W, KEY_S]:
+				# WASD mirrors the arrow keys the stage already handles.
+				var arrow: int = {KEY_A: KEY_LEFT, KEY_D: KEY_RIGHT, KEY_W: KEY_UP, KEY_S: KEY_DOWN}[key]
+				_nudge_lantern(arrow, event.shift_pressed)
+				return true
+			if key in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN] and not _stage.has_focus():
+				_nudge_lantern(key, event.shift_pressed)
+				return true
+			if (key in [KEY_1, KEY_2, KEY_P]) and not _stage.has_focus():
+				_stage.grab_focus()
+				_stage._gui_input(event)
+				return true
+			if event.echo:
+				return false
+			match key:
+				KEY_TAB, KEY_E, KEY_Q:
+					_cycle_cursor(-1 if key == KEY_Q or event.shift_pressed else 1)
+					return true
+				KEY_ENTER, KEY_KP_ENTER:
+					_key_select()
+					return true
+				KEY_H:
+					_show_hint()
+					return true
+				KEY_R:
+					_restart_page()
+					return true
+				KEY_O:
+					_replay_original()
+					return true
+				KEY_B:
+					_open_endings_book()
+					return true
+		"PLAY":
+			if not _flick_available():
+				return false
+			if key in [KEY_LEFT, KEY_RIGHT, KEY_A, KEY_D]:
+				var start := _key_aim if _key_aim >= 0 else int(page.width) / 2
+				_key_aim = clampi(start + (-1 if key in [KEY_LEFT, KEY_A] else 1), 0, int(page.width) - 1)
+				return true
+			if key in [KEY_F, KEY_ENTER, KEY_KP_ENTER] and not event.echo:
+				var slot := _aim_slot()
+				if slot < 0:
+					slot = int(page.width) / 2
+				_drop_flick(slot)
+				_key_aim = -1
+				return true
+		"RESULT":
+			if event.echo:
+				return false
+			match key:
+				KEY_ENTER, KEY_KP_ENTER, KEY_N:
+					if is_instance_valid(_star_award) and _star_award.visible and not _star_award._done:
+						_star_award._finish()
+					elif _won_current and _next.visible:
+						_next_page()
+					else:
+						_return_to_plan()
+					return true
+				KEY_R:
+					_restart_page()
+					return true
+				KEY_L:
+					_open_edition()
+					return true
+				KEY_H:
+					_show_hint()
+					return true
+	return false
+
+
+func _nudge_lantern(arrow: int, fine: bool) -> void:
+	var fake := InputEventKey.new()
+	fake.keycode = arrow
+	fake.pressed = true
+	fake.shift_pressed = fine
+	var lantern: Dictionary = plan.lanterns[_stage._selected_lantern]
+	if not lantern.enabled:
+		# The first nudge hangs a parked bulb where it was last placed.
+		_move_lantern(_stage._selected_lantern, Vector2(lantern.x, lantern.y), true)
+	_stage._gui_input(fake)
+
+
+func _cycle_cursor(direction: int) -> void:
+	var lit := _lit_ids()
+	if lit.is_empty():
+		_instructions.text = "Nobody is lit yet. Move the bulb with the arrow keys (or WASD) first."
+		return
+	var order: Array[String] = []
+	for character in _stage._shown().get("characters", []):
+		if character.id in lit:
+			order.append(character.id)
+	var index := order.find(_stage.key_cursor)
+	index = (index + direction + order.size()) % order.size() if index >= 0 else (0 if direction > 0 else order.size() - 1)
+	_stage.key_cursor = order[index]
+	if not _stage.key_picked.is_empty() and _stage.key_picked != _stage.key_cursor:
+		_preview(_stage.key_picked, _stage.key_cursor)
+	_play_effect("POKE_" + _thought_now(_stage.key_cursor))
+	_stage.queue_redraw()
+
+
+func _key_select() -> void:
+	var cursor: String = _stage.key_cursor
+	if cursor.is_empty() or cursor not in _lit_ids():
+		_cycle_cursor(1)
+		return
+	if _stage.key_picked.is_empty():
+		_stage.key_picked = cursor
+		_play_effect("SWAP")
+		_instructions.text = "Picked %s's thought. Tab to another lit character, Enter to swap, Esc to cancel." % _art_of(cursor).capitalize()
+	elif _stage.key_picked == cursor:
+		_stage.key_picked = ""
+		_stage.clear_preview()
+	else:
+		var first: String = _stage.key_picked
+		_stage.key_picked = ""
+		_swap(first, cursor)
+	_stage.queue_redraw()

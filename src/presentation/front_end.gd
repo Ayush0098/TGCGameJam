@@ -303,6 +303,12 @@ func show_edition() -> void:
 	_title_panel.hide()
 	_edition_panel.show()
 	show()
+	# Keyboard: start on the newest unlocked page; arrows move through the grid.
+	var focus: Control = _close
+	for card in _cards.get_children():
+		if card is Button and not card.disabled:
+			focus = card
+	focus.grab_focus.call_deferred()
 
 
 class _Bulb extends Control:
