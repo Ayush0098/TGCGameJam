@@ -1,14 +1,14 @@
 {
-  "files": 115,
-  "narrator": 31,
-  "character_reactions": 56,
+  "files": 222,
+  "narrator": 110,
+  "character_reactions": 84,
   "blips": 28,
-  "total_seconds": 180.676,
+  "total_seconds": 783.703,
   "active_rms_dbfs_range": [
     -20.88,
     -18.37
   ],
-  "max_decoded_peak": 0.79947,
+  "max_decoded_peak": 0.90881,
   "max_edge_silence_seconds": 0.0115,
   "acting_review": "pending human listening"
 }

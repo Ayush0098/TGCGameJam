@@ -1,52 +1,42 @@
 [
   {
-    "id": "narr_title",
+    "id": "narr15_title",
     "start_seconds": 0.0,
-    "duration_seconds": 2.6826530612244897
+    "duration_seconds": 4.757324263038549
   },
   {
-    "id": "boss_flee",
-    "start_seconds": 3.183,
-    "duration_seconds": 2.515646258503401
+    "id": "narr15_dinner_twist",
+    "start_seconds": 5.257,
+    "duration_seconds": 2.591950113378685
   },
   {
-    "id": "grandma_bonk",
-    "start_seconds": 6.198,
-    "duration_seconds": 1.1979818594104308
+    "id": "narr15_shadow_twist",
+    "start_seconds": 8.349,
+    "duration_seconds": 2.422607709750567
   },
   {
-    "id": "kid_eat",
-    "start_seconds": 7.896,
-    "duration_seconds": 0.8637414965986394
+    "id": "boss_hug",
+    "start_seconds": 11.272,
+    "duration_seconds": 1.5591836734693878
   },
   {
-    "id": "intern_clash",
-    "start_seconds": 9.26,
-    "duration_seconds": 1.9302040816326531
+    "id": "grandma_hide",
+    "start_seconds": 13.331,
+    "duration_seconds": 2.5779818594104307
   },
   {
-    "id": "dog_wake",
-    "start_seconds": 11.69,
-    "duration_seconds": 0.8949886621315193
+    "id": "kid_jealous",
+    "start_seconds": 16.409,
+    "duration_seconds": 1.4309750566893424
   },
   {
-    "id": "cat_eat",
-    "start_seconds": 13.085,
-    "duration_seconds": 1.0367573696145125
+    "id": "intern_hugged",
+    "start_seconds": 18.34,
+    "duration_seconds": 1.130204081632653
   },
   {
-    "id": "mouse_eat",
-    "start_seconds": 14.622,
-    "duration_seconds": 0.799546485260771
-  },
-  {
-    "id": "dog_sleep",
-    "start_seconds": 15.922,
-    "duration_seconds": 1.3219954648526078
-  },
-  {
-    "id": "cat_sleep",
-    "start_seconds": 17.744,
-    "duration_seconds": 1.2222222222222223
+    "id": "narr15_finale_win",
+    "start_seconds": 19.97,
+    "duration_seconds": 19.42265306122449
   }
 ]

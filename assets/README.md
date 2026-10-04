@@ -5,9 +5,10 @@ Masters and authoring scripts live here. Godot imports only game-ready copies in
 
 ## Current library
 
-- `audio/voice/`:115 requested mono44.1kHz MP3s (31 narrator,56 reactions,28 blips),
+- `audio/voice/`:222 mono44.1kHz MP3s (110 narrator,84 reactions,28 blips),
   exact names, metadata/quality report and audition preview. Recorded production
-  batch is complete; listening approval and runtime integration pending. Four
+  through Parts F/G, with new British narrator and old fallbacks retained.
+  Runtime copies/subtitles updated; listening/story sequencing review pending. Four
   wordless animal reactions/12 animal blips are original synthesis. See its README.
 
 - `art/backgrounds/kitchen_stage.png` and `office_stage.png`: companion playable

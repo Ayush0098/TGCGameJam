@@ -1,7 +1,11 @@
 # LIGHTBULB MOMENT voice pack
 
-Delivered 2026-10-04:115 individually named MP3 files, mono44.1kHz.
-31 narrator lines in narrator/,56 reactions and28 blips in characters/.
+Updated 2026-10-04 through Parts F/G:222 named MP3 files, mono44.1kHz.
+110 narrator lines in narrator/,84 reactions and28 blips in characters/.
+Includes73 new narr15_* lines and28 hug/hugged/hide/jealous reactions.
+Old121 files remain available as requested fallbacks.
+Part E replaces narr_catmouse_twist and adds six Shadow Play/Power Cut lines.
+Later sections override earlier duplicate IDs.114 unchanged MP3s were preserved.
 All stems/names match the supplied request; bracketed directions are never read.
 request.md preserves the supplied brief. manifest.json contains exact dialogue,
 directions, profiles, paths, durations, hashes and per-file decoded metrics.
@@ -9,6 +13,12 @@ directions, profiles, paths, durations, hashes and per-file decoded metrics.
 ## Voices and delivery
 
 Narrator af_heart and Boss bm_george retain the earlier voice direction.
+New story narrator narr15_* uses distinct British bm_fable, starting at0.92
+pace in Act1,0.98 in Act2 and1.04 in Act3, with per-line adjustments. Act cards
+use their own act pacing. Clause/sentence pauses support the theatrical delivery.
+The finale segments speech around nonverbal laughter generated with the same
+profile; [snort]/[wheeze]/[laughing helplessly] are never spoken as words.
+The [click] direction is omitted: no separate sound effects are baked into voice.
 Grandma bf_lily; Kid af_sky; Intern am_puck; Dog am_santa; Cat af_nicole;
 Mouse af_sky with distinct cartoon pitch. Character profiles are consistent.
 Per-cue pace follows slow/fierce/panicked directions where supported.
@@ -30,24 +40,30 @@ gentle compression and active-speech RMS matching. No music, echo or added FX.
 Lossless masters and cache stay under ignored .codex/tools/voice/production_masters/.
 MP3s are decoded and checked, rather than only inspecting inference samples.
 
-quality_report.json:115 files,180.676s total, active RMS −20.88 to−18.37dBFS,
-maximum decoded peak0.79947, maximum edge silence0.0115s. These are measured
+quality_report.json:222 files,783.703s total, active RMS −20.88 to−18.37dBFS,
+maximum decoded peak0.90881, maximum edge silence0.0115s. These are measured
 waveform properties, not perceptual loudness/acting or pronunciation approval.
-voice_preview.wav samples all eight voices plus synthesized dog/cat sleep;
+voice_preview.wav samples the new narrator, character feelings and final laughter;
 preview_order.json provides cue times. This preview is separate from game cues.
 
 ## Integration handoff
 
 This request delivers production files under root assets/audio/voice/.
-They have not been copied to src/assets/audio/voice/ or wired into gameplay by
-this batch. The existing optional runtime loader can consume matching names.
-Integrate with correct subtitles, dark-character silence, event timing and
-skip/rewind cancellation; test after integration. Keep preview/production tools
-out of the exported game. Pages5/9 scripts are deferred as requested.
+All222 runtime copies in src/assets/audio/voice/ match production hashes.
+Narrator captions in lines.json contain110 lines matching recorded words;
+new character reaction subtitles were added. Godot import/Web export succeeded.
+This audio batch does not implement the new15-page story sequencing, act cards
+or new gameplay feelings. The coding thread must select narr15_* keys, connect
+new event cues, sequence twist_stamp/win, and use matching captions. Old narr_*
+files remain intact. Existing10-page voice selection remains available.
+Human listening and full browser timing/privacy/cancellation checks remain pending.
+Keep preview/production tools out of the exported game. The Part E/table below
+the older deferred-pages note in request.md supplies Shadow Play/Power Cut now.
 
 Preserved supplied wording even where presentation needs reconciliation:
 narr_nap_intro refers to a fire, narr_snack_intro to a fridge; neither fixture
 appears in current empty-shell paintings. Check story context before integration.
-narr_finale_end is a short requested closing line, not the approved90–120s epilogue.
+narr_finale_end and narr15_finale_win are requested closing cues; this batch does
+not establish a90–120s epilogue or complete campaign acceptance.
 
 Actual external resources are inventoried in root THIRD_PARTY.md.

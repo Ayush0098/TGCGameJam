@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SR = 44100
 PROFILES = {
     'narr': {'voice':'af_heart','lang':'en-us','speed':.96,'pitch':1.0},
+    'narr15': {'voice':'bm_fable','lang':'en-gb','speed':.92,'pitch':1.0},
     'boss': {'voice':'bm_george','lang':'en-gb','speed':.95,'pitch':.98},
     'grandma': {'voice':'bf_lily','lang':'en-gb','speed':.91,'pitch':1.0},
     'kid': {'voice':'af_sky','lang':'en-us','speed':1.08,'pitch':1.14},
@@ -30,7 +31,10 @@ PROFILES = {
 def parse_request(path):
     request = path.read_text(encoding='utf-8-sig')
     cues=[]
+    act=0
     for line in request.splitlines():
+        section=re.match(r'^### F([123]):',line.strip())
+        if section: act=int(section[1])
         match = re.match(r'^([a-z][a-z0-9_]+)\.mp3\s+(.*)$',line.strip())
         if not match or '_blip_' in match[1]:
             continue
@@ -39,13 +43,23 @@ def parse_request(path):
         direction='; '.join(re.findall(r'\[(.*?)\]',tail))
         if not quote and not direction:
             continue
-        cues.append({'id':cue_id,'text':quote[1] if quote else '', 'direction':direction,
-                     'speaker':cue_id.split('_')[0], 'kind':'spoken' if quote else 'vocal'})
+        quoted=quote[1] if quote else ''
+        spoken=re.sub(r'\s*\[[^\]]*\]\s*',' ',quoted).strip()
+        record={'id':cue_id,'text':spoken, 'direction':direction,
+                'speaker':cue_id.split('_')[0], 'kind':'spoken' if quote else 'vocal'}
+        if quoted!=spoken: record['performance_text']=quoted
+        if cue_id.startswith('narr15_'):
+            explicit_act=re.fullmatch(r'narr15_act([123])',cue_id)
+            record['act']=int(explicit_act[1]) if explicit_act else act
+        # Later request sections explicitly replace earlier lines with the same ID.
+        previous=next((i for i,c in enumerate(cues) if c['id']==cue_id),None)
+        if previous is None: cues.append(record)
+        else: cues[previous]=record
     for speaker in ['boss','grandma','kid','intern','dog','cat','mouse']:
         for i, syllable in enumerate(['ba','bo','mi','pu'],1):
             cues.append({'id':f'{speaker}_blip_{i}','speaker':speaker,'text':'',
                          'syllable':syllable,'direction':'short nonsense vocal syllable', 'kind':'blip'})
-    assert len(cues)==115 and len({c['id'] for c in cues})==115, f'Expected115 unique cues, found{len(cues)}'
+    assert len(cues)==len({c['id'] for c in cues}) and len(cues)>=115
     return cues
 
 def resample(samples, old_rate, pitch=1.0):
@@ -121,25 +135,53 @@ def main():
     (directory/'request.md').write_text(args.request.read_text(encoding='utf-8-sig'),encoding='utf-8')
     cache=ROOT/'.codex/tools/voice/production_masters'; cache.mkdir(parents=True,exist_ok=True)
     hashes={name:prepare_model(ROOT/'.codex/tools/voice'/name,sha,False) for name,sha in MODELS.items()}
+    previous_path=directory/'manifest.json'
+    previous=json.loads(previous_path.read_text()) if previous_path.exists() else {}
+    previous_cues={c['id']:c for c in previous.get('cues',[])}
     model=None; delivered=[]
     for cue in cues:
         if args.only and cue['id'] not in args.only.split(','): continue
         profile=PROFILES[cue['speaker']].copy()
+        if cue['speaker']=='narr15':
+            profile['speed']={1:.92,2:.98,3:1.04}.get(cue.get('act'),.92)
+            if cue['id'].endswith('_original'): profile['speed']*=.97
         if 'slow' in cue['direction'] or cue['id'].endswith('_sleep'): profile['speed']*=.88
         elif any(word in cue['direction'] for word in ['excited','panicking','fierce','triumphant']): profile['speed']*=1.06
         filename=cue['id']+'.mp3'
-        output=directory/('narrator' if cue['speaker']=='narr' else 'characters')/filename
+        output=directory/('narrator' if cue['speaker'].startswith('narr') else 'characters')/filename
         output.parent.mkdir(parents=True,exist_ok=True)
         key=hashlib.sha256(json.dumps({'cue':cue,'profile':profile,'models':hashes,'script':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()},sort_keys=True).encode()).hexdigest()
         master=cache/(cue['id']+'.wav'); keyfile=cache/(cue['id']+'.key')
-        if not (master.exists() and output.exists() and keyfile.exists() and keyfile.read_text()==key):
+        prior=previous_cues.get(cue['id'],{})
+        compatible=(previous.get('models_sha256')==hashes and prior.get('profile')==profile
+                    and all(prior.get(field)==value for field,value in cue.items())
+                    and output.exists() and hashlib.sha256(output.read_bytes()).hexdigest()==prior.get('sha256'))
+        cached=master.exists() and output.exists() and keyfile.exists() and keyfile.read_text()==key
+        if not (cached or compatible):
             if cue['kind']=='vocal' or (cue['kind']=='blip' and cue['speaker'] in ['dog','cat','mouse']):
                 from animal_vocals import generate_vocal
                 samples=generate_vocal(cue['id'],SR)
             else:
                 if model is None: model=Kokoro(str(ROOT/'.codex/tools/voice/kokoro-v1.0.onnx'),str(ROOT/'.codex/tools/voice/voices-v1.0.bin'))
                 text=cue.get('syllable') if cue['kind']=='blip' else cue['text']
-                samples,rate=model.create(text,voice=profile['voice'],lang=profile['lang'],speed=1.8 if cue['kind']=='blip' else profile['speed'],sentence_pause=.20,clause_pause=.10)
+                if cue['id']=='narr15_finale_win' and cue.get('performance_text'):
+                    segments=re.split(r'(\[[^\]]*\])',cue['performance_text'])
+                    performance=[]
+                    for segment in segments:
+                        if segment.startswith('['):
+                            # Nonverbal laughter from the same narrator profile;
+                            # direction words themselves are never pronounced.
+                            laugh={'[snort]':'hə','[wheeze]':'hə hə','[laughing helplessly]':'hɑ hɑ hɑ'}.get(segment)
+                            if laugh:
+                                vocal,rate=model.create(laugh,voice=profile['voice'],lang=profile['lang'],speed=1.15,is_phonemes=True,sentence_pause=.10)
+                                performance.append(vocal*.72)
+                            performance.append(np.zeros(2400))
+                        elif segment.strip():
+                            vocal,rate=model.create(segment.strip(),voice=profile['voice'],lang=profile['lang'],speed=profile['speed'],sentence_pause=.22,clause_pause=.13)
+                            performance.append(vocal)
+                    samples=np.concatenate(performance)
+                else:
+                    samples,rate=model.create(text,voice=profile['voice'],lang=profile['lang'],speed=1.8 if cue['kind']=='blip' else profile['speed'],sentence_pause=.24 if cue['speaker']=='narr15' else .20,clause_pause=.13 if cue['speaker']=='narr15' else .10)
                 samples=resample(samples,rate,profile['pitch'])
             samples=finish(samples,blip=cue['kind']=='blip')
             sf.write(master,samples,SR,subtype='PCM_16')
@@ -149,6 +191,7 @@ def main():
         delivered.append(record)
         print(f"{cue['id']}: {record['duration_seconds']:.2f}s / {record['active_rms_dbfs']}dBFS",flush=True)
     manifest={'version':1,'generator':'local Kokoro ONNX + original synthesized nonverbal animal vocals',
+              'request_sha256':hashlib.sha256((directory/'request.md').read_bytes()).hexdigest(),
               'models_sha256':hashes,'voices':PROFILES,'format':'MP3 mono44100Hz','cues':delivered,
               'quality_note':'Waveform checks do not establish acting/pronunciation quality; human audition required. Four nonverbal animal cues and animal blips are original synthesis.'}
     (directory/('audition_manifest.json' if args.only else 'manifest.json')).write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')

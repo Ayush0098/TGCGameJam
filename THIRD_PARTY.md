@@ -14,14 +14,15 @@ Do not list planned resources as used. Recheck this inventory before release.
 
 ## Used resources
 
-Voice-file batch (2026-10-04):115 requested MP3s in assets/audio/voice/ generated
+Voice-file batch (2026-10-04, through Parts F/G):222 MP3s in assets/audio/voice/ generated
 with the existing Kokoro/ONNX/SoundFile stack listed below, no new downloads or
 dependencies. Additional profiles:bf_lily,af_sky,am_puck,am_santa,af_nicole;
-af_heart/bm_george retained. MP3 encoding uses existing SoundFile/libsndfile.
+af_heart/bm_george retained; bm_fable used for the new narr15_* storyteller and
+phoneme-generated finale laughter. MP3 encoding uses existing SoundFile/libsndfile.
 Exact model hashes/profiles/production metadata:assets/audio/voice/manifest.json.
 Four nonverbal animal cues and12 animal blips are original NumPy synthesis,
-not externally sourced recordings. These files are production deliverables;
-runtime integration is pending.
+not externally sourced recordings. Production files now have matching runtime
+copies; revised narrator subtitles match the supplied Part E script.
 
 Kitchen/office painting revision2 uses the project's original generated paintings
 as edit inputs (2026-10-04), with exact prompts in their existing provenance files.
