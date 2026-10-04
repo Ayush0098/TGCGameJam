@@ -315,6 +315,9 @@ func _build_ui() -> void:
 	_voice.volume_db = -3
 	_voice.finished.connect(_stop_voice)
 	add_child(_voice)
+	var lines: Variant = JSON.parse_string(FileAccess.get_file_as_string(VOICE_ROOT + "lines.json"))
+	if lines is Dictionary:
+		_lines = lines
 	var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/reference/cues.json"))
 	if manifest is Dictionary:
 		for cue in manifest.get("cues", []):
@@ -388,7 +391,9 @@ func _load_page(index: int) -> void:
 	_goal.text = "TWIST: " + page.goal.twist_caption
 	_original_run = SIMULATOR.run(page, plan.to_data(), true)
 	_begin(_original_run, true)
-	if page.id == "page_02" and _cues.has("narrator_intro"):
+	_fail_count = 0
+	_narrate("intro")
+	if page.id == "page_02" and not page.has("narration") and _cues.has("narrator_intro"):
 		_story_waiting = true
 		_last_cue = "narrator_intro"
 		_subtitle.text = "Start the story to hear the narrator, or skip voice to watch the Original."
@@ -402,6 +407,7 @@ func _start_action() -> void:
 	if mode != "PLAN":
 		return
 	attempts += 1
+	_stage.set_caption("")
 	_saved_plan = plan.to_data()
 	_begin(SIMULATOR.run(page, _saved_plan, true), false)
 
@@ -563,6 +569,7 @@ func _finish_run() -> void:
 		mode = "ORIGINAL_END"
 		_clock = 0.0
 		_caption.text = "ORIGINAL: " + GOALS.evaluate(page, _run).caption
+		_narrate("original")
 		_update_buttons()
 		return
 	mode = "RESULT"
@@ -582,6 +589,11 @@ func _finish_run() -> void:
 	_stage.hide()
 	_comparison.show()
 	_show_payoff(result, _record_progress(result))
+	if result.won:
+		_narrate("twist")
+	else:
+		_fail_count += 1
+		_narrate("fail_%d" % (1 + _fail_count % 2))
 	for view in [_stage, _result_stage]:
 		view.set_mood("win" if result.won else "fail")
 	if page.id == "page_02" and result.won:
@@ -1309,32 +1321,42 @@ const LINES := {
 	"CLASH": ["Mine!", "No, mine!"],
 }
 var _blip_cache: Dictionary = {}
+const VOICE_ROOT := "res://assets/audio/voice/"
+const MOMENTS := {"DING": "wake", "EAT": "eat", "SIT": "sleep", "STARTLE": "flee", "IDLE": "huh"}
+var _lines: Dictionary = {}
+var _fail_count := 0
 
 
 func _speak(events: Array) -> void:
-	var spoken := 0
+	# Lit/active characters react in speech balloons (events only exist for
+	# active actors, so darkness stays silent). Voiced if the file exists.
+	var said: Array = []
 	for event in events:
-		var speaker := ""
-		var kind := ""
+		var pairs: Array = []
 		match str(event.type):
-			"DING", "EAT", "EXIT":
-				speaker = str(event.actor)
-				kind = str(event.type)
 			"BONK":
-				speaker = str(event.get("target", ""))
-				kind = "BONKED"
+				pairs.append([str(event.actor), "bonk"])
+				pairs.append([str(event.get("target", "")), "bonked"])
 			"CLASH":
-				speaker = str(event.actor)
-				kind = "CLASH"
-		if speaker.is_empty() or not LINES.has(kind):
-			continue
-		var options: Array = LINES[kind]
-		var line: String = options[(speaker.hash() + int(event.beat)) % options.size()]
-		_stage.say(speaker, line)
-		# Stagger voices so a burst of DINGs doesn't turn into noise.
-		if spoken < 2:
-			_blip(speaker, line)
-		spoken += 1
+				for actor in event.get("actors", [event.actor]):
+					pairs.append([str(actor), "clash"])
+			_:
+				if MOMENTS.has(str(event.type)):
+					pairs.append([str(event.actor), MOMENTS[str(event.type)]])
+		for pair in pairs:
+			var speaker: String = pair[0]
+			if speaker.is_empty() or speaker in said:
+				continue
+			var art := _art_of(speaker)
+			var line: String = _lines.get("characters", {}).get(art, {}).get(pair[1], "")
+			if line.is_empty():
+				continue
+			said.append(speaker)
+			_stage.say(speaker, line, 1.3)
+			# Stagger voices so a burst of DINGs doesn't turn into noise.
+			if said.size() <= 2:
+				if not _play_voice_file("characters/%s_%s" % [art, pair[1]]):
+					_blip(speaker, line)
 
 
 func _art_of(id: String) -> String:
@@ -1348,6 +1370,9 @@ func _blip(speaker: String, line: String) -> void:
 	if not _sound.button_pressed or DisplayServer.get_name() == "headless":
 		return
 	var art := _art_of(speaker)
+	# Recorded babble syllables (design/voice_request.md Part D) beat synthesis.
+	if _play_voice_file("characters/%s_blip_%d" % [art, 1 + absi(line.hash()) % 4]):
+		return
 	var syllables := clampi(line.length() / 2, 1, 4)
 	var key := art + ":" + str(syllables)
 	if not _blip_cache.has(key):
@@ -1382,3 +1407,39 @@ func _make_blips(pitch: float, syllables: int, seed: int) -> AudioStreamWAV:
 	stream.mix_rate = sample_rate
 	stream.data = bytes
 	return stream
+
+
+
+func _voice_path(base: String) -> String:
+	for extension in [".ogg", ".mp3", ".wav"]:
+		if ResourceLoader.exists(VOICE_ROOT + base + extension):
+			return VOICE_ROOT + base + extension
+	return ""
+
+
+func _play_voice_file(base: String, player: AudioStreamPlayer = null) -> bool:
+	var path := _voice_path(base)
+	if path.is_empty() or not _sound.button_pressed or DisplayServer.get_name() == "headless":
+		return false
+	if player == null:
+		player = _players[_audio_index % _players.size()]
+		_audio_index += 1
+	player.stream = load(path)
+	player.play()
+	return true
+
+
+## Narrator caption + voice: page intro, the Original's ending, a win, a fail.
+func _narrate(moment: String) -> void:
+	var key := ""
+	if moment.begins_with("fail_"):
+		key = "narr_" + moment
+	elif page.has("narration"):
+		key = "narr_%s_%s" % [page.narration, moment]
+	var text: String = _lines.get("narrator", {}).get(key, "")
+	if text.is_empty():
+		return
+	_stage.set_caption(text, 4.5 if moment in ["intro", "original"] else 0.0)
+	if is_instance_valid(_result_stage):
+		_result_stage.set_caption(text if moment == "twist" or moment.begins_with("fail") else "", 0.0)
+	_play_voice_file("narrator/" + key, _voice)

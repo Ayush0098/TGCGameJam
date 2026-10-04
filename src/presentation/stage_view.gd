@@ -530,7 +530,12 @@ func _process(delta: float) -> void:
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
 	for saying in _sayings:
 		saying.age += delta * _playback_speed
-	_sayings = _sayings.filter(func(saying): return saying.age < 1.0)
+	_sayings = _sayings.filter(func(saying): return saying.age < float(saying.get("life", 1.0)))
+	if _caption_left > 0.0:
+		_caption_left -= delta
+		if _caption_left <= 0.0:
+			_caption_text = ""
+			queue_redraw()
 	if not _sayings.is_empty():
 		queue_redraw()
 	if _trauma > 0.0 and is_instance_valid(_root):
@@ -695,6 +700,7 @@ func _draw() -> void:
 		_draw_word(effect)
 	for saying in _sayings:
 		_draw_saying(saying)
+	_draw_caption_box()
 	if _drag_bubble != "":
 		draw_circle(_mouse, 18, Color(1, 0.85, 0.3, 0.7))
 	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
@@ -1135,16 +1141,16 @@ func _draw_name_plates(world: Dictionary, positions: Dictionary) -> void:
 var _sayings: Array[Dictionary] = []
 
 ## A short speech balloon over a lit/active character (dialogue is never a thought).
-func say(id: String, text: String) -> void:
+func say(id: String, text: String, life: float = 1.0) -> void:
 	for record in _world.get("characters", []):
 		if record.id == id and record.status != "EXITED":
 			var at := _actor_position(record)
 			_sayings = _sayings.filter(func(saying): return saying.id != id)
-			_sayings.append({"id": id, "text": text, "at": at - Vector2(0, _figure_height(str(record.get("art", ""))) + 18.0), "age": 0.0})
+			_sayings.append({"id": id, "text": text, "at": at - Vector2(0, _figure_height(str(record.get("art", ""))) + 18.0), "age": 0.0, "life": life})
 	queue_redraw()
 
 func _draw_saying(saying: Dictionary) -> void:
-	var alpha := clampf((1.0 - float(saying.age)) * 5.0, 0.0, 1.0)
+	var alpha := clampf((float(saying.get("life", 1.0)) - float(saying.age)) * 5.0, 0.0, 1.0)
 	var pop := 1.0 if _reduced_motion else minf(1.0, float(saying.age) / 0.08)
 	var width := TEXT_FONT.get_string_size(saying.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x + 18.0
 	var at: Vector2 = saying.at + Vector2(34, -10)
@@ -1161,3 +1167,23 @@ func _draw_saying(saying: Dictionary) -> void:
 	draw_style_box(style, rect)
 	draw_string(TEXT_FONT, Vector2(-width * 0.5 + 9, 4), saying.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(INK, alpha))
 	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
+
+
+var _caption_text := ""
+var _caption_left := 0.0
+
+## Narrator caption box (comic panel caption, top-left). seconds <= 0 keeps it.
+func set_caption(text: String, seconds: float = 0.0) -> void:
+	_caption_text = text
+	_caption_left = seconds
+	queue_redraw()
+
+func _draw_caption_box() -> void:
+	if _caption_text.is_empty():
+		return
+	var width := 600.0
+	var lines := TEXT_FONT.get_multiline_string_size(_caption_text, HORIZONTAL_ALIGNMENT_LEFT, width - 24, 17).y
+	var rect := Rect2(Vector2(12, 12), Vector2(width, lines + 16))
+	draw_rect(rect, Color("f6e27a"))
+	draw_rect(rect, INK, false, 2.5)
+	draw_multiline_string(TEXT_FONT, rect.position + Vector2(12, 24), _caption_text, HORIZONTAL_ALIGNMENT_LEFT, width - 24, 17, -1, INK)

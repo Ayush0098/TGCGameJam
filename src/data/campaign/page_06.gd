@@ -7,6 +7,7 @@ static func definition() -> Dictionary:
 	return {
 		"id": "page_06",
 		"room": "office",
+		"narration": "birthday",
 		"title": "The Boss's Birthday",
 		"width": 11,
 		"rail_span": [
