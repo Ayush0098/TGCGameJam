@@ -45,6 +45,26 @@ $GODOT_HEAD_INCLUDE
 <script>
 const GODOT_CONFIG = $GODOT_CONFIG;
 const engine = new Engine(GODOT_CONFIG);
+// Keyboard players must not have to click first: keep the game window and canvas
+// focused (also when embedded in an itch.io page) from load, on any pointer or key
+// activity, and again whenever focus drifts away.
+function focusGame() {
+  try { window.focus(); } catch (e) {}
+  const canvas = document.getElementById("canvas");
+  if (canvas) {
+    if (!canvas.hasAttribute("tabindex")) { canvas.setAttribute("tabindex", "0"); }
+    try { canvas.focus({ preventScroll: true }); } catch (e) {}
+  }
+}
+focusGame();
+window.addEventListener("load", focusGame);
+document.addEventListener("visibilitychange", focusGame);
+["pointerenter", "pointermove", "pointerdown", "touchstart", "keydown", "focusin"].forEach(function (name) {
+  document.addEventListener(name, function () { if (document.activeElement !== document.getElementById("canvas")) { focusGame(); } }, { passive: true, capture: true });
+});
+// Only keep nudging during start-up, so the page's own controls stay usable later.
+const focusTimer = setInterval(function () { if (!document.hasFocus() || document.activeElement !== document.getElementById("canvas")) { focusGame(); } }, 500);
+setTimeout(function () { clearInterval(focusTimer); }, 40000);
 (function () {
   const lines = ["Inking the Sunday comics...", "Screwing in the bulbs...", "Hiding thoughts in the dark...", "Sharpening the editor's red pen..."];
   let index = 0;
@@ -72,6 +92,7 @@ const engine = new Engine(GODOT_CONFIG);
     clearInterval(timer);
     glass.style.fill = "#ffe17a";
     line.textContent = "Lights on!";
+    focusGame();
     setTimeout(() => { loader.classList.add("done"); }, 350);
   }, (err) => {
     clearInterval(timer);

@@ -506,6 +506,7 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	_fail_count = 0
 	_said_scripted.clear()
 	_lit_waiting.clear()
+	_redpen_waiting = false
 	if is_instance_valid(_legend):
 		_legend.text = _legend_text()
 	_queue_story_cards()
@@ -564,6 +565,9 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	if _redpen_waiting and mode == "PLAN" and not _voice_busy() and not _screen_covered():
+		_redpen_waiting = false
+		_narrate("redpen")
 	_flush_lit_waiting(delta)
 	_hold_repeat(delta)
 	_coach_tick(delta)
@@ -780,14 +784,19 @@ func _show_facts(result: Dictionary) -> void:
 	_facts.add_theme_color_override("default_color", Color("a4383e") if mode == "RESULT" and not result.won else INK)
 
 
-func _return_to_plan() -> void:
+func _return_to_plan(keep_voice := false) -> void:
 	var from_original := mode == "ORIGINAL_END" or (mode == "INTRO" and _is_original)
-	_cancel_presentation()
-	# The result's "YOUR TWIST:" caption belongs to the result, not the plan.
-	_stage.set_caption("", 0.0)
+	_cancel_presentation(keep_voice)
+	if not keep_voice:
+		# The result's "YOUR TWIST:" caption belongs to the result, not the plan.
+		_stage.set_caption("", 0.0)
 	if from_original and not _redpen_done:
 		_redpen_done = true
-		_narrate.call_deferred("redpen")
+		if keep_voice and _voice_busy():
+			# Let the narrator finish first; the red-pen line follows (see _process).
+			_redpen_waiting = true
+		else:
+			_narrate.call_deferred("redpen")
 	_last_cue = ""
 	_update_voice_buttons()
 	if mode == "ERROR":
@@ -806,6 +815,9 @@ func _return_to_plan() -> void:
 	_pop.text = ""
 	_refresh_plan()
 	_update_buttons()
+	# Keyboard focus starts on the stage, so the keys work without a click first.
+	if is_instance_valid(_stage) and not _screen_covered():
+		_stage.grab_focus.call_deferred()
 
 
 func _refresh_plan() -> void:
@@ -1050,6 +1062,14 @@ func _input(event: InputEvent) -> void:
 	# Only Space, Enter or a click skips the Original strip; arrow and letter keys
 	# must not cut off the narration that is still playing.
 	var skip_key: bool = pressed_key and event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]
+	var play_key: bool = pressed_key and event.keycode in [KEY_A, KEY_D, KEY_W, KEY_S, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_TAB, KEY_Q, KEY_E, KEY_1, KEY_2, KEY_P]
+	if mode in ["INTRO", "ORIGINAL_END"] and _is_original and play_key:
+		# A gameplay key goes straight to the plan and acts at once, but the narrator
+		# is allowed to finish what they are saying.
+		_return_to_plan(true)
+		if _keyboard(event):
+			get_viewport().set_input_as_handled()
+		return
 	if mode in ["INTRO", "ORIGINAL_END"] and (skip_key or pressed_mouse):
 		_finish_run()
 		get_viewport().set_input_as_handled()
@@ -2595,6 +2615,7 @@ var _said_scripted: Dictionary = {}
 ## Characters lit or focused while the narrator was talking; their thought is spoken once it stops.
 var _lit_waiting: Array[String] = []
 var _lit_wait_timer := 0.0
+var _redpen_waiting := false
 
 
 ## Once the narration is over, speak the focused character's thought first, then any

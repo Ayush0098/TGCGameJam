@@ -93,9 +93,11 @@ func run(check: Callable) -> bool:
 	# At the start of a page the arrow keys must not cut off the narration.
 	game._load_page(nap)
 	check.call(game.mode == "INTRO", "A page opens on the Original strip")
-	_key(game, KEY_LEFT)
+	var bulb_before: float = game.plan.lanterns[0].x
 	_key(game, KEY_D)
-	check.call(game.mode == "INTRO", "Arrow and letter keys do not skip the Original or its narration")
+	check.call(game.mode == "PLAN", "A gameplay key during the Original goes straight to the plan")
+	check.call(not is_equal_approx(game.plan.lanterns[0].x, bulb_before), "...and acts on that very press")
+	game._load_page(nap)
 	_key(game, KEY_SPACE)
 	check.call(game.mode != "INTRO", "Space still skips the Original strip")
 	game.free()
