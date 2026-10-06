@@ -76,3 +76,22 @@ prototype DING and procedural action sounds are original project work. No extern
 sound library is used for those effects. Music and stingers are original procedural compositions (`assets/audio/generate_music.py`). No external character art or music has been
 added. The only external fonts are Bangers and Comic Neue (OFL, listed above);
 Godot's default font and dependencies are covered by the included engine notices. The preview server has no npm dependencies.
+
+## Cast source drawing generation — 2026-10-06
+
+OpenAI built-in imagegen produced 14 original source PNGs in assets/art/story/:
+prof, kassi, saap, prompt, aunty, faccha and dassi masters and expression sheets.
+Inputs were the project's existing original expression contact sheet and the new
+Professor drawings, with each new master used for its own expression identity.
+No external character reference, stock asset or new font was used. Generated output
+is governed by the OpenAI service terms already linked above; no open-source license
+is asserted. Base prompts: assets/production/cast_art_prompts.json. Validation and
+resampling sizes: assets/production/cast_art_validation.json. Source art only,
+not integrated into runtime rigs by this batch.
+
+Cover/logo (2026-10-06): OpenAI built-in imagegen produced original promotional
+art in assets/art/branding/, using only existing project Professor/Kassi masters
+and campus canteen painting as references. Logo uses the generated cover as its
+reference. Same service-term provenance as the generated art above; no external
+stock image or font was supplied. Exact prompts: assets/production/branding_art.json.
+Not integrated into the runtime by this asset-only delivery.
