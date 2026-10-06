@@ -32,6 +32,7 @@ func run(check: Callable) -> bool:
 	_key(game, KEY_TAB)
 	check.call(game._stage.key_cursor == "", "Choosing a character is switched off while teaching the light")
 	var before: String = game.mode
+	game._tutorial_shown_msec = 0
 	_key(game, KEY_SPACE)
 	check.call(game.mode == before and game._tutorial_gate() != "lit", "Space passes the first step instead of starting ACTION")
 	game._tutorial_step = 0

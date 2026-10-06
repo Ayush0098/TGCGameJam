@@ -2789,6 +2789,7 @@ const TUTORIAL_ALLOW := {
 	"endings_opened": ["book"], "click": [], "legend_opened": [],
 }
 var _gated_key := ""
+var _tutorial_shown_msec := 0
 
 
 func _tutorial_gate() -> String:
@@ -2848,6 +2849,8 @@ func _tutorial_pass() -> bool:
 	var gate := str(steps[_tutorial_step].get("gate", ""))
 	if gate.is_empty() or gate == "action":
 		return false
+	if Time.get_ticks_msec() - _tutorial_shown_msec < 700:
+		return true  # a double press must not skip a step nobody has read yet
 	_tutorial_step += 1
 	_show_tutorial_step()
 	_play_effect("PICK")
@@ -2877,6 +2880,7 @@ func _apply_tutorial_gating() -> void:
 func _show_tutorial_step() -> void:
 	var steps := _tutorial_steps()
 	_gated_key = ""
+	_tutorial_shown_msec = Time.get_ticks_msec()
 	_update_buttons()
 	if _tutorial_step < steps.size():
 		if TUTORIAL_ALLOW.has(str(steps[_tutorial_step].get("gate", ""))):
@@ -2939,7 +2943,7 @@ func _object_lit(world: Dictionary, lit_slots: Array, id: String) -> bool:
 
 func _tutorial_click() -> bool:
 	var steps := _tutorial_steps()
-	if _tutorial_step < steps.size() and str(steps[_tutorial_step].get("gate", "")) in ["click", "legend_opened"]:
+	if _tutorial_step < steps.size() and str(steps[_tutorial_step].get("gate", "")) in ["click", "legend_opened"] and Time.get_ticks_msec() - _tutorial_shown_msec >= 400:
 		_tutorial_step += 1
 		_show_tutorial_step()
 		return true
@@ -3660,8 +3664,8 @@ func _hold_repeat(delta: float) -> void:
 
 ## Enter dismisses an info step (same as Space).
 func _tutorial_pass_or_click() -> void:
-	if not _tutorial_click():
-		_tutorial_pass()
+	# Enter only dismisses "click to continue" info steps; Space passes any step.
+	_tutorial_click()
 
 
 func _nudge_lantern(arrow: int, fine: bool) -> void:
