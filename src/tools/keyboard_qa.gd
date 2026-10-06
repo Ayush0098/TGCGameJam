@@ -167,6 +167,23 @@ func menus() -> void:
 	expect(main._front.visible and focus_name() != "<none>", "Esc from Levels returns to the title with a focus: " + state())
 
 
+## A first visit to page N (default 8): what does Enter-mashing do while its cards show?
+func cards() -> void:
+	var page_number := 8
+	for arg in OS.get_cmdline_user_args():
+		if arg.is_valid_int():
+			page_number = int(arg)
+	main._front.hide()
+	main.tutorial_done = true
+	main._load_page(page_number - 1)
+	await tick(1.0)
+	trace("loaded")
+	for i in 14:
+		await key(KEY_ENTER)
+		await tick(0.7)
+		trace("Enter %d" % (i + 1))
+
+
 func gate_text() -> String:
 	if main._tutorial_panel < 0:
 		return "-"
