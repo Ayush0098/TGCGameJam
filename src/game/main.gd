@@ -145,6 +145,7 @@ const PHASE_TIME := {"DECIDE": 0.04, "MOVE": 0.26, "SWITCHES": 0.27, "BONKS": 0.
 
 
 func _ready() -> void:
+	_watch_window.call_deferred()
 	if OS.has_feature("production_reference") or "--production-reference" in OS.get_cmdline_user_args():
 		get_tree().change_scene_to_file.call_deferred("res://scenes/production_reference.tscn")
 		return
@@ -562,6 +563,33 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 	_display(_run.snapshots[0], false)
 	_initial_events_pending = true
 	_update_buttons()
+
+
+var _throttled := false
+var _hidden_timer: Timer
+
+
+## A minimized desktop window keeps running its per-frame updates with nothing to
+## present to; memory then grows by hundreds of MB per second. While the window is
+## minimized the whole game is switched off (a Timer that always runs wakes it again).
+func _watch_window() -> void:
+	if DisplayServer.get_name() == "headless" or is_instance_valid(_hidden_timer):
+		return
+	_hidden_timer = Timer.new()
+	_hidden_timer.process_mode = Node.PROCESS_MODE_ALWAYS
+	_hidden_timer.wait_time = 0.3
+	_hidden_timer.timeout.connect(func():
+		var hidden := DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_MINIMIZED
+		if hidden == _throttled:
+			return
+		_throttled = hidden
+		for child in get_children():
+			if child != _hidden_timer:
+				child.process_mode = Node.PROCESS_MODE_DISABLED if hidden else Node.PROCESS_MODE_INHERIT
+		set_process(not hidden)
+		Engine.max_fps = 10 if hidden else 0)
+	add_child(_hidden_timer)
+	_hidden_timer.start()
 
 
 func _process(delta: float) -> void:
