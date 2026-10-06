@@ -199,6 +199,7 @@ func _build_animation(action: String) -> Animation:
 			_rotation(animation, "head", [[0, 0], [0.5, -3.5], [1.1, 2.5], [1.6, 0]])
 			_rotation(animation, "arm_left", [[0, 0], [0.8, 5], [1.6, 0]])
 			_rotation(animation, "arm_right", [[0, 0], [0.8, -5], [1.6, 0]])
+			_idle_quirk(animation, b)
 		"walk", "run":
 			var amount := 17.0 if action == "walk" else 30.0
 			_rotation(animation, "leg_left", [[0, -amount], [0.4, amount], [0.8, -amount]])
@@ -242,6 +243,52 @@ func _build_animation(action: String) -> Animation:
 		_rotation(animation, "tail", [[0, -7], [0.2, 13], [0.4, -7], [0.6, 13], [0.8, -7]])
 	return animation
 
+
+
+## Each cast member idles in character: the Prof puffs up, Kassi fidgets, Saap
+## slumps and sways, Prompt Bhai bounces, Mess Aunty stirs with the ladle, the
+## Faccha looks around lost, Dassi tosses her hair. Presentation only.
+func _idle_quirk(animation: Animation, base: Vector2) -> void:
+	match art_id:
+		"prof":
+			animation.length = 2.4
+			_track(animation, "Visual:scale", [[0.0, Vector2.ONE], [1.2, Vector2(1.03, 1.035)], [2.4, Vector2.ONE]])
+			_rotation(animation, "head", [[0, 0], [0.6, -7], [1.8, -5], [2.4, 0]])
+			_rotation(animation, "arm_left", [[0, 0], [1.2, 14], [2.4, 0]])
+			_rotation(animation, "arm_right", [[0, 0], [1.2, -14], [2.4, 0]])
+		"kassi":
+			animation.length = 0.9
+			_track(animation, "Visual:position", [[0, base], [0.15, base + Vector2(2, 0)], [0.3, base + Vector2(-2, 0)], [0.45, base + Vector2(2, 0)], [0.6, base + Vector2(-2, 0)], [0.9, base]])
+			_rotation(animation, "head", [[0, 0], [0.25, 9], [0.45, 9], [0.7, -7], [0.9, 0]])
+			_rotation(animation, "arm_left", [[0, 8], [0.3, 18], [0.6, 6], [0.9, 8]])
+			_rotation(animation, "arm_right", [[0, -8], [0.3, -4], [0.6, -18], [0.9, -8]])
+		"saap":
+			animation.length = 3.0
+			_track(animation, "Visual:rotation", [[0, 0.0], [1.5, 0.045], [3.0, 0.0]])
+			_rotation(animation, "head", [[0, 8], [1.5, 15], [3.0, 8]])
+			_rotation(animation, "arm_left", [[0, 3], [1.5, 7], [3.0, 3]])
+			_rotation(animation, "arm_right", [[0, -3], [1.5, -7], [3.0, -3]])
+		"prompt":
+			animation.length = 0.8
+			_track(animation, "Visual:position", [[0, base], [0.2, base + Vector2(0, -7)], [0.4, base], [0.6, base + Vector2(0, -7)], [0.8, base]])
+			_rotation(animation, "head", [[0, 0], [0.4, 5], [0.8, 0]])
+			_rotation(animation, "arm_left", [[0, 0], [0.4, 22], [0.8, 0]])
+			_rotation(animation, "arm_right", [[0, 0], [0.4, -22], [0.8, 0]])
+		"aunty":
+			animation.length = 1.4
+			_rotation(animation, "arm_right", [[0, -20], [0.35, -34], [0.7, -20], [1.05, -6], [1.4, -20]])
+			_rotation(animation, "head", [[0, 0], [0.7, 4], [1.4, 0]])
+		"faccha":
+			animation.length = 2.6
+			_rotation(animation, "head", [[0, 0], [0.4, 13], [1.0, 13], [1.4, -13], [2.0, -13], [2.6, 0]])
+			_track(animation, "Visual:position", [[0, base], [0.1, base + Vector2(1.5, 0)], [0.2, base + Vector2(-1.5, 0)], [0.3, base], [2.6, base]])
+			_rotation(animation, "arm_left", [[0, 6], [1.3, 12], [2.6, 6]])
+			_rotation(animation, "arm_right", [[0, -6], [1.3, -12], [2.6, -6]])
+		"dassi":
+			animation.length = 2.2
+			_rotation(animation, "head", [[0, 0], [0.5, -7], [0.8, 5], [1.1, 0], [2.2, 0]])
+			_rotation(animation, "arm_left", [[0, 4], [1.1, 10], [2.2, 4]])
+			_rotation(animation, "arm_right", [[0, -4], [1.1, -10], [2.2, -4]])
 
 
 func pop() -> void:

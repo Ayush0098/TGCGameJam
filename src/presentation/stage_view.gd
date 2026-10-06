@@ -159,6 +159,9 @@ var key_cursor := ""
 ## The main game shows narration in its footer instead of on the stage.
 var external_caption := false
 var key_picked := ""
+## The tutorial switches off what it has not introduced yet.
+var lock_bulbs := false
+var lock_bubbles := false
 
 # --- thought-swap juice: pickup lift, drag ghost, arcing flights, landing pop.
 const FLIGHT := 0.36
@@ -917,7 +920,7 @@ func _gui_input(event: InputEvent) -> void:
 		queue_redraw()
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_RIGHT]:
-		for index in range(_bulb_rects.size()):
+		for index in range(0 if lock_bulbs else _bulb_rects.size()):
 			if _bulb_rects[index].has_area() and _bulb_rects[index].has_point(_mouse) and _plan.lanterns[index].enabled:
 				_selected_lantern = index
 				var light: Dictionary = _plan.lanterns[index]
@@ -931,7 +934,7 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			grab_focus()
-			for id in _bubble_rects:
+			for id in ([] if lock_bubbles else _bubble_rects.keys()):
 				if _bubble_rects[id].has_point(_mouse):
 					_drag_bubble = id
 					bubble_picked.emit(id)
@@ -941,7 +944,7 @@ func _gui_input(event: InputEvent) -> void:
 				flick_cleared.emit()
 				accept_event()
 				return
-			for index in range(_bulb_rects.size()):
+			for index in range(0 if lock_bulbs else _bulb_rects.size()):
 				if _bulb_rects[index].has_point(_mouse):
 					_drag_bulb = index
 					_selected_lantern = index

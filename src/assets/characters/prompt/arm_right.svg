@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="400" viewBox="0 0 320 400"><defs>
+<linearGradient id="skin_light" x2=".8" y2="1"><stop stop-color="#ffe8cf"/><stop offset="1" stop-color="#eab894"/></linearGradient>
+<linearGradient id="skin_kid" x2=".8" y2="1"><stop stop-color="#f6cfa6"/><stop offset="1" stop-color="#cf8f62"/></linearGradient>
+<linearGradient id="skin_deep" x2=".8" y2="1"><stop stop-color="#c9926b"/><stop offset="1" stop-color="#8c5a3d"/></linearGradient>
+<linearGradient id="cardigan" x2=".4" y2="1"><stop stop-color="#c7b1e0"/><stop offset="1" stop-color="#7f68a8"/></linearGradient>
+<linearGradient id="tee" x2=".4" y2="1"><stop stop-color="#4aa8ff"/><stop offset="1" stop-color="#1f5fbf"/></linearGradient>
+<linearGradient id="oxford" x2="1" y2="1"><stop stop-color="#dcebfb"/><stop offset="1" stop-color="#8fb0d6"/></linearGradient>
+<linearGradient id="catfur" x2=".5" y2="1"><stop stop-color="#ffb767"/><stop offset="1" stop-color="#d9772f"/></linearGradient>
+<linearGradient id="mousefur" x2=".5" y2="1"><stop stop-color="#d9d4de"/><stop offset="1" stop-color="#9890a6"/></linearGradient>
+</defs><path d="M244 196 L249 250 Q237 262 222 253 L216 208 Z" fill="url(#skin_kid)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M211 174 Q237 175 247 203 L218 213 L204 192 Z" fill="url(#tee)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /><path d="M229 260 Q221 276 230 290 Q235 298 239 287 Q245 299 250 290 Q258 289 254 275 L248 258 Z" fill="url(#skin_kid)" stroke="#453747" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" /></svg>

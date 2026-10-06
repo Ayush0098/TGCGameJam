@@ -265,25 +265,25 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "It's dark in here. Press A / D (or drag me) to move my light and see who's home.",
+							"caption": "I'm Bulby, the light. Only characters in my light act, see and get named. Slide me with A / D to find who's home.",
 							"gate": "lit",
 							"target": "cat"
 						},
 						{
-							"caption": "Lit characters show their name and what they're thinking. Move me away...",
+							"caption": "In the light, a character shows their name and what they're thinking. Slide me away from them.",
 							"gate": "unlit",
 							"target": "cat"
 						},
 						{
-							"caption": "...and their thoughts hide again. Only lit characters act or see anything.",
+							"caption": "In the dark their thoughts hide and they do nothing at all. That's the power of the light.",
 							"gate": "click"
 						},
 						{
-							"caption": "This is today's comic. Tap the crossed-out line (or press O) to watch what was printed.",
+							"caption": "This is today's comic, the Original. Press O to watch what was printed.",
 							"gate": "clipping_opened"
 						},
 						{
-							"caption": "Our version: DASSI eats the biryani. Press S (or pull my cord) to lower my light so it reaches Dassi AND the biryani.",
+							"caption": "Our twist: DASSI eats the biryani. A lower light is wider. Press S to lower me (W raises) until I reach Dassi AND the biryani.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
@@ -300,7 +300,7 @@ static func definition() -> Dictionary:
 							"target": "dog"
 						},
 						{
-							"caption": "Now press ACTION and watch the beats play out.",
+							"caption": "Light set. Press Space for ACTION and watch the beats play out.",
 							"gate": "action"
 						},
 						{
@@ -439,11 +439,19 @@ static func definition() -> Dictionary:
 					],
 					"steps": [
 						{
-							"caption": "Everyone wants something. The row at the bottom shows what each thought does.",
+							"caption": "Every character is thinking something. The row at the bottom says what each thought makes them do.",
 							"gate": "legend_opened"
 						},
 						{
-							"caption": "Dassi is sleepy, Chintu is hungry. Swap them: Tab to Chintu, Enter to pick up his thought, Tab to Dassi, Enter (or just drag).",
+							"caption": "Dassi is sleepy, Chintu is hungry. Characters in the light can be chosen: press Tab to choose someone.",
+							"gate": "choose"
+						},
+						{
+							"caption": "Pick up the chosen character's thought: press Enter. Esc puts it back.",
+							"gate": "picked"
+						},
+						{
+							"caption": "Now Tab to the other lit character and press Enter: you drop the thought on them and the two swap.",
 							"gate": "swap",
 							"target": [
 								"cat",
@@ -451,7 +459,7 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "Both must be lit to swap. Now press ACTION.",
+							"caption": "Thoughts swapped. Both must be lit for that. Press Space for ACTION.",
 							"gate": "action"
 						},
 						{
@@ -565,7 +573,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "mouse",
 							"name": "Faccha",
-							"art": "mouse",
+							"art": "faccha",
 							"slot": 5,
 							"facing": "L",
 							"thought": "SCARED",
@@ -713,7 +721,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "grandma",
 							"name": "Mess Aunty",
-							"art": "grandma",
+							"art": "aunty",
 							"slot": 0,
 							"facing": "R",
 							"thought": "SLEEPY",
@@ -722,7 +730,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "kid",
 							"name": "Saap",
-							"art": "kid",
+							"art": "saap",
 							"slot": 2,
 							"facing": "R",
 							"thought": "HUNGRY",

@@ -274,7 +274,10 @@ func _build_ui() -> void:
 	_stage.spotlight_moved.connect(_move_light)
 	_stage.lantern_moved.connect(_move_lantern)
 	_stage.thought_swapped.connect(_swap)
-	_stage.bubble_picked.connect(func(_id: String): _play_effect("PICK"))
+	_stage.bubble_picked.connect(func(_id: String):
+		_play_effect("PICK")
+		_tutorial_event("choose")
+		_tutorial_event("picked"))
 	_stage.swap_landed.connect(_on_swap_landed)
 	_stage.actor_revealed.connect(func(id: String, thought: String):
 		_play_effect("REVEAL_" + thought)
@@ -948,6 +951,8 @@ func _update_buttons() -> void:
 	_update_instructions()
 	_update_progress_label()
 	_emphasise(_action, mode == "PLAN")
+	_gated_key = ""
+	_apply_tutorial_gating()
 	if is_instance_valid(_pause_button):
 		var playing_now := mode in ["INTRO", "PLAY", "ORIGINAL_END"]
 		_action.visible = mode == "PLAN"
@@ -1041,6 +1046,12 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
 		if mode == "PLAN":
+			if _tutorial_pass():
+				get_viewport().set_input_as_handled()
+				return
+			if not _tutorial_allows("action"):
+				get_viewport().set_input_as_handled()
+				return
 			_start_action()
 		elif mode in ["INTRO", "PLAY", "ORIGINAL_END"]:
 			_finish_run()
@@ -1684,7 +1695,7 @@ func _find_decisive_beat(recorded: Dictionary) -> int:
 
 
 ## Gibberish voices: pitch per character, a few syllables per line.
-const VOICE_PITCH := {"boss": 120.0, "intern": 190.0, "grandma": 260.0, "kid": 320.0, "dog": 380.0, "cat": 520.0, "dassi": 430.0, "mouse": 760.0}
+const VOICE_PITCH := {"boss": 120.0, "intern": 190.0, "grandma": 260.0, "kid": 320.0, "dog": 380.0, "cat": 520.0, "dassi": 430.0, "prof": 120.0, "kassi": 220.0, "saap": 300.0, "prompt": 280.0, "aunty": 250.0, "faccha": 420.0, "mouse": 760.0}
 const LINES := {
 	"DING": ["Aha!", "Ooh!", "Hmm!", "Oh!"],
 	"EAT": ["Yum!", "Mine!", "Nom!"],
@@ -1757,6 +1768,13 @@ func _thought_now(id: String) -> String:
 		if record.id == id:
 			return str(plan.thoughts.get(id, record.thought)) if plan != null else str(record.thought)
 	return ""
+
+
+func _name_of(id: String) -> String:
+	for record in page.get("characters", []):
+		if record.id == id:
+			return str(record.get("name", id))
+	return id.capitalize()
 
 
 func _art_of(id: String) -> String:
@@ -2057,7 +2075,7 @@ func _restyle_hud() -> void:
 	_goal_card.mouse_filter = Control.MOUSE_FILTER_STOP
 	_goal_card.tooltip_text = "Click to watch the Original strip"
 	_goal_card.gui_input.connect(func(event):
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and mode in ["PLAN", "RESULT"]:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and mode in ["PLAN", "RESULT"] and _tutorial_allows("original"):
 			_replay_original())
 	_ui.add_child(_goal_card)
 	_ui.move_child(_goal_card, _goal.get_index())
@@ -2613,6 +2631,31 @@ func _coach_event(name: String) -> void:
 	_coach_tick(0.0, true)
 
 
+## During the tutorial one card teaches the current step: why first, keys second.
+func _tutorial_card_tick() -> bool:
+	if _tutorial_panel < 0:
+		return false
+	var steps := _tutorial_steps()
+	var step: Dictionary = steps[_tutorial_step] if _tutorial_step < steps.size() else {}
+	var gate := str(step.get("gate", ""))
+	if step.is_empty() or not TUTORIAL_ALLOW.has(gate):
+		if is_instance_valid(_coach):
+			_coach.hide_hint()
+		return true
+	if _coach_blocked():
+		if is_instance_valid(_coach):
+			_coach.hide_hint()
+		return true
+	if not is_instance_valid(_coach):
+		_coach = COACH_CHIP.new()
+		_coach.position = Vector2(16, 560)
+		_ui.add_child(_coach)
+	_coach.reduce_motion = _motion.button_pressed
+	var note := "Space: skip this step" if gate != "action" else ""
+	_coach.show_hint("tut:%d:%d" % [_tutorial_panel, _tutorial_step], _tutorial_parts(step), str(step.get("caption", "")), note)
+	return true
+
+
 func _coach_blocked() -> bool:
 	if mode != "PLAN" or page.is_empty() or _screen_covered():
 		return true
@@ -2647,6 +2690,8 @@ func _coach_tick(delta: float, force: bool = false) -> void:
 		return
 	_coach_timer = 0.2
 	if DisplayServer.get_name() == "headless":
+		return
+	if _tutorial_card_tick():
 		return
 	var wanted := "" if _coach_blocked() else _coach_wanted()
 	if wanted.is_empty():
@@ -2730,13 +2775,114 @@ func _tutorial_steps() -> Array:
 	return panels[_tutorial_panel].get("steps", [])
 
 
+## What each tutorial gate lets the player do. One thing at a time: anything not
+## listed for the current step is switched off. Gateless (info) steps allow all.
+const TUTORIAL_ALLOW := {
+	"lit": ["move_x"], "unlit": ["move_x"], "lit_set": ["move_x", "move_y"],
+	"lantern_deployed": ["move_x", "move_y", "bulbs"], "lantern_parked": ["move_x", "move_y", "bulbs"],
+	"choose": ["choose"], "picked": ["choose", "pick"], "swap": ["choose", "pick"],
+	"action": ["action"], "clipping_opened": ["original"], "hint_opened": ["hint"],
+	"endings_opened": ["book"], "click": [], "legend_opened": [],
+}
+var _gated_key := ""
+
+
+func _tutorial_gate() -> String:
+	var steps := _tutorial_steps()
+	if _tutorial_panel < 0 or _tutorial_step >= steps.size():
+		return ""
+	return str(steps[_tutorial_step].get("gate", ""))
+
+
+## Whether the current tutorial step lets the player use `action` (always true
+## outside the tutorial, in later modes, and on gateless info steps).
+func _tutorial_allows(action: String) -> bool:
+	if mode != "PLAN":
+		return true
+	var gate := _tutorial_gate()
+	if gate.is_empty() or not TUTORIAL_ALLOW.has(gate):
+		return true
+	return action in TUTORIAL_ALLOW[gate]
+
+
+## The key caps for a tutorial step, derived from what it asks the player to do.
+func _tutorial_parts(step: Dictionary) -> Array:
+	var caption := str(step.get("caption", ""))
+	var move := {"keys": ["A", "D"], "or": ["←", "→"], "label": "slide the light"}
+	var tilt := {"keys": ["W", "S"], "or": ["↑", "↓"], "label": "raise / lower"}
+	match str(step.get("gate", "")):
+		"lit", "unlit", "lit_set":
+			return [move, tilt] if (" S " in caption or " W " in caption or "lower" in caption) else [move]
+		"lantern_deployed":
+			return [{"keys": ["2"], "label": "take out the 2nd bulb"}]
+		"lantern_parked":
+			return [{"keys": ["P"], "label": "park it"}]
+		"choose":
+			return [{"keys": ["Tab"], "label": "choose someone"}]
+		"picked":
+			return [{"keys": ["Enter"], "label": "pick up their thought"}]
+		"swap":
+			return [{"keys": ["Tab"], "label": "the other one"}, {"keys": ["Enter"], "label": "swap"}, {"keys": ["Esc"], "label": "cancel"}]
+		"action":
+			return [{"keys": ["Space"], "label": "ACTION!"}]
+		"clipping_opened":
+			return [{"keys": ["O"], "label": "watch the Original"}]
+		"hint_opened":
+			return [{"keys": ["H"], "label": "hint"}]
+		"endings_opened":
+			return [{"keys": ["B"], "label": "Endings book"}]
+		"click", "legend_opened":
+			return [{"keys": ["Space"], "label": "got it"}]
+	return []
+
+
+## Space passes the current tutorial step (on the ACTION step it starts ACTION).
+func _tutorial_pass() -> bool:
+	var steps := _tutorial_steps()
+	if _tutorial_panel < 0 or mode != "PLAN" or _tutorial_step >= steps.size():
+		return false
+	var gate := str(steps[_tutorial_step].get("gate", ""))
+	if gate.is_empty() or gate == "action":
+		return false
+	_tutorial_step += 1
+	_show_tutorial_step()
+	_play_effect("PICK")
+	return true
+
+
+## Switch off the controls the current step has not introduced.
+func _apply_tutorial_gating() -> void:
+	if not is_instance_valid(_stage) or not is_instance_valid(_action):
+		return
+	var key := "%s:%s:%s" % [_tutorial_panel, _tutorial_step, mode]
+	if key == _gated_key:
+		return
+	_gated_key = key
+	_stage.lock_bulbs = not _tutorial_allows("move_x")
+	_stage.lock_bubbles = not _tutorial_allows("choose")
+	for hook in _hooks:
+		hook.mouse_filter = Control.MOUSE_FILTER_IGNORE if not _tutorial_allows("bulbs") else Control.MOUSE_FILTER_STOP
+	if not _tutorial_allows("action"):
+		_action.disabled = true
+	if not _tutorial_allows("restart"):
+		_restart.disabled = true
+	if is_instance_valid(_hint_hud) and not _tutorial_allows("hint"):
+		_hint_hud.disabled = true
+
+
 func _show_tutorial_step() -> void:
 	var steps := _tutorial_steps()
+	_gated_key = ""
+	_update_buttons()
 	if _tutorial_step < steps.size():
-		var more := "  [Enter to continue]" if str(steps[_tutorial_step].get("gate", "")) in ["click", "legend_opened"] else ""
-		_stage.set_caption("Bulby: " + str(steps[_tutorial_step].get("caption", "")) + more, 0.0)
+		if TUTORIAL_ALLOW.has(str(steps[_tutorial_step].get("gate", ""))):
+			# Gated steps are taught by the tutorial card (_coach_tick), one thing at a time.
+			_stage.set_caption("", 0.0)
+		else:
+			_stage.set_caption("Bulby: " + str(steps[_tutorial_step].get("caption", "")), 0.0)
 		_stage.set_mood("scheme", 1.0)
 		_instructions.text = "Tutorial step %d / %d" % [_tutorial_step + 1, steps.size()]
+		_coach_timer = 0.0
 
 
 func _tutorial_event(gate: String) -> void:
@@ -3381,6 +3527,31 @@ func _keyboard(event: InputEventKey) -> bool:
 	var key := event.keycode
 	match mode:
 		"PLAN":
+			# Tutorial gating: only what the current step introduced works.
+			var needed := ""
+			match key:
+				KEY_A, KEY_D, KEY_LEFT, KEY_RIGHT:
+					needed = "move_x"
+				KEY_W, KEY_S, KEY_UP, KEY_DOWN:
+					needed = "move_y"
+				KEY_1, KEY_2, KEY_P:
+					needed = "bulbs"
+				KEY_TAB, KEY_Q, KEY_E:
+					needed = "choose"
+				KEY_ENTER, KEY_KP_ENTER:
+					needed = "pick"
+				KEY_H:
+					needed = "hint"
+				KEY_R:
+					needed = "restart"
+				KEY_O:
+					needed = "original"
+				KEY_B:
+					needed = "book"
+			if not needed.is_empty() and not _tutorial_allows(needed):
+				if key in [KEY_ENTER, KEY_KP_ENTER] and not event.echo:
+					_tutorial_pass_or_click()
+				return true
 			if key in [KEY_A, KEY_D, KEY_W, KEY_S, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:
 				# One press = one grid step. The OS key-repeat is ignored; holding
 				# the key repeats from _hold_repeat() at a gentler rate.
@@ -3483,6 +3654,12 @@ func _hold_repeat(delta: float) -> void:
 		_hold_move(_hold_key, Input.is_key_pressed(KEY_SHIFT))
 
 
+## Enter dismisses an info step (same as Space).
+func _tutorial_pass_or_click() -> void:
+	if not _tutorial_click():
+		_tutorial_pass()
+
+
 func _nudge_lantern(arrow: int, fine: bool) -> void:
 	var fake := InputEventKey.new()
 	fake.keycode = arrow
@@ -3507,6 +3684,7 @@ func _cycle_cursor(direction: int) -> void:
 	var index := order.find(_stage.key_cursor)
 	index = (index + direction + order.size()) % order.size() if index >= 0 else (0 if direction > 0 else order.size() - 1)
 	_stage.key_cursor = order[index]
+	_tutorial_event("choose")
 	if not _stage.key_picked.is_empty() and _stage.key_picked != _stage.key_cursor:
 		_preview(_stage.key_picked, _stage.key_cursor)
 	_play_effect("POKE_" + _thought_now(_stage.key_cursor))
@@ -3521,8 +3699,9 @@ func _key_select() -> void:
 	if _stage.key_picked.is_empty():
 		_stage.key_picked = cursor
 		_coach_event("pick")
+		_tutorial_event("picked")
 		_play_effect("PICK")
-		_instructions.text = "Picked %s's thought. Tab to another lit character, Enter to swap, Esc to cancel." % _art_of(cursor).capitalize()
+		_instructions.text = "Picked %s's thought. Tab to another lit character, Enter to swap, Esc to cancel." % _name_of(cursor)
 	elif _stage.key_picked == cursor:
 		_stage.key_picked = ""
 		_stage.clear_preview()

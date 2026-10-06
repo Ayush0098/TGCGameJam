@@ -11,6 +11,7 @@ const SUITES = [
 	preload("res://tests/goal_evaluator_test.gd"),
 	preload("res://tests/main_flow_test.gd"),
 	preload("res://tests/keyboard_test.gd"),
+	preload("res://tests/tutorial_gate_test.gd"),
 	preload("res://tests/production_reference_test.gd"),
 	preload("res://tests/stage_presentation_test.gd"),
 	preload("res://tests/front_end_test.gd"),

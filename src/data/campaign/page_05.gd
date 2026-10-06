@@ -63,7 +63,7 @@ static func definition() -> Dictionary:
 			{
 				"id": "grandma",
 				"name": "Mess Aunty",
-				"art": "grandma",
+				"art": "aunty",
 				"slot": 0,
 				"facing": "R",
 				"thought": "SLEEPY",
@@ -72,7 +72,7 @@ static func definition() -> Dictionary:
 			{
 				"id": "kid",
 				"name": "Saap",
-				"art": "kid",
+				"art": "saap",
 				"slot": 2,
 				"facing": "L",
 				"thought": "SHY",
@@ -81,7 +81,7 @@ static func definition() -> Dictionary:
 			{
 				"id": "boss",
 				"name": "Prof",
-				"art": "boss",
+				"art": "prof",
 				"slot": 3,
 				"facing": "R",
 				"thought": "HUNGRY",

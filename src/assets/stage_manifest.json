@@ -42,6 +42,30 @@
 		"mouse": {
 			"rig": "res://assets/characters/mouse/rig.json",
 			"scale": 0.2
+		},
+		"prof": {
+			"rig": "res://assets/characters/prof/rig.json",
+			"scale": 0.49
+		},
+		"kassi": {
+			"rig": "res://assets/characters/kassi/rig.json",
+			"scale": 0.5
+		},
+		"saap": {
+			"rig": "res://assets/characters/saap/rig.json",
+			"scale": 0.38
+		},
+		"prompt": {
+			"rig": "res://assets/characters/prompt/rig.json",
+			"scale": 0.38
+		},
+		"aunty": {
+			"rig": "res://assets/characters/aunty/rig.json",
+			"scale": 0.45
+		},
+		"faccha": {
+			"rig": "res://assets/characters/faccha/rig.json",
+			"scale": 0.31
 		}
 	},
 	"props": {

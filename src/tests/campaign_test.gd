@@ -33,10 +33,10 @@ func run(check: Callable) -> bool:
 			missing.append(key)
 	for art in lines.characters:
 		for moment in lines.characters[art]:
-			if not ResourceLoader.exists("res://assets/audio/voice/characters/%s_%s.mp3" % [art, moment]):
+			if not _voice_exists("res://assets/audio/voice/characters/%s_%s" % [art, moment]):
 				missing.append(art + "_" + moment)
 		for n in range(1, 5):
-			if not ResourceLoader.exists("res://assets/audio/voice/characters/%s_blip_%d.mp3" % [art, n]):
+			if not _voice_exists("res://assets/audio/voice/characters/%s_blip_%d" % [art, n]):
 				missing.append("%s_blip_%d" % [art, n])
 	check.call(missing.is_empty(), "Every scripted voice line and babble syllable has its audio file %s" % str(missing))
 	return true
@@ -71,3 +71,10 @@ func _best_level(page: Dictionary) -> int:
 					return best
 	audit.free()
 	return best
+
+
+func _voice_exists(base: String) -> bool:
+	for extension in [".ogg", ".mp3", ".wav"]:
+		if ResourceLoader.exists(base + extension):
+			return true
+	return false

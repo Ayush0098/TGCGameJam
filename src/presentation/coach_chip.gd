@@ -7,6 +7,10 @@ const INK := Color("1e1b2e")
 const PAPER := Color("fff4d6")
 const GOLD := Color("d9a521")
 const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
+const TEXT_FONT = preload("res://assets/fonts/ComicNeue-Bold.ttf")
+## Tutorial cards are anchored by their bottom edge so a taller card grows upward.
+const BOTTOM := 652.0
+const WRAP_WIDTH := 620.0
 
 const ARROWS := ["←", "→", "↑", "↓"]
 
@@ -14,6 +18,9 @@ var hint_id := ""
 var reduce_motion := false
 var _panel: PanelContainer
 var _row: HBoxContainer
+var _box: VBoxContainer
+var _why: Label
+var _note: Label
 var _shown := false
 var _clock := 0.0
 var _tween: Tween
@@ -39,19 +46,42 @@ func _ready() -> void:
 	box.content_margin_bottom = 6
 	_panel.add_theme_stylebox_override("panel", box)
 	add_child(_panel)
+	_box = VBoxContainer.new()
+	_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_theme_constant_override("separation", 4)
+	_panel.add_child(_box)
+	_why = Label.new()
+	_why.add_theme_font_override("font", TEXT_FONT)
+	_why.add_theme_font_size_override("font_size", 19)
+	_why.add_theme_color_override("font_color", INK)
+	_why.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_why.custom_minimum_size.x = WRAP_WIDTH
+	_why.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_child(_why)
 	_row = HBoxContainer.new()
 	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_row.add_theme_constant_override("separation", 6)
-	_panel.add_child(_row)
+	_box.add_child(_row)
+	_note = Label.new()
+	_note.add_theme_font_override("font", TEXT_FONT)
+	_note.add_theme_font_size_override("font_size", 14)
+	_note.add_theme_color_override("font_color", Color(INK, 0.65))
+	_note.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_child(_note)
 	modulate.a = 0.0
 	hide()
 
 
 ## parts: [{"keys": ["W","A","S","D"], "or": ["←","↑","↓","→"], "label": "move the light"}, ...]
-func show_hint(id: String, parts: Array) -> void:
+func show_hint(id: String, parts: Array, why: String = "", note: String = "") -> void:
 	if id == hint_id and _shown:
 		return
 	hint_id = id
+	_why.text = why
+	_why.visible = not why.is_empty()
+	_note.text = note
+	_note.visible = not note.is_empty()
+	_why.custom_minimum_size.x = WRAP_WIDTH if not why.is_empty() else 0.0
 	for child in _row.get_children():
 		_row.remove_child(child)
 		child.queue_free()
@@ -66,6 +96,8 @@ func show_hint(id: String, parts: Array) -> void:
 		_row.add_child(_text(str(part.get("label", "")), 20, INK))
 	_panel.reset_size()
 	size = _panel.size
+	# Tutorial cards (with a purpose line) sit on the same baseline as the one-line chips.
+	position.y = BOTTOM - size.y if not why.is_empty() else 604.0
 	_shown = true
 	show()
 	_fade(1.0)

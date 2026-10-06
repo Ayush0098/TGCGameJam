@@ -1,0 +1,99 @@
+{
+  "id": "aunty",
+  "canvas": [
+    320,
+    400
+  ],
+  "anchor": [
+    160,
+    380
+  ],
+  "parts": [
+    {
+      "name": "leg_left",
+      "texture": "res://assets/characters/aunty/leg_left.svg",
+      "pivot": [
+        133,
+        298
+      ],
+      "z": -3
+    },
+    {
+      "name": "leg_right",
+      "texture": "res://assets/characters/aunty/leg_right.svg",
+      "pivot": [
+        185,
+        298
+      ],
+      "z": -2
+    },
+    {
+      "name": "arm_left",
+      "texture": "res://assets/characters/aunty/arm_left.svg",
+      "pivot": [
+        104,
+        187
+      ],
+      "z": -1
+    },
+    {
+      "name": "body",
+      "texture": "res://assets/characters/aunty/body.svg",
+      "pivot": [
+        160,
+        218
+      ],
+      "z": 0
+    },
+    {
+      "name": "arm_right",
+      "texture": "res://assets/characters/aunty/arm_right.svg",
+      "pivot": [
+        213,
+        190
+      ],
+      "z": 1
+    },
+    {
+      "name": "head",
+      "texture": "res://assets/characters/aunty/head.svg",
+      "pivot": [
+        160,
+        114
+      ],
+      "z": 2
+    },
+    {
+      "name": "bowtie",
+      "texture": "res://assets/characters/aunty/bowtie.svg",
+      "pivot": [
+        160,
+        180
+      ],
+      "z": 3
+    }
+  ],
+  "expressions": {
+    "neutral": "res://assets/characters/aunty/face_neutral.svg",
+    "hungry": "res://assets/characters/aunty/face_hungry.svg",
+    "sleepy": "res://assets/characters/aunty/face_sleepy.svg",
+    "angry": "res://assets/characters/aunty/face_angry.svg",
+    "frightened": "res://assets/characters/aunty/face_frightened.svg",
+    "surprised": "res://assets/characters/aunty/face_surprised.svg",
+    "pleased": "res://assets/characters/aunty/face_pleased.svg"
+  },
+  "animations": [
+    "idle",
+    "walk",
+    "startle",
+    "run",
+    "eat",
+    "sit",
+    "sleep",
+    "bonk",
+    "ko",
+    "exit",
+    "celebrate"
+  ],
+  "author": "aunty: re-skin of the grandma cutout rig (stand-in until the ChatGPT art arrives)"
+}
