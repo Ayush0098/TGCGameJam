@@ -274,6 +274,8 @@ func _build_ui() -> void:
 	_stage.spotlight_moved.connect(_move_light)
 	_stage.lantern_moved.connect(_move_lantern)
 	_stage.thought_swapped.connect(_swap)
+	_stage.bubble_picked.connect(func(_id: String): _play_effect("PICK"))
+	_stage.swap_landed.connect(_on_swap_landed)
 	_stage.actor_revealed.connect(func(id: String, thought: String):
 		_play_effect("REVEAL_" + thought)
 		_say_scripted("lit", [id]))
@@ -519,6 +521,7 @@ func _start_action() -> void:
 	if mode != "PLAN":
 		return
 	_tutorial_event("action")
+	_coach_event("action")
 	attempts += 1
 	_stage.set_caption("")
 	_saved_plan = plan.to_data()
@@ -556,6 +559,8 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_hold_repeat(delta)
+	_coach_tick(delta)
 	_update_music(delta)
 	_update_narration_line()
 	if _intro_pending and _tutorial_panel == 0 and not (is_instance_valid(_front) and _front.visible):
@@ -816,6 +821,7 @@ func _move_lantern(index: int, position: Vector2, enabled: bool = true) -> void:
 	if mode == "PLAN" and plan.move_lantern(page, index, position, enabled):
 		_stage.clear_preview()
 		_refresh_plan()
+		_coach_event("move")
 
 
 func _lit_ids() -> Array[String]:
@@ -827,11 +833,24 @@ func _lit_ids() -> Array[String]:
 	return ids
 
 
+var _last_land_msec := 0
+
+
+## One chime per swap, however many thoughts land together.
+func _on_swap_landed(_id: String) -> void:
+	var now := Time.get_ticks_msec()
+	if now - _last_land_msec > 120:
+		_last_land_msec = now
+		_play_effect("LAND")
+
+
 func _swap(first: String, second: String) -> void:
 	if mode == "PLAN" and plan.swap(first, second, _lit_ids()):
 		_stage.clear_preview()
 		_refresh_plan()
 		_stage.react_swap(first, second)
+		_coach_event("pick")
+		_coach_event("swap")
 		_tutorial_event("swap")
 		_play_effect("SWAP")
 		_say_scripted("swap", [first, second])
@@ -842,6 +861,7 @@ func _swap(first: String, second: String) -> void:
 func _preview(first: String, second: String) -> void:
 	if mode != "PLAN":
 		return
+	_coach_event("pick")
 	var hypothetical = PLAN.from_page(page)
 	hypothetical.restore(plan.to_data())
 	if hypothetical.swap(first, second, _lit_ids()):
@@ -968,6 +988,11 @@ func _input(event: InputEvent) -> void:
 			_close_pause()
 		elif not (is_instance_valid(_front) and _front.visible):
 			_open_pause()
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_M and not event.ctrl_pressed:
+		# M mutes / unmutes from anywhere.
+		_sound.button_pressed = not _sound.button_pressed
 		get_viewport().set_input_as_handled()
 		return
 	if (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible) or (is_instance_valid(_intro_card) and _intro_card.visible):
@@ -1155,8 +1180,14 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 	# Original procedural sound design; no imported sound library or random state.
 	var sample_rate := 22050
 	var duration := 0.28 if kind in ["EAT", "SIT"] else 0.16
-	if kind.begins_with("REVEAL_") or kind.begins_with("POKE_") or kind in ["HMPH", "SWAP"]:
+	if kind.begins_with("REVEAL_") or kind.begins_with("POKE_") or kind in ["HMPH"]:
 		duration = 0.32
+	if kind == "SWAP":
+		duration = 0.24
+	if kind == "PICK":
+		duration = 0.11
+	if kind == "LAND":
+		duration = 0.22
 	if kind == "HUG":
 		duration = 0.24
 	var bytes := PackedByteArray()
@@ -1195,7 +1226,15 @@ func _make_effect(kind: String) -> AudioStreamWAV:
 				# Generic sleepy grumble used for every dark actor.
 				value = sin(TAU * 140.0 * t) * exp(-t * 10.0) * 0.4
 			"SWAP":
-				value = sin(TAU * (300.0 * t + 900.0 * t * t)) * sin(PI * t / duration) * 0.3
+				# Whoosh: a quick rising sweep with a breath of noise.
+				value = (sin(TAU * (300.0 * t + 1400.0 * t * t)) * 0.8 + noise * 0.25) * sin(PI * t / duration) * 0.28
+			"PICK":
+				# Pluck: a bright little bubble blip going up.
+				value = sin(TAU * (520.0 * t + 3200.0 * t * t)) * exp(-t * 26.0) * 0.4
+			"LAND":
+				# Pop and two-note chime: satisfying and short.
+				var chime := 880.0 if t < 0.07 else 1175.0
+				value = (sin(TAU * chime * t) + 0.35 * sin(TAU * chime * 2.0 * t)) * exp(-t * 17.0) * 0.32 + noise * exp(-t * 120.0) * 0.3
 			"HUG":
 				# Squeeze: a warm two-note "aww".
 				value = (sin(TAU * 523.0 * t) + sin(TAU * (659.0 if t > 0.07 else 523.0) * t)) * sin(PI * t / duration) * 0.22
@@ -1482,7 +1521,7 @@ func _save_progress() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		return
-	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done, "seen_cards": seen_cards.keys(), "gags": gags, "achievements": achievements.keys()}))
+	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done, "seen_cards": seen_cards.keys(), "gags": gags, "achievements": achievements.keys(), "coach_done": coach_done.keys()}))
 
 
 func _load_progress() -> void:
@@ -1506,6 +1545,8 @@ func _load_progress() -> void:
 		gags = data.gags
 	for id in data.get("achievements", []):
 		achievements[str(id)] = true
+	for id in data.get("coach_done", []):
+		coach_done[str(id)] = true
 
 
 func _comic_theme() -> Theme:
@@ -1526,8 +1567,14 @@ func _comic_theme() -> Theme:
 		box.content_margin_top = 4
 		box.content_margin_bottom = 4
 		if state == "focus":
-			# Keyboard focus: a warm tint (and a small zoom from _juice_button).
+			# Keyboard focus: warm tint, a thick orange frame and a glow, plus a
+			# small zoom from _juice_button. Impossible to miss.
 			box.bg_color = UI_FOCUS
+			box.border_color = Color("e8731a")
+			box.set_border_width_all(5)
+			box.shadow_color = Color(1.0, 0.72, 0.2, 0.75)
+			box.shadow_size = 10
+			box.shadow_offset = Vector2.ZERO
 		theme.set_stylebox(state, "Button", box)
 	# Tooltips look like the game's speech balloons.
 	var tip := StyleBoxFlat.new()
@@ -2485,6 +2532,7 @@ func _build_settings_sheet() -> void:
 			bonus_done.clear()
 			endings_found.clear()
 			tutorial_done = false
+			coach_done.clear()
 			seen_cards.clear()
 			gags = {"exit": 0, "dog": 0}
 			_tutorial_endings.clear()
@@ -2533,6 +2581,90 @@ func _say_scripted(when: String, ids: Array) -> void:
 			_blip(id, str(entry.get("line", "")))
 		_stage.say(id, str(entry.get("line", "")), life)
 
+
+
+# ------------------------------------------------------------ coach pop-ups
+## Contextual "press this key" chips with drawn key caps. Each one appears when
+## it is relevant and goes away once the player does the thing (or, for the
+## optional ones, after a few seconds). What was learned is remembered in the save.
+const COACH_CHIP = preload("res://presentation/coach_chip.gd")
+const COACH_PARTS := {
+	"move": [{"keys": ["A", "D"], "or": ["←", "→"], "label": "slide the light"}],
+	"light2": [{"keys": ["1", "2"], "label": "pick a bulb"}, {"keys": ["P"], "label": "hang / park it"}],
+	"tilt": [{"keys": ["W", "S"], "or": ["↑", "↓"], "label": "raise / lower the light"}],
+	"pick": [{"keys": ["Tab"], "label": "choose who"}, {"keys": ["Enter"], "label": "pick up their thought"}],
+	"swap": [{"keys": ["Tab"], "label": "pick another lit one"}, {"keys": ["Enter"], "label": "swap"}, {"keys": ["Esc"], "label": "cancel"}],
+	"action": [{"keys": ["Space"], "label": "ACTION!"}],
+}
+## Optional hints give up after this many seconds on screen.
+const COACH_PATIENCE := 12.0
+var coach_done := {}
+var _coach: Control
+var _coach_timer := 0.0
+var _coach_shown_for := 0.0
+var _coach_clock := 0.0
+
+
+func _coach_event(name: String) -> void:
+	if coach_done.has(name):
+		return
+	coach_done[name] = true
+	_save_progress()
+	_coach_tick(0.0, true)
+
+
+func _coach_blocked() -> bool:
+	if mode != "PLAN" or page.is_empty() or _screen_covered():
+		return true
+	for sheet in [_pause_sheet, _settings_sheet, _intro_card, _story_card, _result_card]:
+		if is_instance_valid(sheet) and sheet.visible:
+			return true
+	return is_instance_valid(_endings_book)
+
+
+func _coach_wanted() -> String:
+	var lanterns: Dictionary = page.get("lanterns", {})
+	if lanterns.is_empty():
+		return ""
+	if not coach_done.has("move"):
+		return "move"
+	if int(lanterns.get("count", 1)) >= 2 and not coach_done.has("light2"):
+		return "light2"
+	if not _stage.key_picked.is_empty():
+		return "swap"
+	if not coach_done.has("tilt") and not coach_done.has("pick"):
+		return "tilt"
+	if _lit_ids().size() >= 2 and not coach_done.has("pick"):
+		return "pick"
+	if not coach_done.has("action"):
+		return "action"
+	return ""
+
+
+func _coach_tick(delta: float, force: bool = false) -> void:
+	_coach_timer -= delta
+	if _coach_timer > 0.0 and not force:
+		return
+	_coach_timer = 0.2
+	if DisplayServer.get_name() == "headless":
+		return
+	var wanted := "" if _coach_blocked() else _coach_wanted()
+	if wanted.is_empty():
+		if is_instance_valid(_coach):
+			_coach.hide_hint()
+		_coach_shown_for = 0.0
+		return
+	if not is_instance_valid(_coach):
+		_coach = COACH_CHIP.new()
+		_coach.position = Vector2(16, 604)
+		_ui.add_child(_coach)
+	_coach.reduce_motion = _motion.button_pressed
+	if _coach.hint_id != wanted:
+		_coach_shown_for = 0.0
+		_coach.show_hint(wanted, COACH_PARTS[wanted])
+	_coach_shown_for += 0.2 if not force else 0.0
+	if wanted in ["tilt", "light2"] and _coach_shown_for > COACH_PATIENCE:
+		coach_done[wanted] = true
 
 
 # ------------------------------------------------------------ tutorial (ui.md §8)
@@ -2601,7 +2733,8 @@ func _tutorial_steps() -> Array:
 func _show_tutorial_step() -> void:
 	var steps := _tutorial_steps()
 	if _tutorial_step < steps.size():
-		_stage.set_caption("Bulby: " + str(steps[_tutorial_step].get("caption", "")), 0.0)
+		var more := "  [Enter to continue]" if str(steps[_tutorial_step].get("gate", "")) in ["click", "legend_opened"] else ""
+		_stage.set_caption("Bulby: " + str(steps[_tutorial_step].get("caption", "")) + more, 0.0)
 		_stage.set_mood("scheme", 1.0)
 		_instructions.text = "Tutorial step %d / %d" % [_tutorial_step + 1, steps.size()]
 
@@ -2654,11 +2787,13 @@ func _object_lit(world: Dictionary, lit_slots: Array, id: String) -> bool:
 	return false
 
 
-func _tutorial_click() -> void:
+func _tutorial_click() -> bool:
 	var steps := _tutorial_steps()
 	if _tutorial_step < steps.size() and str(steps[_tutorial_step].get("gate", "")) in ["click", "legend_opened"]:
 		_tutorial_step += 1
 		_show_tutorial_step()
+		return true
+	return false
 
 
 func _advance_tutorial_panel() -> void:
@@ -2679,6 +2814,7 @@ func _finish_tutorial() -> void:
 
 func _replay_tutorial() -> void:
 	tutorial_done = false
+	coach_done.clear()
 	_save_progress()
 	if is_instance_valid(_settings_sheet):
 		_settings_sheet.hide()
@@ -3245,14 +3381,16 @@ func _keyboard(event: InputEventKey) -> bool:
 	var key := event.keycode
 	match mode:
 		"PLAN":
-			if key in [KEY_A, KEY_D, KEY_W, KEY_S]:
-				# WASD mirrors the arrow keys the stage already handles.
-				var arrow: int = {KEY_A: KEY_LEFT, KEY_D: KEY_RIGHT, KEY_W: KEY_UP, KEY_S: KEY_DOWN}[key]
-				_nudge_lantern(arrow, event.shift_pressed)
+			if key in [KEY_A, KEY_D, KEY_W, KEY_S, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:
+				# One press = one grid step. The OS key-repeat is ignored; holding
+				# the key repeats from _hold_repeat() at a gentler rate.
+				if not event.echo:
+					_hold_key = key
+					_hold_time = 0.0
+					_hold_move(key, event.shift_pressed)
 				return true
-			if key in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN] and not _stage.has_focus():
-				_nudge_lantern(key, event.shift_pressed)
-				return true
+			if key in [KEY_1, KEY_2, KEY_P]:
+				_coach_event("light2")
 			if (key in [KEY_1, KEY_2, KEY_P]) and not _stage.has_focus():
 				_stage.grab_focus()
 				_stage._gui_input(event)
@@ -3264,7 +3402,9 @@ func _keyboard(event: InputEventKey) -> bool:
 					_cycle_cursor(-1 if key == KEY_Q or event.shift_pressed else 1)
 					return true
 				KEY_ENTER, KEY_KP_ENTER:
-					_key_select()
+					# Enter also dismisses the tutorial's "click to continue" steps.
+					if not _tutorial_click():
+						_key_select()
 					return true
 				KEY_H:
 					_show_hint()
@@ -3316,6 +3456,33 @@ func _keyboard(event: InputEventKey) -> bool:
 	return false
 
 
+const HOLD_DELAY := 0.38
+const HOLD_RATE := 0.17
+var _hold_key := 0
+var _hold_time := 0.0
+
+
+func _hold_move(key: int, fine: bool) -> void:
+	var arrow: int = {KEY_A: KEY_LEFT, KEY_D: KEY_RIGHT, KEY_W: KEY_UP, KEY_S: KEY_DOWN}.get(key, key)
+	_nudge_lantern(arrow, fine)
+	_tutorial_event("moved")
+	if arrow in [KEY_UP, KEY_DOWN]:
+		_coach_event("tilt")
+
+
+## A held direction key repeats after a pause, a step at a time.
+func _hold_repeat(delta: float) -> void:
+	if _hold_key == 0:
+		return
+	if mode != "PLAN" or not Input.is_key_pressed(_hold_key):
+		_hold_key = 0
+		return
+	_hold_time += delta
+	if _hold_time >= HOLD_DELAY:
+		_hold_time -= HOLD_RATE
+		_hold_move(_hold_key, Input.is_key_pressed(KEY_SHIFT))
+
+
 func _nudge_lantern(arrow: int, fine: bool) -> void:
 	var fake := InputEventKey.new()
 	fake.keycode = arrow
@@ -3353,7 +3520,8 @@ func _key_select() -> void:
 		return
 	if _stage.key_picked.is_empty():
 		_stage.key_picked = cursor
-		_play_effect("SWAP")
+		_coach_event("pick")
+		_play_effect("PICK")
 		_instructions.text = "Picked %s's thought. Tab to another lit character, Enter to swap, Esc to cancel." % _art_of(cursor).capitalize()
 	elif _stage.key_picked == cursor:
 		_stage.key_picked = ""

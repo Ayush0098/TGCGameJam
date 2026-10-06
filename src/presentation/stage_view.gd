@@ -9,6 +9,10 @@ signal preview_cleared()
 signal actor_revealed(id: String, thought: String)
 signal actor_poked(id: String, kind: String)
 signal flick_cleared()
+## A thought bubble was picked up with the pointer.
+signal bubble_picked(id: String)
+## A swapped thought has landed on its new owner.
+signal swap_landed(id: String)
 
 const INK := Color("1e1b2e")
 const PAPER := Color("f0eee5")
@@ -155,6 +159,16 @@ var key_cursor := ""
 ## The main game shows narration in its footer instead of on the stage.
 var external_caption := false
 var key_picked := ""
+
+# --- thought-swap juice: pickup lift, drag ghost, arcing flights, landing pop.
+const FLIGHT := 0.36
+const LAND_POP := 0.3
+var _flights: Array[Dictionary] = []
+var _sparks: Array[Dictionary] = []
+var _lift: Dictionary = {}
+var _landed: Dictionary = {}
+var _last_bubbles: Dictionary = {}
+var _drag_trail: Array[Vector2] = []
 
 
 func _fit() -> float:
@@ -568,6 +582,7 @@ func _process(delta: float) -> void:
 			_props.queue_redraw()
 		if is_instance_valid(_glow):
 			_glow.queue_redraw()
+	_update_swap_juice(delta)
 	for effect in _effects:
 		effect.age += delta * _playback_speed
 	_effects = _effects.filter(func(effect): return effect.age < EFFECT_LIFE)
@@ -730,13 +745,21 @@ func _draw() -> void:
 		if not bubbles.has(actor.id):
 			continue
 		var rect: Rect2 = bubbles[actor.id]
+		_last_bubbles[actor.id] = rect
 		var colour: Color = COLOURS.get(actor.thought, MEMORY)
-		_draw_thought_cloud(rect, at - Vector2(0, _figure_height(actor.art) - 5.0), colour)
-		if _textures.has(actor.thought):
-			draw_texture_rect(_textures[actor.thought], Rect2(rect.position + Vector2(32, 4), Vector2(32, 32)), false)
-		var thought_text := str(actor.thought).replace("_", " ")
-		var label_width := TEXT_FONT.get_string_size(thought_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
-		_label(self, rect.position + Vector2((96 - label_width) / 2, 54), thought_text, colour, 16)
+		var pose := _bubble_pose(str(actor.id))
+		if not pose.hidden:
+			# Drawn around its own centre so lift, wobble and squash pivot there.
+			var centre := rect.get_center()
+			var local := Rect2(rect.position - centre, rect.size)
+			draw_set_transform(_offset() + (centre - Vector2(0, pose.lift)) * _fit(), pose.rot, pose.scale * _fit())
+			_draw_thought_cloud(local, at - Vector2(0, _figure_height(actor.art) - 5.0) - centre + Vector2(0, pose.lift), colour)
+			if _textures.has(actor.thought):
+				draw_texture_rect(_textures[actor.thought], Rect2(local.position + Vector2(32, 4), Vector2(32, 32)), false)
+			var thought_text := str(actor.thought).replace("_", " ")
+			var label_width := TEXT_FONT.get_string_size(thought_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			_label(self, local.position + Vector2((96 - label_width) / 2, 54), thought_text, colour, 16)
+			draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
 		if _planning:
 			_bubble_rects[actor.id] = rect
 			_actor_rects[actor.id] = Rect2(at - Vector2(42, _figure_height(actor.art)), Vector2(84, _figure_height(actor.art)))
@@ -754,8 +777,7 @@ func _draw() -> void:
 	for saying in _sayings:
 		_draw_saying(saying)
 	_draw_caption_box()
-	if _drag_bubble != "":
-		draw_circle(_mouse, 18, Color(1, 0.85, 0.3, 0.7))
+	_draw_swap_juice()
 	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
 	if not full_bleed:
 		draw_rect(Rect2(3, 3, 1274, 454), INK, false, 6)
@@ -848,6 +870,21 @@ func _move_selected(position: Vector2, enabled: bool = true) -> void:
 	lantern_moved.emit(_selected_lantern, clamped, enabled)
 
 
+## One key press moves the bulb one grid cell: half a slot sideways (so two
+## neighbours frame cleanly), a fifth of a unit up or down. Shift halves it.
+const KEY_STEP_X := 0.5
+const KEY_STEP_Y := 0.2
+
+
+## The next grid line in `direction`; an off-grid position (after a mouse drag)
+## snaps to the nearest line that way instead of jumping a whole step.
+static func _grid_step(value: float, direction: int, step: float, fine: bool) -> float:
+	var cell := step * (0.5 if fine else 1.0)
+	var cells := value / cell
+	var next := floorf(cells + 0.0001) + 1.0 if direction > 0 else ceilf(cells - 0.0001) - 1.0
+	return snappedf(next * cell, 0.01)
+
+
 func _gui_input(event: InputEvent) -> void:
 	if not _planning or _page.is_empty():
 		return
@@ -864,12 +901,15 @@ func _gui_input(event: InputEvent) -> void:
 		elif event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_P]:
 			var light: Dictionary = _plan.lanterns[_selected_lantern]
 			var at := Vector2(light.x, light.y)
-			var step := 0.1 if event.shift_pressed else 0.25
+			if event.echo:
+				# Held keys repeat from the game's own slower timer, not the OS rate.
+				accept_event()
+				return
 			match event.keycode:
-				KEY_LEFT: at.x -= step
-				KEY_RIGHT: at.x += step
-				KEY_UP: at.y -= step
-				KEY_DOWN: at.y += step
+				KEY_LEFT: at.x = _grid_step(at.x, -1, KEY_STEP_X, event.shift_pressed)
+				KEY_RIGHT: at.x = _grid_step(at.x, 1, KEY_STEP_X, event.shift_pressed)
+				KEY_UP: at.y = _grid_step(at.y, -1, KEY_STEP_Y, event.shift_pressed)
+				KEY_DOWN: at.y = _grid_step(at.y, 1, KEY_STEP_Y, event.shift_pressed)
 			_move_selected(at, not light.enabled if event.keycode == KEY_P else true)
 		else:
 			return
@@ -894,6 +934,7 @@ func _gui_input(event: InputEvent) -> void:
 			for id in _bubble_rects:
 				if _bubble_rects[id].has_point(_mouse):
 					_drag_bubble = id
+					bubble_picked.emit(id)
 					accept_event()
 					return
 			if _flick_ghost_rect.has_area() and _flick_ghost_rect.has_point(_mouse):
@@ -994,10 +1035,142 @@ func set_mood(mood: String, seconds: float = 0.0) -> void:
 		_props.queue_redraw()
 
 func react_swap(first: String, second: String) -> void:
-	for id in [first, second]:
-		if _rigs.has(id):
-			_rigs[id].pop()
+	var world := _shown()
+	var delay := 0.0
+	for pair in [[first, second], [second, first]]:
+		var id: String = pair[0]
+		var source: String = pair[1]
+		if _reduced_motion or not _last_bubbles.has(id) or not _last_bubbles.has(source):
+			_land(id)
+			continue
+		var thought := ""
+		for actor in world.get("characters", []):
+			if actor.id == id:
+				thought = str(actor.thought)
+		# The thought that now belongs to `id` flies in from the other bubble.
+		_flights.append({"id": id, "from": _last_bubbles[source].get_center(), "to": _last_bubbles[id].get_center(), "thought": thought, "age": 0.0, "delay": delay})
+		delay += 0.05
 	set_mood("scheme", 1.2)
+	queue_redraw()
+
+
+## A thought arrives: the owner pops, the bubble squash-pops and sparks fly.
+func _land(id: String) -> void:
+	if _rigs.has(id):
+		_rigs[id].pop()
+	swap_landed.emit(id)
+	if _reduced_motion:
+		return
+	_landed[id] = 0.0
+	var centre: Vector2 = _last_bubbles[id].get_center() if _last_bubbles.has(id) else Vector2(640, 200)
+	for k in 10:
+		var angle := TAU * k / 10.0 + float(id.hash() % 7)
+		_sparks.append({"at": centre, "vel": Vector2.from_angle(angle) * (90.0 + 40.0 * float(k % 3)), "age": 0.0, "star": k % 2 == 0})
+
+
+func _bubble_pose(id: String) -> Dictionary:
+	var pose := {"scale": Vector2.ONE, "rot": 0.0, "lift": 0.0, "hidden": false}
+	var lifted: float = _lift.get(id, 0.0)
+	if lifted > 0.0 and not _reduced_motion:
+		pose.scale = Vector2.ONE * (1.0 + 0.14 * lifted)
+		pose.lift = 12.0 * lifted
+		pose.rot = sin(Time.get_ticks_msec() * 0.018) * 0.06 * lifted
+	for flight in _flights:
+		if flight.id == id and flight.age < flight.delay + FLIGHT:
+			pose.hidden = true
+	if _landed.has(id):
+		var t: float = clampf(float(_landed[id]) / LAND_POP, 0.0, 1.0)
+		var wave := cos(t * TAU * 1.5) * (1.0 - t)
+		pose.scale = Vector2(1.0 + 0.32 * wave, 1.0 - 0.32 * wave)
+	return pose
+
+
+func _update_swap_juice(delta: float) -> void:
+	var busy := false
+	for id in _last_bubbles.keys():
+		var target := 1.0 if (_planning and (id == key_picked or id == _drag_bubble)) else 0.0
+		var current: float = _lift.get(id, 0.0)
+		if not is_equal_approx(current, target):
+			_lift[id] = move_toward(current, target, delta * 9.0)
+			busy = true
+	for flight in _flights:
+		flight.age += delta
+		busy = true
+	var arrived: Array = _flights.filter(func(f): return f.age >= f.delay + FLIGHT)
+	_flights = _flights.filter(func(f): return f.age < f.delay + FLIGHT)
+	for flight in arrived:
+		_land(str(flight.id))
+	for id in _landed.keys():
+		_landed[id] += delta
+		busy = true
+		if _landed[id] >= LAND_POP:
+			_landed.erase(id)
+	for spark in _sparks:
+		spark.age += delta
+		busy = true
+	_sparks = _sparks.filter(func(sp): return sp.age < 0.45)
+	if _drag_bubble != "":
+		_drag_trail.append(_mouse)
+		if _drag_trail.size() > 9:
+			_drag_trail.pop_front()
+		busy = true
+	elif not _drag_trail.is_empty():
+		_drag_trail.pop_front()
+		busy = true
+	if busy:
+		queue_redraw()
+
+
+func _mini_cloud(at: Vector2, thought: String, scale: float, rot: float) -> void:
+	var colour: Color = COLOURS.get(thought, MEMORY)
+	draw_set_transform(_offset() + at * _fit(), rot, Vector2.ONE * scale * _fit())
+	_draw_thought_cloud(Rect2(Vector2(-48, -32), Vector2(96, 64)), Vector2(0, 52), colour)
+	if _textures.has(thought):
+		draw_texture_rect(_textures[thought], Rect2(Vector2(-16, -28), Vector2(32, 32)), false)
+	var words := thought.replace("_", " ")
+	var width := TEXT_FONT.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+	_label(self, Vector2(-width * 0.5, 22), words, colour, 16)
+	draw_set_transform(_offset(), 0, Vector2.ONE * _fit())
+
+
+func _draw_swap_juice() -> void:
+	# Drag: the picked thought hangs off the pointer, tilting with the motion and
+	# leaving a short trail.
+	if _drag_bubble != "" or not _drag_trail.is_empty():
+		for k in _drag_trail.size():
+			draw_circle(_drag_trail[k], 3.0 + 7.0 * k / 9.0, Color(1, 0.84, 0.3, 0.07 + 0.35 * k / 9.0))
+		if _drag_bubble != "":
+			var thought := ""
+			for actor in _shown().get("characters", []):
+				if actor.id == _drag_bubble:
+					thought = str(actor.thought)
+			var tilt := 0.0
+			if _drag_trail.size() > 2:
+				tilt = clampf((_drag_trail[-1].x - _drag_trail[-3].x) * 0.012, -0.35, 0.35)
+			_mini_cloud(_mouse + Vector2(0, -18), thought, 0.8, tilt)
+	for flight in _flights:
+		var t: float = (float(flight.age) - float(flight.delay)) / FLIGHT
+		if t <= 0.0:
+			continue
+		t = clampf(t, 0.0, 1.0)
+		var ease_t := t * t * (3.0 - 2.0 * t)
+		var from: Vector2 = flight["from"]
+		var to: Vector2 = flight["to"]
+		var mid := from.lerp(to, 0.5) + Vector2(0, -80.0 - 40.0 * absf(to.x - from.x) / 600.0)
+		for k in range(5, 0, -1):
+			var back := maxf(0.0, ease_t - 0.045 * k)
+			var tail := from.lerp(mid, back).lerp(mid.lerp(to, back), back)
+			draw_circle(tail, 12.0 - k * 1.6, Color(1, 0.86, 0.35, 0.12 + 0.05 * (6 - k)))
+		var point := from.lerp(mid, ease_t).lerp(mid.lerp(to, ease_t), ease_t)
+		_mini_cloud(point, str(flight.thought), 0.7 + 0.3 * sin(t * PI), sin(t * TAU) * 0.18)
+	for spark in _sparks:
+		var fade := 1.0 - float(spark.age) / 0.45
+		var at: Vector2 = spark.at + spark.vel * float(spark.age)
+		if spark.star:
+			draw_line(at - Vector2(5, 0) * fade, at + Vector2(5, 0) * fade, Color(1, 0.9, 0.5, fade), 2.0)
+			draw_line(at - Vector2(0, 5) * fade, at + Vector2(0, 5) * fade, Color(1, 0.9, 0.5, fade), 2.0)
+		else:
+			draw_circle(at, 3.5 * fade, Color(1, 0.84, 0.3, fade))
 
 ## Win: everyone still standing who took part throws their arms up.
 func celebrate() -> void:

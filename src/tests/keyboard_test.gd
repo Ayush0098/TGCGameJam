@@ -5,11 +5,12 @@ extends RefCounted
 const MAIN = preload("res://scenes/main.tscn")
 
 
-func _key(game, code: int, shift := false) -> void:
+func _key(game, code: int, shift := false, echo := false) -> void:
 	var event := InputEventKey.new()
 	event.keycode = code
 	event.pressed = true
 	event.shift_pressed = shift
+	event.echo = echo
 	game._input(event)
 
 
@@ -31,6 +32,19 @@ func run(check: Callable) -> bool:
 	var start: float = game.plan.lanterns[0].x
 	_key(game, KEY_A)
 	check.call(game.plan.lanterns[0].x < start, "Key 2 on a one-bulb page keeps the bulb movable")
+	# One press is one fixed grid step (half a slot); OS key-repeat is ignored.
+	game._move_lantern(0, Vector2(2.0, -0.6), true)
+	_key(game, KEY_D)
+	check.call(is_equal_approx(game.plan.lanterns[0].x, 2.5), "One press moves the bulb exactly half a slot")
+	_key(game, KEY_D, false, true)
+	check.call(is_equal_approx(game.plan.lanterns[0].x, 2.5), "OS key-repeat events do not move the bulb")
+	_key(game, KEY_A)
+	check.call(is_equal_approx(game.plan.lanterns[0].x, 2.0), "A steps back to the previous grid line")
+	_key(game, KEY_S)
+	check.call(is_equal_approx(game.plan.lanterns[0].y, -0.4), "S lowers the bulb one grid step")
+	game._move_lantern(0, Vector2(2.3, -0.6), true)
+	_key(game, KEY_D)
+	check.call(is_equal_approx(game.plan.lanterns[0].x, 2.5), "An off-grid bulb snaps to the next grid line")
 	_key(game, KEY_D)
 	_key(game, KEY_D, true)
 	game._move_lantern(0, Vector2(6.0, 0.0), true)

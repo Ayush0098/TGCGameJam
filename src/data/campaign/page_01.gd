@@ -265,12 +265,12 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "It's dark in here. Drag me over to see who's home.",
+							"caption": "It's dark in here. Press A / D (or drag me) to move my light and see who's home.",
 							"gate": "lit",
 							"target": "cat"
 						},
 						{
-							"caption": "Lit characters show their name and what they're thinking. Slide me away...",
+							"caption": "Lit characters show their name and what they're thinking. Move me away...",
 							"gate": "unlit",
 							"target": "cat"
 						},
@@ -279,11 +279,11 @@ static func definition() -> Dictionary:
 							"gate": "click"
 						},
 						{
-							"caption": "This is today's comic. Tap the crossed-out line to watch what was printed.",
+							"caption": "This is today's comic. Tap the crossed-out line (or press O) to watch what was printed.",
 							"gate": "clipping_opened"
 						},
 						{
-							"caption": "Our version: DASSI eats the biryani. Pull my cord down so my light reaches Dassi AND the biryani.",
+							"caption": "Our version: DASSI eats the biryani. Press S (or pull my cord) to lower my light so it reaches Dassi AND the biryani.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
@@ -439,11 +439,11 @@ static func definition() -> Dictionary:
 					],
 					"steps": [
 						{
-							"caption": "Everyone wants something. Tap ? to see what each thought does.",
+							"caption": "Everyone wants something. The row at the bottom shows what each thought does.",
 							"gate": "legend_opened"
 						},
 						{
-							"caption": "Dassi is sleepy, Chintu is hungry. Drag Chintu's thought onto Dassi.",
+							"caption": "Dassi is sleepy, Chintu is hungry. Swap them: Tab to Chintu, Enter to pick up his thought, Tab to Dassi, Enter (or just drag).",
 							"gate": "swap",
 							"target": [
 								"cat",
@@ -459,7 +459,7 @@ static func definition() -> Dictionary:
 							"gate": "click"
 						},
 						{
-							"caption": "NEW ENDING! Every different result goes in your Endings book. Tap the counter to peek.",
+							"caption": "NEW ENDING! Every different result goes in your Endings book. Tap the counter (or press B) to peek.",
 							"gate": "endings_opened"
 						},
 						{
@@ -609,12 +609,12 @@ static func definition() -> Dictionary:
 					],
 					"steps": [
 						{
-							"caption": "A projector screen! Slide me to the right of it. See how its shadow keeps the cheese dark?",
+							"caption": "A projector screen! Move me right of it with D. See how its shadow keeps the cheese dark?",
 							"gate": "unlit",
 							"target": "cheese"
 						},
 						{
-							"caption": "An angry Dassi bonks whoever it can see. Chintu is behind the projector screen: pull my cord UP to shine over it and light both.",
+							"caption": "An angry Dassi bonks whoever it can see. Chintu is behind the projector screen: press W (or pull my cord UP) to shine over it and light both.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
@@ -792,7 +792,7 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "Stuck? Tap HINT. Each tap shows one more step.",
+							"caption": "Stuck? Press H for a HINT. Each press shows one more step.",
 							"gate": "hint_opened"
 						},
 						{
@@ -918,11 +918,11 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "Some pages give you a second bulb. The hooks show how many bulbs you have. Drag one off its hook.",
+							"caption": "Some pages give you a second bulb. The hooks show how many bulbs you have. Press 2 (or drag one off its hook).",
 							"gate": "lantern_deployed"
 						},
 						{
-							"caption": "Drag it back to the hook to park it. Try it.",
+							"caption": "Press P (or drag it back to its hook) to park it. Try it.",
 							"gate": "lantern_parked"
 						},
 						{
@@ -1042,7 +1042,7 @@ static func definition() -> Dictionary:
 							"gate": "action"
 						},
 						{
-							"caption": "Quick! Click the rail over Chintu to drop the spare bulb. You get one per run.",
+							"caption": "Quick! Aim with A / D and press F (or click the rail over Chintu) to drop the spare bulb. You get one per run.",
 							"gate": "flick"
 						}
 					],
@@ -1073,7 +1073,7 @@ static func definition() -> Dictionary:
 						"when": "start"
 					},
 					{
-						"caption": "Stuck? Tap HINT. Each hint shows a bit more.",
+						"caption": "Stuck? Press H for a HINT. Each hint shows a bit more.",
 						"when": "first_fail"
 					},
 					{

@@ -22,6 +22,7 @@ const CARD := Color("fffaf0")
 const RED := Color("a4383e")
 const GOLD := Color("d9a521")
 const MUTED := Color("8c8a80")
+const FOCUS := Color("e8731a")
 const COMIC_FONT = preload("res://assets/fonts/Bangers-Regular.ttf")
 
 var _title_panel: Control
@@ -76,6 +77,13 @@ func _button(text: String, font_size: int, primary: bool) -> Button:
 		box.border_color = INK
 		box.set_border_width_all(3)
 		box.set_corner_radius_all(4)
+		if state == "focus":
+			# Keyboard focus must be obvious: a thick orange frame and a glow.
+			box.bg_color = (RED if primary else Color("fff3d6")).lightened(0.1)
+			box.border_color = FOCUS
+			box.set_border_width_all(6)
+			box.shadow_color = Color(1.0, 0.72, 0.2, 0.8)
+			box.shadow_size = 12
 		button.add_theme_stylebox_override(state, box)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		button.add_theme_color_override(state, Color.WHITE if primary else INK)
@@ -256,6 +264,13 @@ func _card(index: int, info: Dictionary) -> Control:
 		box.set_corner_radius_all([10, 3, 0][tier])
 		box.shadow_color = Color(INK, 0.8 if unlocked else 0.25)
 		box.shadow_offset = Vector2(4, 4)
+		if state == "focus":
+			box.bg_color = Color("fff3d6")
+			box.border_color = FOCUS
+			box.set_border_width_all(10)
+			box.shadow_color = Color(1.0, 0.72, 0.2, 0.85)
+			box.shadow_size = 14
+			box.shadow_offset = Vector2.ZERO
 		button.add_theme_stylebox_override(state, box)
 	button.pressed.connect(func(): page_requested.emit(index))
 	var number := _label(str(index + 1), 40, TIER_COLOURS[tier])
