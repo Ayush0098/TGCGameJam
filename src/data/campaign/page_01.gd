@@ -265,12 +265,12 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "I'm Bulby, the light. Only characters in my light act, see and get named. Slide me with A / D to find who's home.",
+							"caption": "I'm Bulby, the light. Only characters in my light act, see and get named. Slide me onto Dassi.",
 							"gate": "lit",
 							"target": "cat"
 						},
 						{
-							"caption": "In the light, a character shows their name and what they're thinking. Slide me away from them.",
+							"caption": "A lit character shows their name and what they're thinking. Now slide me off Dassi.",
 							"gate": "unlit",
 							"target": "cat"
 						},
@@ -279,11 +279,11 @@ static func definition() -> Dictionary:
 							"gate": "click"
 						},
 						{
-							"caption": "This is today's comic, the Original. Press O to watch what was printed.",
+							"caption": "This is today's comic, the Original. Watch what was printed.",
 							"gate": "clipping_opened"
 						},
 						{
-							"caption": "Our twist: DASSI eats the biryani. A lower light is wider. Press S to lower me (W raises) until I reach Dassi AND the biryani.",
+							"caption": "Our twist: DASSI eats the biryani. A lower light is wider. Lower me until Dassi AND the biryani are lit.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
@@ -291,7 +291,7 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "Things get name tags too when they're lit: that's the biryani.",
+							"caption": "Things get name tags when they're lit too: that's the biryani.",
 							"gate": "click"
 						},
 						{
@@ -300,7 +300,7 @@ static func definition() -> Dictionary:
 							"target": "dog"
 						},
 						{
-							"caption": "Light set. Press Space for ACTION and watch the beats play out.",
+							"caption": "Light set. ACTION plays the scene so you can watch it play out.",
 							"gate": "action"
 						},
 						{
@@ -443,15 +443,15 @@ static func definition() -> Dictionary:
 							"gate": "legend_opened"
 						},
 						{
-							"caption": "Dassi is sleepy, Chintu is hungry. Characters in the light can be chosen: press Tab to choose someone.",
+							"caption": "Dassi is sleepy, Chintu is hungry. Characters in the light can be chosen. Choose one.",
 							"gate": "choose"
 						},
 						{
-							"caption": "Pick up the chosen character's thought: press Enter. Esc puts it back.",
+							"caption": "Now pick up the chosen character's thought. Esc puts it back.",
 							"gate": "picked"
 						},
 						{
-							"caption": "Now Tab to the other lit character and press Enter: you drop the thought on them and the two swap.",
+							"caption": "Move to the other lit character and drop the thought on them: the two swap.",
 							"gate": "swap",
 							"target": [
 								"cat",
@@ -459,7 +459,7 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "Thoughts swapped. Both must be lit for that. Press Space for ACTION.",
+							"caption": "Thoughts swapped. Both had to be lit for that. Time for ACTION.",
 							"gate": "action"
 						},
 						{
@@ -467,7 +467,7 @@ static func definition() -> Dictionary:
 							"gate": "click"
 						},
 						{
-							"caption": "NEW ENDING! Every different result goes in your Endings book. Tap the counter (or press B) to peek.",
+							"caption": "NEW ENDING! Every different result goes in your Endings book. Peek inside.",
 							"gate": "endings_opened"
 						},
 						{
@@ -617,12 +617,12 @@ static func definition() -> Dictionary:
 					],
 					"steps": [
 						{
-							"caption": "A projector screen! Move me right of it with D. See how its shadow keeps the cheese dark?",
+							"caption": "A projector screen casts a shadow. Slide me right of it and the cheese goes dark.",
 							"gate": "unlit",
 							"target": "cheese"
 						},
 						{
-							"caption": "An angry Dassi bonks whoever it can see. Chintu is behind the projector screen: press W (or pull my cord UP) to shine over it and light both.",
+							"caption": "An angry Dassi bonks whoever she can see. Chintu hides behind the screen: raise me to shine over it and light both.",
 							"gate": "lit_set",
 							"target": [
 								"cat",
@@ -630,7 +630,7 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "No cheese in sight, so Chintu stays put. Press ACTION.",
+							"caption": "No cheese in sight, so Chintu stays put. ACTION!",
 							"gate": "action"
 						},
 						{
@@ -792,7 +792,7 @@ static func definition() -> Dictionary:
 							"gate": "click"
 						},
 						{
-							"caption": "The Saap always beats Chintu to the Maggi. Make the Saap sleepy instead. Swap with Mess Aunty.",
+							"caption": "The Saap always beats Chintu to the Maggi. Make the Saap sleepy: swap with Mess Aunty.",
 							"gate": "swap",
 							"target": [
 								"kid",
@@ -800,11 +800,11 @@ static func definition() -> Dictionary:
 							]
 						},
 						{
-							"caption": "Stuck? Press H for a HINT. Each press shows one more step.",
+							"caption": "Stuck? A hint shows one more step each time you ask.",
 							"gate": "hint_opened"
 						},
 						{
-							"caption": "Keep Mess Aunty in the dark, then press ACTION.",
+							"caption": "Keep Mess Aunty in the dark, then ACTION.",
 							"gate": "action"
 						}
 					],
@@ -926,15 +926,15 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "Some pages give you a second bulb. The hooks show how many bulbs you have. Press 2 (or drag one off its hook).",
+							"caption": "Some pages give you a second bulb. Take the 2nd one off its hook.",
 							"gate": "lantern_deployed"
 						},
 						{
-							"caption": "Press P (or drag it back to its hook) to park it. Try it.",
+							"caption": "A bulb you don't need goes back on its hook. Park it.",
 							"gate": "lantern_parked"
 						},
 						{
-							"caption": "Light Dassi with the biryani and Chintu with the bonda. Leave the gap dark, then press ACTION.",
+							"caption": "Light Dassi with the biryani and Chintu with the bonda. Leave the gap dark, then ACTION.",
 							"gate": "action"
 						}
 					],
@@ -1046,7 +1046,7 @@ static func definition() -> Dictionary:
 					"bonus": [],
 					"steps": [
 						{
-							"caption": "Chintu is out of my reach. Light the biryani, keep Dassi dark, press ACTION.",
+							"caption": "Chintu is out of my reach. Light the biryani, keep Dassi dark, then ACTION.",
 							"gate": "action"
 						},
 						{

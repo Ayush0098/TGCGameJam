@@ -951,8 +951,6 @@ func _update_buttons() -> void:
 	_update_instructions()
 	_update_progress_label()
 	_emphasise(_action, mode == "PLAN")
-	_gated_key = ""
-	_apply_tutorial_gating()
 	if is_instance_valid(_pause_button):
 		var playing_now := mode in ["INTRO", "PLAY", "ORIGINAL_END"]
 		_action.visible = mode == "PLAN"
@@ -963,7 +961,7 @@ func _update_buttons() -> void:
 		_title.text = "PAGE %d  ·  %s" % [page_index + 1, str(page.get("title", "")).to_upper()]
 		if _tutorial_panel >= 0:
 			_title.text = "TUTORIAL %d/%d  ·  %s" % [_tutorial_panel + 1, _tutorial_data().get("panels", []).size(), str(page.get("title", "")).to_upper()]
-		_progress_label.visible = _tutorial_panel < 0 or _tutorial_has_gate("endings_opened")
+		_progress_label.visible = _tutorial_panel < 0 or _tut_unlocked.has("book")
 		if is_instance_valid(_tutorial_skip):
 			_tutorial_skip.visible = _tutorial_panel >= 0
 		_tier_band.color = TIER_COLOURS[_tier(page_index)]
@@ -971,6 +969,8 @@ func _update_buttons() -> void:
 		_fast_button.text = ""
 	_emphasise(_next, mode == "RESULT" and _won_current)
 	_emphasise(_rewind, mode == "RESULT" and not _won_current)
+	_gated_key = ""
+	_apply_tutorial_gating()
 
 
 func _input(event: InputEvent) -> void:
@@ -1298,7 +1298,10 @@ func _update_instructions() -> void:
 		"PLAN":
 			var lit := _lit_ids()
 			var tutorial: Variant = page.get("tutorial")
-			if page.has("coach") and not completed.has(page.id):
+			if _tutorial_panel >= 0 and _tutorial_step < _tutorial_steps().size():
+				# The tutorial card teaches the current step; this panel must not list every control.
+				text = "Tutorial step %d / %d" % [_tutorial_step + 1, _tutorial_steps().size()]
+			elif page.has("coach") and not completed.has(page.id):
 				text = str(page.coach)
 			elif tutorial is Array and not tutorial.is_empty() and not completed.has(page.id):
 				text = str(tutorial[0])
@@ -2651,7 +2654,7 @@ func _tutorial_card_tick() -> bool:
 		_coach.position = Vector2(16, 560)
 		_ui.add_child(_coach)
 	_coach.reduce_motion = _motion.button_pressed
-	var note := "Space: skip this step" if gate != "action" else ""
+	var note := "Space: skip this step" if _tutorial_can_pass() and gate not in TUTORIAL_INFO_GATES else ""
 	_coach.show_hint("tut:%d:%d" % [_tutorial_panel, _tutorial_step], _tutorial_parts(step), str(step.get("caption", "")), note)
 	return true
 
@@ -2742,6 +2745,10 @@ func _start_tutorial(index: int, panel: int = 0) -> void:
 	_load_page(index, definition)
 	_tutorial_panel = panel
 	_tutorial_step = 0
+	if panel == 0:
+		_tut_unlocked.clear()
+	# ACTION is a commit: every panel has to teach it again before it works.
+	_tut_unlocked.erase("action")
 	_title.text = "TUTORIAL %d/%d  ·  %s" % [panel + 1, panels.size(), str(definition.get("title", "")).to_upper()]
 	_ensure_skip_tab()
 	_show_tutorial_step()
@@ -2775,16 +2782,19 @@ func _tutorial_steps() -> Array:
 	return panels[_tutorial_panel].get("steps", [])
 
 
-## What each tutorial gate lets the player do. One thing at a time: anything not
-## listed for the current step is switched off. Gateless (info) steps allow all.
+## What each tutorial gate introduces. One new thing at a time: a step unlocks only
+## its own control, on top of what earlier steps already taught. Info steps ("click",
+## "legend_opened") switch everything off until the player presses Space/Enter.
 const TUTORIAL_ALLOW := {
-	"lit": ["move_x"], "unlit": ["move_x"], "lit_set": ["move_x", "move_y"],
-	"lantern_deployed": ["move_x", "move_y", "bulbs"], "lantern_parked": ["move_x", "move_y", "bulbs"],
-	"choose": ["choose"], "picked": ["choose", "pick"], "swap": ["choose", "pick"],
+	"lit": ["move_x"], "unlit": ["move_x"], "lit_set": ["move_y"],
+	"lantern_deployed": ["bulbs"], "lantern_parked": ["bulbs"],
+	"choose": ["choose"], "picked": ["pick"], "swap": ["pick", "restart"],
 	"action": ["action"], "clipping_opened": ["original"], "hint_opened": ["hint"],
-	"endings_opened": ["book"], "click": [], "legend_opened": [],
+	"endings_opened": ["book"], "click": [], "legend_opened": ["legend"],
 }
+const TUTORIAL_INFO_GATES := ["click", "legend_opened"]
 var _gated_key := ""
+var _tut_unlocked := {}
 
 
 func _tutorial_gate() -> String:
@@ -2795,26 +2805,27 @@ func _tutorial_gate() -> String:
 
 
 ## Whether the current tutorial step lets the player use `action` (always true
-## outside the tutorial, in later modes, and on gateless info steps).
+## outside the tutorial, in later modes, and on gateless steps).
 func _tutorial_allows(action: String) -> bool:
 	if mode != "PLAN":
 		return true
 	var gate := _tutorial_gate()
 	if gate.is_empty() or not TUTORIAL_ALLOW.has(gate):
 		return true
-	return action in TUTORIAL_ALLOW[gate]
+	if gate in TUTORIAL_INFO_GATES:
+		return action in TUTORIAL_ALLOW[gate]
+	return _tut_unlocked.has(action)
 
 
 ## The key caps for a tutorial step, derived from what it asks the player to do.
 func _tutorial_parts(step: Dictionary) -> Array:
-	var caption := str(step.get("caption", ""))
-	var move := {"keys": ["A", "D"], "or": ["←", "→"], "label": "slide the light"}
-	var tilt := {"keys": ["W", "S"], "or": ["↑", "↓"], "label": "raise / lower"}
 	match str(step.get("gate", "")):
-		"lit", "unlit", "lit_set":
-			return [move, tilt] if (" S " in caption or " W " in caption or "lower" in caption) else [move]
+		"lit", "unlit":
+			return [{"keys": ["A", "D"], "or": ["←", "→"], "label": "slide the light"}]
+		"lit_set":
+			return [{"keys": ["W", "S"], "or": ["↑", "↓"], "label": "raise / lower the light"}]
 		"lantern_deployed":
-			return [{"keys": ["2"], "label": "take out the 2nd bulb"}]
+			return [{"keys": ["2"], "label": "pick the 2nd bulb"}, {"keys": ["P"], "label": "hang it out"}]
 		"lantern_parked":
 			return [{"keys": ["P"], "label": "park it"}]
 		"choose":
@@ -2836,13 +2847,17 @@ func _tutorial_parts(step: Dictionary) -> Array:
 	return []
 
 
+## Space may pass an info step, or the very first step of the tutorial (the light).
+func _tutorial_can_pass() -> bool:
+	var gate := _tutorial_gate()
+	if gate.is_empty() or mode != "PLAN":
+		return false
+	return gate in TUTORIAL_INFO_GATES or (_tutorial_panel == 0 and _tutorial_step == 0)
+
+
 ## Space passes the current tutorial step (on the ACTION step it starts ACTION).
 func _tutorial_pass() -> bool:
-	var steps := _tutorial_steps()
-	if _tutorial_panel < 0 or mode != "PLAN" or _tutorial_step >= steps.size():
-		return false
-	var gate := str(steps[_tutorial_step].get("gate", ""))
-	if gate.is_empty() or gate == "action":
+	if not _tutorial_can_pass():
 		return false
 	_tutorial_step += 1
 	_show_tutorial_step()
@@ -2850,7 +2865,12 @@ func _tutorial_pass() -> bool:
 	return true
 
 
-## Switch off the controls the current step has not introduced.
+## Whether a control has been introduced yet (always true outside the tutorial).
+func _tutorial_shows(control: String) -> bool:
+	return _tutorial_panel < 0 or mode != "PLAN" or _tut_unlocked.has(control)
+
+
+## Switch off (and hide) the controls the tutorial has not introduced yet.
 func _apply_tutorial_gating() -> void:
 	if not is_instance_valid(_stage) or not is_instance_valid(_action):
 		return
@@ -2859,19 +2879,35 @@ func _apply_tutorial_gating() -> void:
 		return
 	_gated_key = key
 	_stage.lock_bulbs = not _tutorial_allows("move_x")
-	_stage.lock_bubbles = not _tutorial_allows("choose")
+	_stage.lock_bubbles = not (_tutorial_allows("choose") and _tutorial_allows("pick"))
 	for hook in _hooks:
-		hook.mouse_filter = Control.MOUSE_FILTER_IGNORE if not _tutorial_allows("bulbs") else Control.MOUSE_FILTER_STOP
+		hook.mouse_filter = Control.MOUSE_FILTER_STOP if _tutorial_allows("bulbs") else Control.MOUSE_FILTER_IGNORE
 	if not _tutorial_allows("action"):
 		_action.disabled = true
+	if not _tutorial_shows("action"):
+		_action.visible = false
 	if not _tutorial_allows("restart"):
 		_restart.disabled = true
-	if is_instance_valid(_hint_hud) and not _tutorial_allows("hint"):
-		_hint_hud.disabled = true
+	if not _tutorial_shows("restart"):
+		_restart.visible = false
+	if is_instance_valid(_hint_hud):
+		if not _tutorial_allows("hint"):
+			_hint_hud.disabled = true
+		if not _tutorial_shows("hint"):
+			_hint_hud.visible = false
+	if not _tutorial_shows("hint"):
+		_hint_button.visible = false
+	if is_instance_valid(_legend) and not _tutorial_shows("legend"):
+		_legend.visible = false
+	if is_instance_valid(_progress_label) and not _tutorial_shows("book"):
+		_progress_label.visible = false
 
 
 func _show_tutorial_step() -> void:
 	var steps := _tutorial_steps()
+	if _tutorial_step < steps.size():
+		for control in TUTORIAL_ALLOW.get(str(steps[_tutorial_step].get("gate", "")), []):
+			_tut_unlocked[control] = true
 	_gated_key = ""
 	_update_buttons()
 	if _tutorial_step < steps.size():
@@ -3656,8 +3692,7 @@ func _hold_repeat(delta: float) -> void:
 
 ## Enter dismisses an info step (same as Space).
 func _tutorial_pass_or_click() -> void:
-	if not _tutorial_click():
-		_tutorial_pass()
+	_tutorial_pass()
 
 
 func _nudge_lantern(arrow: int, fine: bool) -> void:
