@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -132,8 +132,19 @@ def build(art: str) -> None:
     arm_l = (xx >= px(spec["arm_l"][0] - 45)) & (xx < px(spec["arm_l"][2])) & (yy >= px(spec["arm_l"][1])) & (yy < px(spec["arm_l"][3]))
     arm_r = (xx >= px(spec["arm_r"][0])) & (xx < px(spec["arm_r"][2] + 45)) & (yy >= px(spec["arm_r"][1])) & (yy < px(spec["arm_r"][3]))
     arm_r &= ~arm_l
+    book_cut = arm_r.copy() if art == "dassi" else None
+    if art == "dassi":
+        # Follow the notebook and forearm instead of taking a vertical shirt
+        # strip along with the arm. The shirt remains on the stationary torso.
+        book = Image.new("L", (width, height), 0)
+        ImageDraw.Draw(book).polygon([(round(px(x)), round(px(y))) for x, y in
+            [(1020, 800), (1375, 800), (1375, 1140),
+             (975, 1140), (975, 940), (1020, 940)]], fill=255)
+        arm_r &= np.asarray(book) > 0
     legs = (yy >= px(spec["hip_y"])) & ~arm_l & ~arm_r & (np.abs(xx - px(spec["leg_x"])) < px(spec.get("leg_half", 310)))
     below_neck = (yy >= px(spec["neck_y"])) & ~arm_l & ~arm_r & ~legs
+    if book_cut is not None:
+        below_neck &= ~book_cut
     regions = {
         "leg_left": legs & (xx < px(spec["leg_x"])),
         "leg_right": legs & (xx >= px(spec["leg_x"])),
@@ -152,12 +163,44 @@ def build(art: str) -> None:
         paste(canvas, small, ox, oy)
         return canvas
 
+    def dassi_torso() -> Image.Image:
+        # A rectangular book-arm crop also takes the shirt beneath it. Rebuild
+        # that hidden shirt from the intact left side before layering the book.
+        layer = part_image(below_neck)
+        def point(x: float, y: float) -> tuple:
+            return (round(ox + px(x) * scale), round(oy + px(y) * scale))
+        full = Image.new("RGBA", CANVAS, (0, 0, 0, 0))
+        paste(full, resize_premultiplied(master, scale), ox, oy)
+        x0, y0 = point(945, 800)
+        x1, y1 = point(1270, 1160)
+        sx0, _ = point(900, 800)
+        sx1 = sx0 + 1
+        patch = full.crop((sx0, y0, sx1, y1)).resize((x1-x0, y1-y0), Image.Resampling.NEAREST)
+        # Keep the torso silhouette below the shoulder; the real sleeve is
+        # retained on the book arm, and the notebook covers this underpainting.
+        mask = Image.new("L", patch.size, 0)
+        ImageDraw.Draw(mask).polygon([(0, 0), (patch.width-14, 0),
+            (patch.width, 18), (patch.width-10, patch.height), (0, patch.height)], fill=255)
+        patch.putalpha(mask)
+        layer.alpha_composite(patch, (x0, y0))
+        # The expression-sheet chin sits above the master's chin. A neck bridge
+        # must extend behind it, including during the authored head tilts.
+        draw = ImageDraw.Draw(layer)
+        nx0, ny0 = point(915, 625)
+        nx1, ny1 = point(1070, 750)
+        colour = tuple(int(v) for v in master[round(px(740)), round(px(1000)), :3]) + (255,)
+        draw.rounded_rectangle((nx0, ny0, nx1, ny1), radius=5, fill=(47, 20, 43, 255))
+        draw.rounded_rectangle((nx0+3, ny0+2, nx1-3, ny1-4), radius=4, fill=colour)
+        return layer
+
     target = OUT / art
     target.mkdir(parents=True, exist_ok=True)
     for old in target.glob("*"):
-        old.unlink()
+        if old.suffix in {".png", ".svg", ".json"}:
+            old.unlink()
     for name, mask in regions.items():
-        save_png(part_image(mask), target / f"{name}.png")
+        image = dassi_torso() if art == "dassi" and name == "body" else part_image(mask)
+        save_png(image, target / f"{name}.png")
 
     # Heads from the faces sheet, aligned to the master's head box (chin and centre).
     comps = head_components(sheet)
@@ -173,6 +216,9 @@ def build(art: str) -> None:
     # the neutral head's does: the hair never jumps when the expression changes.
     target_cx = ox + centre_x * scale
     target_top = oy + head_top * scale
+    if art == "dassi":
+        # Match the face-sheet chin to the collar, not the shorter hair crop.
+        target_top += 10
     for name, (box, mask) in zip(FACES, comps):
         layer = sheet.copy()
         layer[..., 3] = np.where(mask, layer[..., 3], 0)
@@ -191,6 +237,8 @@ def build(art: str) -> None:
     hip_l = canvas_point((spec["leg_x"] - 130, spec["hip_y"]))
     hip_r = canvas_point((spec["leg_x"] + 130, spec["hip_y"]))
     neck = canvas_point((spec["head_box"][0] * 0.5 + spec["head_box"][2] * 0.5, spec["head_box"][3] - 25))
+    if art == "dassi":
+        neck[1] += 10
     body_pivot = canvas_point((spec["head_box"][0] * 0.5 + spec["head_box"][2] * 0.5, (spec["neck_y"] + spec["hip_y"]) * 0.5))
     parts = [
         {"name": "leg_left", "texture": f"res://assets/characters/{art}/leg_left.png", "pivot": hip_l, "z": -3},
