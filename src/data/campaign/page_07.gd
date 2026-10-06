@@ -1,26 +1,26 @@
 extends RefCounted
-## Level 9/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
-## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
+## Page 7 "Mess Aunty vs the Prof", IIIT-H story rev 4 (design/story_proposal.md, design/build_p4_15/spec.md).
+## Layout page_06; star ladder verified by the solver (levels_solver/ladder), 0.2 and 0.02 lantern grids: ideas 6/2/1.
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_07",
-		"number": 9,
-		"room": "living_room",
-		"narration_key": "shadow",
-		"title": "Shadow Play",
-		"voice": "shadow",
+		"number": 7,
+		"title": "Mess Aunty vs the Prof",
 		"difficulty": "yellow",
+		"room": "kadamba",
+		"voice": "page_07",
+		"source_layout": "page_06",
 		"width": 11,
 		"rail_span": [
 			0,
 			10
 		],
 		"spotlights": {
-			"count": 1,
+			"count": 2,
 			"default_centres": [
-				6
+				4
 			]
 		},
 		"lanterns": {
@@ -31,10 +31,10 @@ static func definition() -> Dictionary:
 				10.0,
 				0.6
 			],
-			"count": 1,
+			"count": 2,
 			"defaults": [
 				{
-					"x": 6.0,
+					"x": 4.0,
 					"y": -0.6,
 					"enabled": true
 				},
@@ -45,186 +45,276 @@ static func definition() -> Dictionary:
 				}
 			]
 		},
-		"obstacles": [
-			{
-				"id": "screen",
-				"from": [
-					3.5,
-					-0.45
-				],
-				"to": [
-					3.5,
-					0.8
-				]
-			}
-		],
+		"obstacles": [],
 		"flick": 0,
 		"fixed_lights": [],
-		"lamps": [],
+		"lamps": [
+			{
+				"id": "lamp",
+				"zone": [
+					3,
+					4
+				],
+				"switch_id": "switch",
+				"initially_on": false
+			}
+		],
 		"characters": [
 			{
-				"id": "mouse",
-				"name": "Mouse",
-				"art": "mouse",
+				"id": "prompt",
+				"name": "Prompt Bhai",
+				"art": "kid",
 				"slot": 1,
 				"facing": "R",
-				"thought": "SCARED",
-				"contradiction": false
+				"thought": "SLEEPY",
+				"contradiction": false,
+				"phone_glow": true,
+				"tint": "#7FD3FF"
 			},
 			{
-				"id": "boss",
-				"name": "Boss",
-				"art": "boss",
+				"id": "dog",
+				"name": "Chintu",
+				"art": "dog",
 				"slot": 4,
 				"facing": "R",
-				"thought": "SCARED",
-				"contradiction": false
-			},
-			{
-				"id": "kid",
-				"name": "Kid",
-				"art": "kid",
-				"slot": 5,
-				"facing": "R",
-				"thought": "HUNGRY",
+				"thought": "ANGRY",
 				"contradiction": false
 			},
 			{
 				"id": "grandma",
-				"name": "Grandma",
+				"name": "Mess Aunty",
 				"art": "grandma",
-				"slot": 6,
+				"slot": 5,
 				"facing": "L",
 				"thought": "ANGRY",
 				"contradiction": true
 			},
 			{
-				"id": "intern",
-				"name": "Intern",
-				"art": "intern",
-				"slot": 7,
-				"facing": "R",
+				"id": "boss",
+				"name": "Prof",
+				"art": "boss",
+				"slot": 10,
+				"facing": "L",
 				"thought": "HUNGRY",
 				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "armchair",
+				"id": "stolen_chair",
 				"type": "SEAT",
-				"art": "armchair",
+				"art": "chair",
+				"name": "stolen auditorium chair",
 				"slot": 0
 			},
 			{
-				"id": "cake",
+				"id": "leftover_cake",
 				"type": "FOOD",
 				"art": "cake",
-				"slot": 3
+				"name": "leftover cake",
+				"slot": 7
 			},
 			{
-				"id": "pie",
-				"type": "FOOD",
-				"art": "pie",
-				"slot": 10
+				"id": "switch",
+				"type": "SWITCH",
+				"art": "pedal",
+				"name": "mess light switch",
+				"slot": 8
 			}
 		],
-		"original_caption": "Grandma bonked the Kid.",
-		"endings_total": 28,
-		"bonus": [
-			{
-				"id": "headline_1",
-				"caption": "STEVE THE INTERN BONKS THE KID",
-				"facts": [
-					{
-						"type": "BONKED",
-						"character": "intern",
-						"target": "kid"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "THE BOSS BONKS THE KID, GRANDMA LEAVES THE COMIC",
-				"facts": [
-					{
-						"type": "BONKED",
-						"character": "boss",
-						"target": "kid"
-					},
-					{
-						"type": "EXITED",
-						"character": "grandma"
-					}
-				]
-			}
-		],
+		"original_caption": "Mess Aunty and Chintu bonked each other.",
+		"endings_total": 69,
 		"goal": {
 			"facts": [
 				{
 					"type": "BONKED",
-					"character": "boss",
-					"target": "grandma"
+					"character": "grandma",
+					"target": "boss"
 				}
 			],
-			"twist_caption": "The BOSS bonked GRANDMA.",
+			"twist_caption": "Mess Aunty bonked the PROF.",
 			"red_pen_words": [
-				"BOSS",
-				"GRANDMA"
+				"PROF"
 			]
 		},
+		"ladder": [
+			{
+				"id": "star_2",
+				"caption": "…and the Prof bonked her right back.",
+				"facts": [
+					{
+						"type": "BONKED",
+						"character": "boss",
+						"target": "grandma"
+					}
+				]
+			},
+			{
+				"id": "star_3",
+				"caption": "…and Chintu ate the cake while they were busy.",
+				"facts": [
+					{
+						"type": "ATE",
+						"character": "dog",
+						"object": "leftover_cake"
+					}
+				]
+			}
+		],
 		"narration": {
-			"intro": "Lamp, listen. Let's make a deal. You leave this page alone, and I'll write you a page of your own. You can be the hero. A lamp hero. Grandma bonks the Kid behind a bookshelf. Lovely. Nobody touch it.",
-			"original": "Grandma bonked the Kid. He knows what he did.",
-			"twist": "The BOSS bonked GRANDMA.",
-			"win": "The Boss bonked Grandma. GRANDMA. I'll have to phone Grandma's lawyer. Grandma IS Grandma's lawyer. We had a DEAL, lamp.",
-			"fail": "Grandma bonked the Kid. Everything is as it should be.",
-			"fail_alt": [
-				"Deal's still on the table, lamp.",
-				"The bookshelf saw nothing."
-			]
+			"intro": "'Re: URGENT: Regarding the mail.' Moving on. The Prof eats at Kadamba every day, 'for research'. Yesterday he wrote on the feedback form: 'Pappu: bland.' Sweet, gentle Mess Aunty has read the feedback form. Sweet, gentle Mess Aunty has a ladle.",
+			"original": "Mess Aunty and Chintu bonked each other. Nobody registered. Nobody won.",
+			"twist": "Mess Aunty bonked the PROF.",
+			"win": "Mess Aunty ladled the Prof. Faculty and students eat the same food here, so they get the same ladle. The socialism of IIIT.",
+			"stars": [
+				"And the Prof bonked her right back. They're arguing about Pappu like they've been married thirty years. They have not. Officially.",
+				"And Chintu ate the leftover cake while they were busy. Prof Cake Count: still zero. I'm starting to think it's personal."
+			],
+			"fails": [
+				"Wrong target. Mess Aunty isn't fussy.",
+				"Somebody got ladled. Checked as per rubric.",
+				"The ladle has been washed. Probably."
+			],
+			"hidden": []
 		},
 		"dialogue": [
 			{
 				"character": "grandma",
 				"when": "lit",
-				"line": "Who wants a bonk? Everybody gets a bonk."
+				"line": "BLAND? My Pappu? I know that handwriting."
 			},
 			{
-				"character": "kid",
-				"when": "lit",
-				"line": "Is there cake back there?"
-			},
-			{
-				"character": "boss",
-				"when": "lit",
-				"line": "I don't do conflict. I have people for conflict."
-			},
-			{
-				"character": "intern",
-				"when": "lit",
-				"line": "Steve. My name is Steve. Hello?"
-			},
-			{
-				"character": "boss",
-				"when": "swap",
-				"line": "That's IT, Grandma!"
-			},
-			{
-				"character": "boss",
+				"character": "grandma",
 				"when": "win",
-				"line": "I'm so sorry, Grandma! It was the lamp!"
+				"line": "That's for Felicity 2012. And for 'bland'."
+			},
+			{
+				"character": "boss",
+				"when": "lit",
+				"line": "I stand by my feedback. Your rasam is perfect, though."
+			},
+			{
+				"character": "boss",
+				"when": "gets_ANGRY",
+				"line": "Nobody ladles a professor!"
+			},
+			{
+				"character": "dog",
+				"when": "lit",
+				"line": "Registration? I AM the registration."
+			},
+			{
+				"character": "dog",
+				"when": "gets_HUNGRY",
+				"line": "Forget the fight. Is that cake?"
+			},
+			{
+				"character": "prompt",
+				"when": "lit",
+				"line": "Lite le. The AI wouldn't hack the CTF. Sleeping."
 			}
 		],
-		"tutorial": [
-			"Furniture blocks light. Raise the bulb to shine over it, lower it to shine under."
+		"stickers": [
+			{
+				"text": "Rumour Meter: STILL UNCONFIRMED",
+				"when": "result"
+			}
 		],
 		"hints": [
-			"Grandma can't see the cake behind the shelf, so a hungry Grandma just stands there.",
-			"Three-way swap: the Boss gets angry, Grandma gets hungry, the Kid gets scared.",
-			"Light the Boss, the Kid and Grandma. Swap the Boss and Grandma, then swap Grandma and the Kid."
+			"Mess Aunty bonks whoever she can see. Bring the Prof into her sight.",
+			"You have two lanterns this time. Put one on Mess Aunty and the other on the Prof at the far end.",
+			"Keep Chintu out of the light, so the Prof is the one she goes for."
 		],
-		"bonus_hints": [
-			"Give the Intern Grandma's anger, then swap Grandma and the Boss. Light the Kid, Grandma and the Intern.",
-			"Swap only the Boss and Grandma, and light the Boss, the Kid and Grandma."
-		]
+		"star_hints": [
+			"Give the Prof Chintu's anger, so an angry Prof hits back.",
+			"After that swap Chintu is hungry. When the Prof walks past the switch, Chintu's corner lights up and he finds the cake."
+		],
+		"manhunt": {
+			"subject": "Re: URGENT: Regarding the mail",
+			"unread": "1,203",
+			"suspect": "#2 Mess Aunty. She was at JC that night. With whom?",
+			"clue": "Sent from JC Wi-Fi."
+		},
+		"voice_lengths_s": {
+			"page_07_intro": [
+				13.5,
+				19.0
+			],
+			"page_07_original": [
+				3.5,
+				5.0
+			],
+			"page_07_twist": [
+				1.5,
+				2.5
+			],
+			"page_07_win": [
+				7.5,
+				10.5
+			],
+			"page_07_stars_1": [
+				7.0,
+				9
+			],
+			"page_07_stars_2": [
+				7.0,
+				9
+			],
+			"page_07_fails_1": [
+				2.0,
+				3.0
+			],
+			"page_07_fails_2": [
+				2.5,
+				3.0
+			],
+			"page_07_fails_3": [
+				2.0,
+				3.0
+			],
+			"page_07_dialogue_grandma_lit": [
+				2.5,
+				3.0
+			],
+			"page_07_dialogue_grandma_win": [
+				2.5,
+				3.0
+			],
+			"page_07_dialogue_boss_lit": [
+				3.5,
+				4.5
+			],
+			"page_07_dialogue_boss_gets_ANGRY": [
+				1.5,
+				2.0
+			],
+			"page_07_dialogue_dog_lit": [
+				1.5,
+				2.5
+			],
+			"page_07_dialogue_dog_gets_HUNGRY": [
+				2.0,
+				3.0
+			],
+			"page_07_dialogue_prompt_lit": [
+				3.0,
+				4.0
+			]
+		},
+		"solver": {
+			"ideas": [
+				6,
+				2,
+				1
+			],
+			"win_percent": [
+				1.047,
+				0.349,
+				0.087
+			],
+			"grids": [
+				0.2,
+				0.02
+			]
+		}
 	}

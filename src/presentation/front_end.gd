@@ -478,6 +478,33 @@ func _build_credits() -> void:
 
 
 
+## The finale adds its own lines to the credits card (data/campaign/page_15.gd).
+func set_credits_extra(lines: Array) -> void:
+	var box: Panel = _credits_back.get_parent()
+	var old := box.get_node_or_null("Extra")
+	if old:
+		old.queue_free()
+	if lines.is_empty():
+		return
+	var extra := Control.new()
+	extra.name = "Extra"
+	box.add_child(extra)
+	for i in lines.size():
+		var line := _label(str(lines[i]), 13)
+		line.position = Vector2(0, 466 + 19 * i)
+		line.size = Vector2(680, 18)
+		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		extra.add_child(line)
+	# Make room: the card grows downward for the finale lines.
+	box.position.y = 20
+	box.size.y = 680
+	_credits_back.position.y = 616
+
+
+func show_credits() -> void:
+	_credits_panel.show()
+
+
 func _process(delta: float) -> void:
 	if not visible or not _title_panel.visible:
 		return

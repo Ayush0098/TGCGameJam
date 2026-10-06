@@ -1,17 +1,17 @@
 extends RefCounted
-## Level 4/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
-## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
+## Page 4 "1:03 AM, JC", IIIT-H story rev 4 (design/story_proposal.md, design/build_p4_15/spec.md).
+## Layout page_04; star ladder verified by the solver (levels_solver/ladder), 0.2 and 0.02 lantern grids: ideas 3/2/1.
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_04",
 		"number": 4,
-		"room": "kitchen",
-		"narration_key": "snack",
-		"title": "Midnight Snack",
-		"voice": "snack",
+		"title": "1:03 AM, JC",
 		"difficulty": "green",
+		"room": "jc_night",
+		"voice": "page_04",
+		"source_layout": "page_04",
 		"width": 11,
 		"rail_span": [
 			0,
@@ -60,14 +60,14 @@ static func definition() -> Dictionary:
 					6,
 					10
 				],
-				"switch_id": "pedal",
+				"switch_id": "switch",
 				"initially_on": false
 			}
 		],
 		"characters": [
 			{
 				"id": "grandma",
-				"name": "Grandma",
+				"name": "Mess Aunty",
 				"art": "grandma",
 				"slot": 0,
 				"facing": "R",
@@ -75,17 +75,19 @@ static func definition() -> Dictionary:
 				"contradiction": false
 			},
 			{
-				"id": "kid",
-				"name": "Kid",
+				"id": "prompt",
+				"name": "Prompt Bhai",
 				"art": "kid",
 				"slot": 2,
 				"facing": "R",
-				"thought": "HUNGRY",
-				"contradiction": false
+				"thought": "SCARED",
+				"contradiction": true,
+				"phone_glow": true,
+				"tint": "#7FD3FF"
 			},
 			{
 				"id": "cat",
-				"name": "Cat",
+				"name": "Dassi",
 				"art": "cat",
 				"slot": 8,
 				"facing": "L",
@@ -94,125 +96,235 @@ static func definition() -> Dictionary:
 			},
 			{
 				"id": "dog",
-				"name": "Dog",
+				"name": "Chintu",
 				"art": "dog",
 				"slot": 10,
 				"facing": "L",
 				"thought": "HUNGRY",
-				"contradiction": true
+				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "pedal",
-				"type": "SWITCH",
-				"art": "pedal",
+				"id": "bean_bag",
+				"type": "SEAT",
+				"art": "cushion",
+				"name": "bean bag",
 				"slot": 3
 			},
 			{
-				"id": "armchair",
-				"type": "SEAT",
-				"art": "armchair",
-				"slot": 4
+				"id": "switch",
+				"type": "SWITCH",
+				"art": "pedal",
+				"name": "JC light switch",
+				"slot": 3
 			},
 			{
-				"id": "pie",
+				"id": "maggi",
 				"type": "FOOD",
 				"art": "pie",
+				"name": "cheese Maggi",
 				"slot": 6
 			}
 		],
-		"original_caption": "The Kid ate the pie. The Cat ran out of the comic.",
-		"endings_total": 4,
-		"bonus": [
-			{
-				"id": "headline_1",
-				"caption": "GRANDMA'S MIDNIGHT PIE",
-				"facts": [
-					{
-						"type": "ATE",
-						"character": "grandma",
-						"object": "pie"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "THE KID NAPS, THE CAT FLEES TO A COOKBOOK",
-				"facts": [
-					{
-						"type": "ASLEEP",
-						"character": "kid",
-						"object": "armchair"
-					},
-					{
-						"type": "EXITED",
-						"character": "cat"
-					}
-				]
-			}
-		],
+		"original_caption": "Nothing happened.",
+		"endings_total": 6,
 		"goal": {
 			"facts": [
 				{
 					"type": "ATE",
 					"character": "dog",
-					"object": "pie"
+					"object": "maggi"
 				}
 			],
-			"twist_caption": "The DOG ate the pie.",
+			"twist_caption": "CHINTU ate the Maggi.",
 			"red_pen_words": [
-				"DOG"
+				"CHINTU"
 			]
 		},
+		"ladder": [
+			{
+				"id": "star_2",
+				"caption": "…while Prompt Bhai fell asleep on the bean bag.",
+				"facts": [
+					{
+						"type": "ASLEEP",
+						"character": "prompt",
+						"object": "bean_bag"
+					}
+				]
+			},
+			{
+				"id": "star_3",
+				"caption": "…and Mess Aunty left the comic.",
+				"facts": [
+					{
+						"type": "EXITED",
+						"character": "grandma"
+					}
+				]
+			}
+		],
 		"narration": {
-			"intro": "Midnight. The Kid creeps towards the last slice of pie. Grandma is asleep. The Cat is terrified of the Kid, for reasons we do not discuss.",
-			"original": "The Kid ate the pie, and the Cat ran clean out of the comic. Crime pays.",
-			"twist": "The DOG ate the pie.",
-			"win": "The Kid fell asleep in an armchair halfway through a crime, and the Dog ate the evidence. Best-organised heist this house has ever seen.",
-			"fail": "The Kid got the pie. Crime does pay, apparently.",
-			"fail_alt": [
-				"The pie has been... handled.",
-				"Midnight snack: successful. Twist: unsuccessful."
-			]
+			"intro": "Monday night. 1:03 AM. JC. One plate of cheese Maggi left. Prompt Bhai is 'testing the AI' for the hackathon. Dassi is here 'for the Wi-Fi'. Mess Aunty is here for reasons. Nothing will happen on this page. Nothing ever happens at 1:03.",
+			"original": "Nobody moved. The Maggi went cold. This is called character development.",
+			"twist": "CHINTU ate the Maggi.",
+			"win": "Chintu ate the cheese Maggi. Straight across the table. Over the laptop, paws and all. Dassi left; she says the Wi-Fi dropped. Nothing else happened. I checked.",
+			"stars": [
+				"And Prompt Bhai fell asleep while the AI was 'thinking'. Someone took a photo. Why did I mention that?",
+				"And Mess Aunty left the comic. At 1 AM. From JC. This comic does not spread rumours."
+			],
+			"fails": [
+				"The Maggi went cold. So did my heart.",
+				"1:03 AM. Nothing happens. Accurate.",
+				"Midnight snack: accepted. Twist: wrong answer."
+			],
+			"hidden": []
 		},
 		"dialogue": [
 			{
-				"character": "kid",
+				"character": "prompt",
 				"when": "lit",
-				"line": "Shh. Operation Pie is a go."
+				"line": "Bro, Quiz-1 is tomorrow and Claude can't sit it for me."
+			},
+			{
+				"character": "prompt",
+				"when": "gets_SLEEPY",
+				"line": "Reeelaaaax… it's still thinking… five minutes…"
+			},
+			{
+				"character": "cat",
+				"when": "lit",
+				"line": "He just said 'urgent' to a laptop. I'm not okay."
 			},
 			{
 				"character": "grandma",
 				"when": "lit",
-				"line": "Who's there? ...Zzz."
+				"line": "Mess opens at seven. Zzz."
+			},
+			{
+				"character": "grandma",
+				"when": "gets_SCARED",
+				"line": "One AM? Beta, I have to go… somewhere."
 			},
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "I smell pie. And fear."
-			},
-			{
-				"character": "kid",
-				"when": "swap",
-				"line": "Maybe... a little... sit... down..."
+				"line": "Cheese. Maggi."
 			},
 			{
 				"character": "dog",
 				"when": "win",
-				"line": "Delicious. Leave no witnesses."
+				"line": "Shortcut across the table. Didn't touch anything. Probably."
 			}
 		],
-		"tutorial": [
-			"Stepping on a pedal turns on its lamp. Anyone it lights wakes up next beat."
-		],
+		"stickers": [],
 		"hints": [
-			"The Kid always reaches the pie first.",
-			"Give the Kid Grandma's sleepiness. A sleepy Kid heads for the armchair and steps on the pedal on the way.",
-			"Light Grandma and the Kid and swap their thoughts. Then slide the bulb right so only the Kid stays lit."
+			"Chintu is hungry, but the Maggi end of JC is dark. Someone has to walk over the light switch by the bean bag.",
+			"Give Prompt Bhai Mess Aunty's sleepiness.",
+			"Light Prompt Bhai. He walks to the bean bag, hits the switch on the way, and Chintu sees the Maggi."
 		],
-		"bonus_hints": [
-			"Same swap as the twist, but this time keep Grandma in the light.",
-			"The twist solution earns this one too: the sleepy Kid steps on the pedal and the lamp scares the Cat away."
-		]
+		"star_hints": [
+			"Prompt Bhai should be the one asleep on the bean bag: swap his fear with Mess Aunty's sleepiness and light him.",
+			"After that swap, light Mess Aunty too. Now she's the scared one, and she leaves."
+		],
+		"decor": [
+			{
+				"art": "laptop",
+				"slot": 7,
+				"note": "Prompt Bhai's open laptop on the table, between Chintu and the Maggi. Screen text 'Drafts (1)' readable only when lit."
+			},
+			{
+				"art": "wall_clock",
+				"slot": 5,
+				"at": [
+					1102,
+					176
+				],
+				"note": "Wall clock showing 1:03. It ticks to 1:04 when the page ends, every time, win or fail. Nobody comments."
+			}
+		],
+		"finale_replay_source": true,
+		"voice_lengths_s": {
+			"page_04_intro": [
+				14.0,
+				20.0
+			],
+			"page_04_original": [
+				3.5,
+				5.0
+			],
+			"page_04_twist": [
+				1.5,
+				2.0
+			],
+			"page_04_win": [
+				9.0,
+				12.5
+			],
+			"page_04_stars_1": [
+				6.0,
+				9.0
+			],
+			"page_04_stars_2": [
+				5.5,
+				8.0
+			],
+			"page_04_fails_1": [
+				2.5,
+				3.5
+			],
+			"page_04_fails_2": [
+				1.5,
+				2.5
+			],
+			"page_04_fails_3": [
+				2.0,
+				3.0
+			],
+			"page_04_dialogue_prompt_lit": [
+				3.5,
+				4.5
+			],
+			"page_04_dialogue_prompt_gets_SLEEPY": [
+				2.0,
+				3.0
+			],
+			"page_04_dialogue_cat_lit": [
+				3.5,
+				4.5
+			],
+			"page_04_dialogue_grandma_lit": [
+				1.5,
+				2.5
+			],
+			"page_04_dialogue_grandma_gets_SCARED": [
+				2.5,
+				3.5
+			],
+			"page_04_dialogue_dog_lit": [
+				0.8,
+				1.0
+			],
+			"page_04_dialogue_dog_win": [
+				2.5,
+				3.5
+			]
+		},
+		"solver": {
+			"ideas": [
+				3,
+				2,
+				1
+			],
+			"win_percent": [
+				33.333,
+				25.0,
+				4.167
+			],
+			"grids": [
+				0.2,
+				0.02
+			]
+		}
 	}

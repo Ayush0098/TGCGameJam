@@ -1,239 +1,323 @@
 extends RefCounted
-## Level 11/15 proposed by design thread "Level and puzzle logic design" (design/levels.md).
-## Verified by design/levels_solver (twist and each headline reachable by 1-2 distinct solutions).
+## Page 8 "Prom Night", IIIT-H story rev 4 (design/story_proposal.md, design/build_p4_15/spec.md).
+## Layout page_12; star ladder verified by the solver (levels_solver/ladder), 0.2 and 0.02 lantern grids: ideas 3/2/1.
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_08",
-		"number": 11,
-		"room": "office",
-		"narration_key": "powercut",
-		"title": "Power Cut",
-		"voice": "powercut",
-		"difficulty": "red",
-		"width": 11,
+		"number": 8,
+		"title": "Prom Night",
+		"difficulty": "yellow",
+		"room": "amphi",
+		"voice": "page_08",
+		"source_layout": "page_12",
+		"width": 10,
 		"rail_span": [
 			0,
-			10
+			9
 		],
 		"spotlights": {
 			"count": 1,
 			"default_centres": [
-				4
+				6
 			]
 		},
 		"lanterns": {
 			"radius": 1.6,
 			"bounds": [
-				3.0,
-				-1.2,
 				6.0,
-				-0.6
+				-1.2,
+				8.0,
+				0.6
 			],
 			"count": 1,
 			"defaults": [
 				{
-					"x": 4.0,
+					"x": 6.0,
 					"y": -0.6,
 					"enabled": true
 				},
 				{
-					"x": 3.0,
+					"x": 6.0,
 					"y": -0.6,
 					"enabled": false
 				}
 			]
 		},
 		"obstacles": [],
-		"flick": 1,
+		"flick": 0,
 		"fixed_lights": [],
-		"lamps": [
-			{
-				"id": "lamp",
-				"zone": [
-					0,
-					2
-				],
-				"switch_id": "pedal",
-				"initially_on": false
-			}
-		],
+		"lamps": [],
 		"characters": [
 			{
-				"id": "dog",
-				"name": "Dog",
-				"art": "dog",
-				"slot": 2,
-				"facing": "R",
-				"thought": "HUNGRY",
-				"contradiction": false
-			},
-			{
-				"id": "mouse",
-				"name": "Mouse",
-				"art": "mouse",
-				"slot": 3,
+				"id": "intern",
+				"name": "Kassi",
+				"art": "intern",
+				"slot": 6,
 				"facing": "L",
-				"thought": "SCARED",
-				"contradiction": true
+				"thought": "IN_LOVE",
+				"contradiction": false
 			},
 			{
 				"id": "boss",
-				"name": "Boss",
+				"name": "Prof",
 				"art": "boss",
-				"slot": 5,
-				"facing": "R",
-				"thought": "SLEEPY",
-				"contradiction": false
+				"slot": 7,
+				"facing": "L",
+				"thought": "HUNGRY",
+				"contradiction": true
 			},
 			{
 				"id": "cat",
-				"name": "Cat",
+				"name": "Dassi",
 				"art": "cat",
-				"slot": 7,
+				"slot": 8,
 				"facing": "R",
 				"thought": "SCARED",
 				"contradiction": false
 			},
 			{
-				"id": "intern",
-				"name": "Intern",
-				"art": "intern",
-				"slot": 10,
-				"facing": "R",
-				"thought": "ANGRY",
+				"id": "grandma",
+				"name": "Mess Aunty",
+				"art": "grandma",
+				"slot": 9,
+				"facing": "L",
+				"thought": "IN_LOVE",
 				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "pie",
-				"type": "FOOD",
-				"art": "pie",
-				"slot": 0
-			},
-			{
-				"id": "armchair",
+				"id": "chair",
 				"type": "SEAT",
-				"art": "armchair",
-				"slot": 1
+				"art": "chair",
+				"name": "chair",
+				"slot": 3
 			},
 			{
-				"id": "pedal",
-				"type": "SWITCH",
-				"art": "pedal",
-				"slot": 8
-			},
-			{
-				"id": "cake",
+				"id": "buffet_cake",
 				"type": "FOOD",
 				"art": "cake",
-				"slot": 9
+				"name": "buffet cake",
+				"slot": 5
 			}
 		],
-		"original_caption": "The Mouse ran out of the comic.",
-		"endings_total": 113,
-		"bonus": [
-			{
-				"id": "headline_1",
-				"caption": "THE BOSS NAPS, THE INTERN BONKS THE MOUSE",
-				"facts": [
-					{
-						"type": "ASLEEP",
-						"character": "boss",
-						"object": "armchair"
-					},
-					{
-						"type": "BONKED",
-						"character": "intern",
-						"target": "mouse"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "THE BOSS FLEES, THE MOUSE GETS THE CAKE",
-				"facts": [
-					{
-						"type": "EXITED",
-						"character": "boss"
-					},
-					{
-						"type": "ATE",
-						"character": "mouse",
-						"object": "cake"
-					}
-				]
-			}
-		],
+		"original_caption": "The Kassi hugged the Prof.",
+		"endings_total": 46,
 		"goal": {
 			"facts": [
 				{
-					"type": "ASLEEP",
-					"character": "mouse",
-					"object": "armchair"
-				},
-				{
-					"type": "ATE",
-					"character": "dog",
-					"object": "cake"
+					"type": "HUGGED",
+					"character": "boss",
+					"target": "grandma"
 				}
 			],
-			"twist_caption": "The MOUSE napped in the armchair. The DOG ate the cake.",
+			"twist_caption": "The PROF hugged MESS AUNTY.",
 			"red_pen_words": [
-				"MOUSE",
-				"DOG"
+				"PROF",
+				"MESS AUNTY"
 			]
 		},
+		"ladder": [
+			{
+				"id": "star_2",
+				"caption": "…and Dassi hugged Mess Aunty too.",
+				"facts": [
+					{
+						"type": "HUGGED",
+						"character": "cat",
+						"target": "grandma"
+					}
+				]
+			},
+			{
+				"id": "star_3",
+				"caption": "…right after the Kassi hugged the Prof.",
+				"facts": [
+					{
+						"type": "HUGGED",
+						"character": "intern",
+						"target": "boss"
+					}
+				]
+			}
+		],
 		"narration": {
-			"intro": "Right. If you're going to ruin my comic, you can ruin it in the DARK. [click] There. Power's off. Good luck twisting what you can't see, lamp. ...Is that a spare bulb? Where did you get a SPARE BULB?",
-			"original": "The Mouse ran out of the comic. Smart Mouse.",
-			"twist": "The MOUSE napped in the armchair. The DOG ate the cake.",
-			"win": "I cut the power. You brought a spare bulb. Who carries a SPARE BULB? The Mouse is asleep in an armchair like a tiny retired accountant, and the Dog has eaten the cake in total darkness. By SMELL.",
-			"fail": "Darkness wins. I love darkness. I should have done this on page one.",
-			"fail_alt": [
-				"Still dark. Still mine.",
-				"The Mouse has left the comic. Sensible."
-			]
+			"intro": "'Re: Re: who sent this.' Prom Night at the Amphi. Apex is famous for its facchi orientation. It is very well attended. By Apex. The Kassi has rehearsed asking a facchi to dance four hundred and nine times. Tonight, he goes for it.",
+			"original": "The Kassi closed his eyes and hugged… the Prof. The facchi was behind the Prof. She has left.",
+			"twist": "The PROF hugged MESS AUNTY.",
+			"win": "The Prof hugged Mess Aunty. In public. He says it's 'conservation of heat; we are an engineering college.' The Rumour Meter just moved. I didn't move it.",
+			"stars": [
+				"And Dassi hugged Mess Aunty too. Trip at Prom, land in someone else's relationship.",
+				"And it all started because the Kassi hugged the Prof. Attempt four hundred and nine: wrong person. Right plot."
+			],
+			"fails": [
+				"Love is in the air. So is Apex.",
+				"Nobody hugged. Somebody liked a story instead.",
+				"Maybe the real love was the assignments."
+			],
+			"hidden": []
 		},
 		"dialogue": [
 			{
-				"character": "mouse",
+				"character": "intern",
 				"when": "lit",
-				"line": "Who turned off the lights?!"
-			},
-			{
-				"character": "dog",
-				"when": "lit",
-				"line": "I can smell it. I can't see it. I can SMELL it."
+				"line": "She looked at me. Twice. Or at the clock behind me."
 			},
 			{
 				"character": "boss",
 				"when": "lit",
-				"line": "Is this a fire drill? I'm not doing a fire drill."
+				"line": "I'm only here for the buffet. And for no other reason."
 			},
 			{
-				"character": "mouse",
-				"when": "swap",
-				"line": "Actually... dark is quite cosy."
+				"character": "boss",
+				"when": "gets_SCARED",
+				"line": "Why is everyone walking TOWARDS me?!"
 			},
 			{
-				"character": "dog",
+				"character": "boss",
 				"when": "win",
-				"line": "Found it. Ate it. Don't ask."
+				"line": "Aunty… you smell like rasam and danger."
+			},
+			{
+				"character": "cat",
+				"when": "lit",
+				"line": "I'm only here so my faccha doesn't get facchi-maxxed."
+			},
+			{
+				"character": "cat",
+				"when": "gets_IN_LOVE",
+				"line": "Ten on ten. For her. Not me. HER."
+			},
+			{
+				"character": "grandma",
+				"when": "lit",
+				"line": "I've loved someone since Felicity 2012. He called my Pappu bland."
+			},
+			{
+				"character": "grandma",
+				"when": "gets_HUNGRY",
+				"line": "Is the buffet open, beta?"
 			}
 		],
-		"tutorial": [
-			"Remember your spare bulb? During ACTION, click the rail once to drop it."
+		"stickers": [
+			{
+				"text": "Rumour Meter: STRONGLY UNCONFIRMED (they hugged)",
+				"when": "result"
+			},
+			{
+				"text": "Kassi Attempt #409: Prom. Hugged the Prof. ✗",
+				"when": "result"
+			}
 		],
 		"hints": [
-			"The Mouse panics next to the Dog. What if it was sleepy instead?",
-			"Swap the Mouse and the Boss, and light the Dog and the Mouse. The cake corner still needs light.",
-			"Light only the Dog and the Mouse. As soon as ACTION starts, drop the spare bulb on the Cat: she panics onto the pedal."
+			"Love spreads by hugs. Whoever gets hugged falls in love and goes looking for the next hug.",
+			"Mess Aunty has to stay put and be hugged. Take her love away: give her the Prof's hunger.",
+			"Light the Prof, Dassi and Mess Aunty, and keep the Kassi in the dark."
 		],
-		"bonus_hints": [
-			"Swap the Dog and the Mouse. Light the Mouse and the Boss, then drop the spare bulb on the Intern.",
-			"Swap the Dog and the Mouse, and the Boss and the Cat. Light the Mouse and the Boss, then drop the spare bulb on the Cat."
-		]
+		"star_hints": [
+			"Dassi needs love too. Pass the thoughts round so Dassi gets Mess Aunty's love, and light all four.",
+			"The Prof takes Dassi's fear, so it's the Kassi's hug that sets him off. Light all four."
+		],
+		"new_feeling": "IN_LOVE",
+		"tutorial": [
+			"NEW FEELING: IN LOVE. Walks to the nearest lit character and hugs them. Whoever gets hugged falls in love too and goes looking for someone to hug!"
+		],
+		"manhunt": {
+			"subject": "Re: Re: who sent this 💀",
+			"unread": "2,048",
+			"suspect": "#3 Dassi. Also at JC that night, 'for the Wi-Fi'.",
+			"clue": "Perfect grammar. The word 'delve', four times."
+		},
+		"voice_lengths_s": {
+			"page_08_intro": [
+				14.0,
+				20.0
+			],
+			"page_08_original": [
+				6.0,
+				8
+			],
+			"page_08_twist": [
+				1.5,
+				2.5
+			],
+			"page_08_win": [
+				9.0,
+				12.5
+			],
+			"page_08_stars_1": [
+				4.5,
+				6.5
+			],
+			"page_08_stars_2": [
+				6.0,
+				9.0
+			],
+			"page_08_fails_1": [
+				2.5,
+				3.5
+			],
+			"page_08_fails_2": [
+				2.5,
+				3.0
+			],
+			"page_08_fails_3": [
+				2.5,
+				3.0
+			],
+			"page_08_dialogue_intern_lit": [
+				3.5,
+				4.5
+			],
+			"page_08_dialogue_boss_lit": [
+				3.5,
+				4.5
+			],
+			"page_08_dialogue_boss_gets_SCARED": [
+				2.0,
+				3.0
+			],
+			"page_08_dialogue_boss_win": [
+				2.5,
+				3.0
+			],
+			"page_08_dialogue_cat_lit": [
+				3.0,
+				4.0
+			],
+			"page_08_dialogue_cat_gets_IN_LOVE": [
+				2.5,
+				3.5
+			],
+			"page_08_dialogue_grandma_lit": [
+				3.5,
+				4.5
+			],
+			"page_08_dialogue_grandma_gets_HUNGRY": [
+				1.5,
+				2.5
+			],
+			"page_08_card": [
+				9.0,
+				12
+			]
+		},
+		"solver": {
+			"ideas": [
+				3,
+				2,
+				1
+			],
+			"win_percent": [
+				3.125,
+				2.083,
+				1.042
+			],
+			"grids": [
+				0.2,
+				0.02
+			]
+		}
 	}

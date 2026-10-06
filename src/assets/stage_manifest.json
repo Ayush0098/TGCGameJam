@@ -1,106 +1,108 @@
 {
-  "version": 1,
-  "status": "campaign_eight_pages",
-  "background": {
-    "texture": "res://assets/backgrounds/living_room_stage.png",
-    "crop": [
-      0,
-      0.2,
-      1,
-      0.64
-    ]
-  },
-  "characters": {
-    "boss": {
-      "rig": "res://assets/characters/boss/rig.json",
-      "scale": 0.49
-    },
-    "dog": {
-      "rig": "res://assets/characters/dog/rig.json",
-      "scale": 0.3136
-    },
-    "grandma": {
-      "rig": "res://assets/characters/grandma/rig.json",
-      "scale": 0.45
-    },
-    "kid": {
-      "rig": "res://assets/characters/kid/rig.json",
-      "scale": 0.37
-    },
-    "intern": {
-      "rig": "res://assets/characters/intern/rig.json",
-      "scale": 0.5
-    },
-    "cat": {
-      "rig": "res://assets/characters/cat/rig.json",
-      "scale": 0.27
-    },
-    "mouse": {
-      "rig": "res://assets/characters/mouse/rig.json",
-      "scale": 0.2
-    }
-  },
-  "props": {
-    "cake": "res://assets/props/cake.svg",
-    "cake_empty": "res://assets/props/cake_empty.svg",
-    "dog_bed": "res://assets/props/dog_bed.svg",
-    "lantern": "res://assets/props/lantern.svg",
-    "fixture": "res://assets/props/fixture.svg",
-    "pie": "res://assets/props/pie.svg",
-    "pie_empty": "res://assets/props/pie_empty.svg",
-    "armchair": "res://assets/props/armchair.svg",
-    "office_chair": "res://assets/props/office_chair.svg",
-    "pedal": "res://assets/props/pedal.svg",
-    "pedal_down": "res://assets/props/pedal_down.svg",
-    "lamp_off": "res://assets/props/lamp_off.svg",
-    "lamp_on": "res://assets/props/lamp_on.svg",
-    "fish": "res://assets/props/fish.svg",
-    "fish_empty": "res://assets/props/fish_empty.svg",
-    "cookie": "res://assets/props/cookie.svg",
-    "cookie_empty": "res://assets/props/cookie_empty.svg",
-    "broccoli": "res://assets/props/broccoli.svg",
-    "broccoli_empty": "res://assets/props/broccoli_empty.svg",
-    "rocker": "res://assets/props/rocker.svg",
-    "chair": "res://assets/props/office_chair.svg",
-    "cheese": "res://assets/props/cheese.svg",
-    "cheese_empty": "res://assets/props/cheese_empty.svg",
-    "bone": "res://assets/props/bone.svg",
-    "bone_empty": "res://assets/props/bone_empty.svg",
-    "cushion": "res://assets/props/cushion.svg",
-    "slice": "res://assets/props/pie.svg",
-    "slice_empty": "res://assets/props/pie_empty.svg",
-    "coffin": "res://assets/props/coffin.svg",
-    "biryani": "res://assets/props/biryani.svg",
-    "biryani_empty": "res://assets/props/biryani_empty.svg",
-    "bonda": "res://assets/props/bonda.svg",
-    "bonda_empty": "res://assets/props/bonda_empty.svg",
-    "prop_tomato_pappu": "res://assets/props/prop_tomato_pappu.svg",
-    "prop_tomato_pappu_empty": "res://assets/props/prop_tomato_pappu_empty.svg"
-  },
-  "thoughts": {
-    "hungry": "res://assets/thoughts/hungry.svg",
-    "sleepy": "res://assets/thoughts/sleepy.svg",
-    "angry": "res://assets/thoughts/angry.svg",
-    "scared": "res://assets/thoughts/scared.svg",
-    "shy": "res://assets/thoughts/shy.svg",
-    "in_love": "res://assets/thoughts/in_love.svg",
-    "jealous": "res://assets/thoughts/jealous.svg"
-  },
-  "dialogue": "res://assets/audio/reference/cues.json",
-  "rooms": {
-    "living_room": "res://assets/backgrounds/living_room_stage.png",
-    "kitchen": "res://assets/backgrounds/kitchen_stage.png",
-    "office": "res://assets/backgrounds/office_stage.png",
-    "kadamba": "res://assets/art/rooms/room_kadamba.png",
-    "prof_lab": "res://assets/art/rooms/room_prof_lab.png",
-    "jc_night": "res://assets/art/rooms/room_jc_night.png",
-    "amphi": "res://assets/art/rooms/room_amphi.png",
-    "vindhya": "res://assets/art/rooms/room_vindhya.png",
-    "dasa_workspace": "res://assets/art/rooms/room_dasa_workspace.png",
-    "obh_dark": "res://assets/art/rooms/room_obh_dark.png",
-    "kalakshetra": "res://assets/art/rooms/room_kalakshetra.png",
-    "obh_washroom": "res://assets/art/rooms/room_obh_washroom.png",
-    "amphi_wedding": "res://assets/art/rooms/room_amphi_wedding.png",
-    "workspaces": "res://assets/art/rooms/room_workspaces.png"
-  }
+	"version": 1,
+	"status": "campaign_eight_pages",
+	"background": {
+		"texture": "res://assets/backgrounds/living_room_stage.png",
+		"crop": [
+			0,
+			0.2,
+			1,
+			0.64
+		]
+	},
+	"characters": {
+		"boss": {
+			"rig": "res://assets/characters/boss/rig.json",
+			"scale": 0.49
+		},
+		"dog": {
+			"rig": "res://assets/characters/dog/rig.json",
+			"scale": 0.3136
+		},
+		"grandma": {
+			"rig": "res://assets/characters/grandma/rig.json",
+			"scale": 0.45
+		},
+		"kid": {
+			"rig": "res://assets/characters/kid/rig.json",
+			"scale": 0.37
+		},
+		"intern": {
+			"rig": "res://assets/characters/intern/rig.json",
+			"scale": 0.5
+		},
+		"cat": {
+			"rig": "res://assets/characters/cat/rig.json",
+			"scale": 0.27
+		},
+		"mouse": {
+			"rig": "res://assets/characters/mouse/rig.json",
+			"scale": 0.2
+		}
+	},
+	"props": {
+		"cake": "res://assets/props/cake.svg",
+		"cake_empty": "res://assets/props/cake_empty.svg",
+		"dog_bed": "res://assets/props/dog_bed.svg",
+		"lantern": "res://assets/props/lantern.svg",
+		"fixture": "res://assets/props/fixture.svg",
+		"pie": "res://assets/props/pie.svg",
+		"pie_empty": "res://assets/props/pie_empty.svg",
+		"armchair": "res://assets/props/armchair.svg",
+		"office_chair": "res://assets/props/office_chair.svg",
+		"pedal": "res://assets/props/pedal.svg",
+		"pedal_down": "res://assets/props/pedal_down.svg",
+		"lamp_off": "res://assets/props/lamp_off.svg",
+		"lamp_on": "res://assets/props/lamp_on.svg",
+		"fish": "res://assets/props/fish.svg",
+		"fish_empty": "res://assets/props/fish_empty.svg",
+		"cookie": "res://assets/props/cookie.svg",
+		"cookie_empty": "res://assets/props/cookie_empty.svg",
+		"broccoli": "res://assets/props/broccoli.svg",
+		"broccoli_empty": "res://assets/props/broccoli_empty.svg",
+		"rocker": "res://assets/props/rocker.svg",
+		"chair": "res://assets/props/office_chair.svg",
+		"cheese": "res://assets/props/cheese.svg",
+		"cheese_empty": "res://assets/props/cheese_empty.svg",
+		"bone": "res://assets/props/bone.svg",
+		"bone_empty": "res://assets/props/bone_empty.svg",
+		"cushion": "res://assets/props/cushion.svg",
+		"slice": "res://assets/props/pie.svg",
+		"slice_empty": "res://assets/props/pie_empty.svg",
+		"coffin": "res://assets/props/coffin.svg",
+		"biryani": "res://assets/props/biryani.svg",
+		"biryani_empty": "res://assets/props/biryani_empty.svg",
+		"bonda": "res://assets/props/bonda.svg",
+		"bonda_empty": "res://assets/props/bonda_empty.svg",
+		"prop_tomato_pappu": "res://assets/props/prop_tomato_pappu.svg",
+		"prop_tomato_pappu_empty": "res://assets/props/prop_tomato_pappu_empty.svg",
+		"pineapple_reserved": "res://assets/props/pineapple_reserved.png",
+		"pineapple_reserved_empty": "res://assets/props/pineapple_reserved.png"
+	},
+	"thoughts": {
+		"hungry": "res://assets/thoughts/hungry.svg",
+		"sleepy": "res://assets/thoughts/sleepy.svg",
+		"angry": "res://assets/thoughts/angry.svg",
+		"scared": "res://assets/thoughts/scared.svg",
+		"shy": "res://assets/thoughts/shy.svg",
+		"in_love": "res://assets/thoughts/in_love.svg",
+		"jealous": "res://assets/thoughts/jealous.svg"
+	},
+	"dialogue": "res://assets/audio/reference/cues.json",
+	"rooms": {
+		"living_room": "res://assets/backgrounds/living_room_stage.png",
+		"kitchen": "res://assets/backgrounds/kitchen_stage.png",
+		"office": "res://assets/backgrounds/office_stage.png",
+		"kadamba": "res://assets/art/rooms/room_kadamba.png",
+		"prof_lab": "res://assets/art/rooms/room_prof_lab.png",
+		"jc_night": "res://assets/art/rooms/room_jc_night.png",
+		"amphi": "res://assets/art/rooms/room_amphi.png",
+		"vindhya": "res://assets/art/rooms/room_vindhya.png",
+		"dasa_workspace": "res://assets/art/rooms/room_dasa_workspace.png",
+		"obh_dark": "res://assets/art/rooms/room_obh_dark.png",
+		"kalakshetra": "res://assets/art/rooms/room_kalakshetra.png",
+		"obh_washroom": "res://assets/art/rooms/room_obh_washroom.png",
+		"amphi_wedding": "res://assets/art/rooms/room_amphi_wedding.png",
+		"workspaces": "res://assets/art/rooms/room_workspaces.png"
+	}
 }

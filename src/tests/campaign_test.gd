@@ -11,7 +11,7 @@ const AUDIT = preload("res://tools/campaign_audit.gd")
 
 func run(check: Callable) -> bool:
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/stage_manifest.json"))
-	check.call(MAIN.CAMPAIGN.size() == 3, "Review build has pages 1-3 of the IIIT-H story")
+	check.call(MAIN.CAMPAIGN.size() == 15, "The campaign has all fifteen pages of the IIIT-H story")
 	for script in MAIN.CAMPAIGN:
 		var result: Dictionary = VALIDATOR.new().validate(script.definition())
 		check.call(result.errors.is_empty(), "%s validates %s" % [script.resource_path.get_file(), str(result.errors)])
@@ -43,34 +43,31 @@ func run(check: Callable) -> bool:
 
 
 
-## Highest star level any plan reaches (twist, then each ladder step on top).
+## Highest star level any plan class reaches (twist, then each ladder step on top).
 func _best_level(page: Dictionary) -> int:
 	var audit = AUDIT.new()
-	var base := {}
-	for c in page.characters:
-		base[c.id] = c.thought
-	var ids: Array = base.keys()
+	var space: Dictionary = audit.plan_space(page)
+	var steps: Array = AUDIT.star_steps(page)
 	var best := 0
-	var seen := {}
-	for values in audit._perms(ids.map(func(id): return base[id])):
-		var thoughts := {}
-		for k in ids.size():
-			thoughts[ids[k]] = values[k]
-		if seen.has(str(thoughts)):
-			continue
-		seen[str(thoughts)] = true
-		for lanterns in audit._lantern_sets(page):
-			var run: Dictionary = SIM.run(page, {"centres": [], "lanterns": lanterns, "thoughts": thoughts})
-			if not GOALS.evaluate(page, run).won:
-				continue
-			var level := 1
-			var facts: Array = page.goal.facts.duplicate(true)
-			for step in page.ladder:
-				facts = facts + step.facts
-				var challenge := page.duplicate()
-				challenge.goal = {"facts": facts, "twist_caption": ""}
-				if not GOALS.evaluate(challenge, run).won:
-					break
-				level += 1
-			best = maxi(best, level)
+	for key in space.configs:
+		for thoughts in space.arrangements:
+			for flick in space.flicks:
+				var plan := {"centres": [], "lanterns": space.configs[key].lanterns, "thoughts": thoughts}
+				if not flick.is_empty():
+					plan.flick = flick
+				var run: Dictionary = SIM.run(page, plan)
+				if not GOALS.evaluate(page, run).won:
+					continue
+				var level := 1
+				for step in steps:
+					var challenge := page.duplicate()
+					challenge.goal = {"facts": step.facts, "twist_caption": ""}
+					if not GOALS.evaluate(challenge, run).won:
+						break
+					level += 1
+				best = maxi(best, level)
+				if best == 1 + steps.size():
+					audit.free()
+					return best
+	audit.free()
 	return best

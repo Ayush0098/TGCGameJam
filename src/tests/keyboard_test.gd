@@ -55,18 +55,18 @@ func run(check: Callable) -> bool:
 		_key(game, KEY_ENTER)
 	check.call(game.mode == "PLAN" or game.page_index != nap or game._front.visible, "Enter leaves the result (retry, next page or the levels screen)")
 	# Live goal check during playback uses the player's lanterns (SHY HIDING).
-	var stage_fright: Dictionary = game.VALIDATOR.new().validate(load("res://data/campaign/page_11.gd").definition()).page
+	var stage_fright: Dictionary = game.VALIDATOR.new().validate(load("res://data/campaign/page_05.gd").definition()).page
 	game._load_page(0, stage_fright)
 	var lit_plan: Dictionary = game.plan.to_data()
 	var world: Dictionary = game.RULES.initial_world(game.page, lit_plan)
-	var hiding := {"type": "HIDING", "character": "kid"}
+	var hiding := {"type": "HIDING", "character": "boss"}
 	var page_copy: Dictionary = game.page.duplicate(true)
 	page_copy.goal = {"facts": [hiding], "twist_caption": "x"}
 	for actor in world.characters:
 		actor.active = true
 	var lit_kid := false
 	for actor in world.characters:
-		if actor.id == "kid":
+		if actor.id == "boss":
 			lit_kid = game.RULES.is_lit(game.page, lit_plan, world, actor.slot)
 	var judged: bool = game.GOALS.evaluate(page_copy, {"plan": lit_plan, "snapshots": [world], "events": []}).won
 	check.call(judged == (not lit_kid), "HIDING follows the player's lantern plan")

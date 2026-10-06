@@ -1,11 +1,16 @@
 extends Control
 ## MVP flow: recorded simulation -> playback -> result -> exact-plan retry.
 
-## The IIIT-H story, pages 1-3 only for Ayush's review (design/build_p1_3).
-## The fifteen-page set stays in data/campaign and data/story15 for later.
+## The IIIT-H story, all fifteen pages (design/build_p1_3, design/build_p4_15).
 const CAMPAIGN = [
 	preload("res://data/campaign/page_01.gd"), preload("res://data/campaign/page_02.gd"),
-	preload("res://data/campaign/page_03.gd"),
+	preload("res://data/campaign/page_03.gd"), preload("res://data/campaign/page_04.gd"),
+	preload("res://data/campaign/page_05.gd"), preload("res://data/campaign/page_06.gd"),
+	preload("res://data/campaign/page_07.gd"), preload("res://data/campaign/page_08.gd"),
+	preload("res://data/campaign/page_09.gd"), preload("res://data/campaign/page_10.gd"),
+	preload("res://data/campaign/page_11.gd"), preload("res://data/campaign/page_12.gd"),
+	preload("res://data/campaign/page_13.gd"), preload("res://data/campaign/page_14.gd"),
+	preload("res://data/campaign/page_15.gd"),
 ]
 ## Integration tests swap in the original MVP fixture pages before instancing.
 static var page_override: Array = []
@@ -486,6 +491,7 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	for view in [_stage, _original_stage, _result_stage]:
 		view.configure(page)
 	_title.text = "LIGHTBULB MOMENT  ·  Page %d: %s" % [index + 1, page.title]
+	_update_subject()
 	_tutorial_step = 0
 	_tutorial_gate_hold = false
 	_goal.text = "TWIST: " + page.goal.twist_caption
@@ -692,6 +698,14 @@ func _finish_run(natural := false) -> void:
 		_narrate("original")
 		_update_buttons()
 		return
+	if _revealing:
+		mode = "REVEAL"
+		for view in [_stage, _result_stage]:
+			view.set_mood("win")
+		_play_effect("EXIT")
+		get_tree().create_timer(1.2).timeout.connect(_finish_reveal)
+		_update_buttons()
+		return
 	mode = "RESULT"
 	var stars_before := _stars(page)
 	var result: Dictionary = GOALS.evaluate(page, _run)
@@ -866,7 +880,12 @@ func _next_page() -> void:
 		return
 	if page_index < PAGE_SCRIPTS.size() - 1:
 		var next := page_index + 1
-		_iris_close(func(): _load_page(next))
+		var turn := func(): _iris_close(func(): _load_page(next))
+		if _between_pages_card(turn):
+			return
+		turn.call()
+	elif page.has("reveal") and page_override.is_empty():
+		_start_reveal()
 	else:
 		_open_edition()
 
@@ -1430,6 +1449,12 @@ func _record_progress(result: Dictionary) -> Array[String]:
 			if not page.has("ladder"):
 				rewards.append("BONUS STAR! " + str(bonus.caption))
 	bonus_done[page.id] = done
+	var achievement: Variant = page.get("achievement")
+	if achievement is Dictionary and not achievements.has(str(achievement.id)):
+		var needed := int(str(achievement.get("when", "star_2")).get_slice(" ", 0).trim_prefix("star_"))
+		if _run_star_level() >= needed:
+			achievements[str(achievement.id)] = true
+			rewards.append("ACHIEVEMENT: " + str(achievement.name))
 	_save_progress()
 	return rewards
 
@@ -1457,7 +1482,7 @@ func _save_progress() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		return
-	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done, "seen_cards": seen_cards.keys(), "gags": gags}))
+	file.store_string(JSON.stringify({"version": 1, "completed": completed.keys(), "skipped": skipped.keys(), "bonus": bonus_done, "endings": endings_found, "tutorial_done": tutorial_done, "seen_cards": seen_cards.keys(), "gags": gags, "achievements": achievements.keys()}))
 
 
 func _load_progress() -> void:
@@ -1479,6 +1504,8 @@ func _load_progress() -> void:
 		seen_cards[str(id)] = true
 	if data.get("gags") is Dictionary:
 		gags = data.gags
+	for id in data.get("achievements", []):
+		achievements[str(id)] = true
 
 
 func _comic_theme() -> Theme:
@@ -2169,7 +2196,7 @@ func _show_result_card(result: Dictionary) -> void:
 			var done: bool = bonus.id in bonus_done.get(page.id, [])
 			lines.append(_icon("star_on" if done else "star_off") + str(bonus.caption))
 	_result_facts.text = "\n".join(lines)
-	_show_stickers("result")
+	_show_stickers("result", won)
 	_rewind.text = "REPLAY" if won else "RETRY"
 	_next.visible = won
 	_result_restart.visible = not won
@@ -2995,13 +3022,34 @@ func _queue_story_cards() -> void:
 	if not page_override.is_empty() or _tutorial_panel >= 0 or "_tutorial_" in str(page.get("id", "")) or DisplayServer.get_name() == "headless":
 		return
 	var number := int(page.get("number", page_index + 1))
+	var act_card: Variant = page.get("act_card_before")
+	if act_card is Dictionary and not seen_cards.has("act_%d" % int(act_card.number)):
+		var act_title := str(act_card.title)
+		_story_queue.append({"id": "act_%d" % int(act_card.number), "kicker": act_title.get_slice(": ", 0), "title": act_title.substr(act_title.find(": ") + 2), "body": "The Narrator: \"%s\"" % act_card.text, "thought": ""})
 	for act in _story().get("acts", []):
 		var id := "act_%d" % int(act.number)
-		if int(act.first_page) == number and not seen_cards.has(id):
+		if int(act.first_page) == number and not seen_cards.has(id) and not act_card is Dictionary:
 			_story_queue.append({"id": id, "kicker": "ACT %s" % ["ONE", "TWO", "THREE"][clampi(int(act.number) - 1, 0, 2)], "title": str(act.title).get_slice(": ", 1), "body": "The Narrator: \"%s\"" % act.card, "thought": ""})
 	var feeling := str(page.get("new_feeling", ""))
+	# Pages 4-15 carry their own card text ("tutorial") and a recording "<page>_card".
+	var card_text: Array = page.get("tutorial") if page.get("tutorial") is Array else []
+	var card_voice := "%s_card" % str(page.get("voice", page.id))
 	if NEW_FEELINGS.has(feeling) and not seen_cards.has("feeling_" + feeling):
-		_story_queue.append({"id": "feeling_" + feeling, "kicker": "NEW FEELING!", "title": NEW_FEELINGS[feeling][0], "body": NEW_FEELINGS[feeling][1], "thought": feeling})
+		var body := str(NEW_FEELINGS[feeling][1])
+		if not card_text.is_empty():
+			body = str(card_text[0])
+			var prefix := "NEW FEELING: %s. " % NEW_FEELINGS[feeling][0]
+			if body.begins_with(prefix):
+				body = body.substr(prefix.length())
+		var card := {"id": "feeling_" + feeling, "kicker": "NEW FEELING!", "title": NEW_FEELINGS[feeling][0], "body": body, "thought": feeling}
+		if _voice_path("narrator/" + card_voice) != "":
+			card.voice = card_voice
+		_story_queue.append(card)
+	elif not card_text.is_empty() and not seen_cards.has(page.id + "_card"):
+		var card := {"id": page.id + "_card", "kicker": "REMEMBER!", "title": "YOUR SPARE BULB" if int(page.get("flick", 0)) > 0 else "TIP", "body": str(card_text[0]), "thought": ""}
+		if _voice_path("narrator/" + card_voice) != "":
+			card.voice = card_voice
+		_story_queue.append(card)
 
 
 func _show_story_card(card: Dictionary) -> void:
@@ -3018,19 +3066,21 @@ func _show_story_card(card: Dictionary) -> void:
 	dim.color = Color(INK, 0.7)
 	dim.size = Vector2(1280, 720)
 	_story_card.add_child(dim)
-	var panel := _paper_panel(Rect2(260, 120, 760, 470), 0.01 if card.thought == "" else -0.012)
+	var wide := card.has("image")
+	var panel := _paper_panel(Rect2(160, 50, 960, 620) if wide else Rect2(260, 120, 760, 470), 0.01 if card.thought == "" else -0.012)
 	_story_card.add_child(panel)
+	var width := panel.size.x
 	var kicker := _label(str(card.kicker), 26)
 	kicker.add_theme_font_override("font", COMIC_FONT)
 	kicker.add_theme_color_override("font_color", Color("a4383e"))
 	kicker.position = Vector2(0, 26)
-	kicker.size = Vector2(760, 34)
+	kicker.size = Vector2(width, 34)
 	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	panel.add_child(kicker)
 	var title := _label(str(card.title), 54)
 	title.add_theme_font_override("font", COMIC_FONT)
 	title.position = Vector2(0, 62)
-	title.size = Vector2(760, 70)
+	title.size = Vector2(width, 70)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	panel.add_child(title)
 	var top := 150.0
@@ -3043,29 +3093,53 @@ func _show_story_card(card: Dictionary) -> void:
 		panel.add_child(icon)
 		top = 270.0
 		_play_effect("REVEAL_" + str(card.thought))
+	elif card.get("ding", false):
+		_ding(392.0)
 	else:
 		_play_sting(true)
-	var card_voice := {"act_1": _first_voice(["v_act1", "story_act1"]), "act_2": "narr15_act2", "act_3": "narr15_act3", "feeling_SHY": "narr15_new_shy", "feeling_IN_LOVE": "narr15_new_love", "feeling_JEALOUS": "narr15_new_jealous"}
+	if wide:
+		var picture := TextureRect.new()
+		picture.texture = load(str(card.image))
+		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		picture.position = Vector2(36, 140)
+		picture.size = Vector2(512, 288)
+		picture.rotation = -0.02
+		panel.add_child(picture)
+	var card_voice := {"act_1": _first_voice(["v_act1", "story_act1"]), "act_2": _first_voice(["act2", "narr15_act2"]), "act_3": _first_voice(["act3", "narr15_act3"]), "feeling_SHY": _first_voice(["page_05_card", "narr15_new_shy"]), "feeling_IN_LOVE": _first_voice(["page_08_card", "narr15_new_love"]), "feeling_JEALOUS": _first_voice(["page_10_card", "narr15_new_jealous"])}
+	if card.has("voice"):
+		card_voice[card.id] = card.voice
 	if card_voice.has(card.id):
 		_play_voice_file("narrator/" + card_voice[card.id], _voice)
 	var body := _rich(22)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.position = Vector2(60, top)
 	body.size = Vector2(640, 380 - top)
+	if wide:
+		body.add_theme_font_size_override("normal_font_size", 18)
+		body.add_theme_font_size_override("bold_font_size", 18)
+		body.position = Vector2(572, 136)
+		body.size = Vector2(356, 380)
+	elif card.has("small"):
+		body.add_theme_font_size_override("normal_font_size", 18)
+		body.add_theme_font_size_override("bold_font_size", 18)
 	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.text = str(card.body)
 	panel.add_child(body)
 	var go := Button.new()
-	go.text = "GOT IT!" if card.thought != "" else "ON WITH THE SHOW"
+	go.text = str(card.get("button", "GOT IT!" if card.thought != "" else "ON WITH THE SHOW"))
 	go.add_theme_font_override("font", COMIC_FONT)
 	go.add_theme_font_size_override("font_size", 26)
-	go.position = Vector2(250, 392)
-	go.size = Vector2(260, 56)
+	go.size = Vector2(300, 56)
+	go.position = Vector2((width - go.size.x) * 0.5, panel.size.y - 78)
 	_emphasise(go, true)
 	go.pressed.connect(func():
 		_play_effect("SWAP")
+		_stop_voice()
 		_story_card.hide()
-		_story_card.queue_free())
+		_story_card.queue_free()
+		if card.get("then") is Callable:
+			card.then.call())
 	panel.add_child(go)
 	go.grab_focus.call_deferred()
 
@@ -3513,38 +3587,152 @@ func _win_extras(prefix: String) -> Array:
 	return extras
 
 
+# ------------------------------------------------------------ between pages
+var achievements: Dictionary = {}
+var _revealing := false
+var _reveal_source: Dictionary = {}
+## Page 4's three-star plan (tools/finale_plan.gd): the page 15 reveal replays it.
+const REVEAL_PLAN := {"thoughts": {"cat": "SCARED", "dog": "HUNGRY", "grandma": "SCARED", "prompt": "SLEEPY"}, "lanterns": [{"enabled": true, "x": 1.4, "y": 0.0}, {"enabled": false, "x": 0.0, "y": -0.6}]}
+
+
+## Page 5's mail and page 12's postcard play once, between that page and the next.
+func _between_pages_card(then: Callable) -> bool:
+	var mail: Variant = page.get("cliffhanger")
+	if mail is Dictionary and not seen_cards.has(page.id + "_mail"):
+		_show_story_card({"id": page.id + "_mail", "kicker": "NEW MAIL  ·  %s" % mail.get("sent", ""), "title": "TO: " + str(mail.get("to", "")).to_upper(), "thought": "", "ding": true, "small": true, "voice": "page_05_cliffhanger", "button": "…WHO?!", "then": then,
+			"body": "[b]From:[/b] %s\n[b]To:[/b] %s   [b]CC:[/b] %s\n[b]Sent:[/b] %s\n[b]Subject:[/b] [color=#a4383e]%s[/color]\n\nThe Narrator: \"%s\"" % [mail.get("mail_from", ""), mail.get("to", ""), mail.get("cc", ""), mail.get("sent", ""), mail.get("subject", ""), mail.get("line", "")]})
+		return true
+	var postcard: Variant = page.get("postcard_after")
+	if postcard is Dictionary and not seen_cards.has(page.id + "_postcard"):
+		_show_story_card({"id": page.id + "_postcard", "kicker": "MEANWHILE…", "title": "POSTCARD FROM GOA", "thought": "", "image": "res://assets/art/story/postcard_goa.png", "voice": "postcard_goa", "button": "TURN THE PAGE", "then": then,
+			"body": str(postcard.get("text", ""))})
+		return true
+	return false
+
+
+## Page 15: "the sender has been found", page 4 replayed with its three-star plan, the confession, credits.
+func _start_reveal() -> void:
+	var reveal: Dictionary = page.reveal
+	var steps: Array = reveal.get("steps", [])
+	_show_story_card({"id": "reveal_1", "kicker": "DEAR ALL", "title": "THE SENDER HAS BEEN FOUND", "thought": "", "voice": str(steps[0].get("voice", "")), "button": "TURN BACK TO PAGE 4", "body": "The Narrator: \"%s\"" % steps[0].get("say", ""),
+		"then": func(): _iris_close(_replay_page_four)})
+
+
+func _replay_page_four() -> void:
+	_reveal_source = page.duplicate(true)
+	_load_page(3, PAGE_SCRIPTS[3].definition())
+	_revealing = true
+	_stop_voice()
+	var replay: Dictionary = plan.to_data()
+	if not REVEAL_PLAN.is_empty():
+		replay.thoughts = REVEAL_PLAN.thoughts.duplicate()
+		replay.lanterns = REVEAL_PLAN.lanterns.duplicate(true)
+	_title.text = "PAGE 4  ·  1:03 AM, JC  ·  THE REPLAY"
+	_saved_plan = replay
+	_begin(SIMULATOR.run(page, replay, true), false)
+	_stage.set_caption("Page 4. 1:03 AM. JC. Watch Chintu's paw.", 0.0)
+
+
+func _finish_reveal() -> void:
+	_revealing = false
+	var reveal: Dictionary = _reveal_source.get("reveal", {})
+	var steps: Array = reveal.get("steps", [])
+	var achievement: Dictionary = reveal.get("achievement", {})
+	if not achievement.is_empty():
+		achievements[str(achievement.id)] = true
+		_save_progress()
+	var last := func():
+		_front.set_credits_extra(Array(reveal.get("credits_additions", [])).filter(func(line): return not "Oreo" in str(line)))
+		_load_page(PAGE_SCRIPTS.size() - 1)
+		_front.show_title(true)
+		_front.show_credits()
+	var confession := func():
+		_show_story_card({"id": "reveal_3", "kicker": "THE NARRATOR", "title": "YOU. YOU DID THIS.", "thought": "", "small": true, "voice": str(steps[3].get("voice", "")), "button": "ROLL CREDITS", "then": last,
+			"body": "\"%s\"\n\n[i]%s[/i]\n\n[color=#a4383e][b]ACHIEVEMENT: %s[/b][/color]" % [steps[3].get("say", ""), str(reveal.get("final_panel", "")).replace("👌", "thumbs-up"), achievement.get("name", "")]})
+	_show_story_card({"id": "reveal_2", "kicker": "1:04 AM", "title": "PAW. SEND. WHOOSH.", "thought": "", "small": true, "voice": str(steps[2].get("voice", "")), "button": "…WAIT. WHO LIT HIM?", "then": confession,
+		"body": "Drafts (1): 'write the angriest possible mail to a dean (testing AI for hackathon, DO NOT SEND)'\n\nThe Narrator: \"%s\"" % steps[2].get("say", "")})
+
+
+# ------------------------------------------------------------ manhunt inbox
+var _subject: RichTextLabel
+
+
+## Acts 2-3: the mail subject of the day sits on the goal clipping, right-aligned.
+func _update_subject() -> void:
+	var hunt: Variant = page.get("manhunt")
+	if not is_instance_valid(_subject):
+		_subject = _rich(14)
+		_subject.position = Vector2(400, 31)
+		_subject.size = Vector2(488, 24)
+		_subject.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		_subject.autowrap_mode = TextServer.AUTOWRAP_OFF
+		_subject.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_goal_card.add_child(_subject)
+	_subject.visible = hunt is Dictionary and _tutorial_panel < 0
+	if _subject.visible:
+		_subject.text = "[color=#a4383e][b]INBOX[/b][/color]  %s   [color=#8c8a80]Unread: %s[/color]" % [hunt.get("subject", ""), hunt.get("unread", "?")]
+
+
 # ------------------------------------------------------------ margin stickers
-var _sticker: Control
+var _stickers: Array[Control] = []
 
 
-func _show_stickers(when: String) -> void:
-	if is_instance_valid(_sticker):
-		_sticker.queue_free()
+## Margin notes left of the result card: stickers ("result" any ending,
+## "result_win" twist wins only), then the manhunt case file (pages 6-15).
+func _show_stickers(when: String, won := false) -> void:
+	for old in _stickers:
+		if is_instance_valid(old):
+			old.queue_free()
+	_stickers.clear()
+	var notes: Array = []
 	for entry in page.get("stickers", []):
-		if not entry is Dictionary or str(entry.get("when", "result")) != when:
-			continue
-		var text := str(entry.get("text", "")).replace("✗", "")
-		var card := _paper_panel(Rect2(0, 0, 250, 74), 0.0)
+		if entry is Dictionary and (str(entry.get("when", "result")) == when or (won and str(entry.get("when", "")) == when + "_win")):
+			var raw := str(entry.get("text", ""))
+			notes.append([raw.replace("✗", "").strip_edges() + ("  " + _icon("cross", 18) if "✗" in raw else ""), Color("ffe9a8"), 74.0])
+	var hunt: Variant = page.get("manhunt")
+	if when == "result" and hunt is Dictionary:
+		notes.append(["[b]THE MANHUNT[/b]  ·  Unread: %s
+[b]Suspect:[/b] %s
+[b]Clue:[/b] %s" % [hunt.get("unread", "?"), hunt.get("suspect", ""), hunt.get("clue", "")], Color("e6f1ff"), 150.0])
+	var y := 64.0
+	for i in notes.size():
+		var note: Array = notes[i]
+		var card := _paper_panel(Rect2(0, 0, 230, 40), 0.0)
 		var box: StyleBoxFlat = card.get_theme_stylebox("panel").duplicate()
-		box.bg_color = Color("ffe9a8")
+		box.bg_color = note[1]
 		box.shadow_offset = Vector2(3, 3)
 		card.add_theme_stylebox_override("panel", box)
-		var label := _rich(15)
+		var label := _rich(14 if float(note[2]) < 100 else 13)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.position = Vector2(12, 8)
-		label.size = Vector2(226, 60)
-		label.text = text.strip_edges() + ("  " + _icon("cross", 18) if "✗" in str(entry.get("text", "")) else "")
+		label.fit_content = true
+		label.position = Vector2(10, 6)
+		label.size = Vector2(210, 20)
+		label.text = str(note[0])
 		card.add_child(label)
-		card.position = Vector2(-236, 70)
-		card.rotation = -0.09
+		card.position = Vector2(-216, y)
+		card.rotation = -0.09 if i % 2 == 0 else -0.04
 		card.z_index = 2
 		_result_card.add_child(card)
-		_sticker = card
+		_stickers.append(card)
+		y += 60
 		if not _motion.button_pressed:
 			card.scale = Vector2.ONE * 1.6
 			card.pivot_offset = card.size * 0.5
-			card.create_tween().tween_property(card, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.6)
-		break
+			card.create_tween().tween_property(card, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT).set_delay(0.6 + 0.2 * i)
+	_restack_stickers.call_deferred()
+
+
+## Once their text has laid out, each note is as tall as its text, stacked down the margin.
+func _restack_stickers() -> void:
+	var y := 64.0
+	for card in _stickers:
+		if not is_instance_valid(card):
+			continue
+		var label: RichTextLabel = card.get_child(0)
+		card.size.y = label.get_content_height() + 14
+		card.pivot_offset = card.size * 0.5
+		card.position.y = y
+		y += card.size.y + 10
 
 
 

@@ -1,213 +1,304 @@
 extends RefCounted
-## Page 8/15 "First Date", designed by the story thread (design/story.md, design/levels.md).
-## Verified by design/levels_solver/audit15.py (twist and each headline reachable by 1-2 distinct solutions).
+## Page 12 "Kalakshetra", IIIT-H story rev 4 (design/story_proposal.md, design/build_p4_15/spec.md).
+## Layout page_09; star ladder verified by the solver (levels_solver/ladder), 0.2 and 0.02 lantern grids: ideas 40/2/1.
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_12",
-		"number": 8,
-		"title": "First Date",
-		"voice": "date",
-		"room": "office",
-		"difficulty": "yellow",
-		"width": 10,
+		"number": 12,
+		"title": "Kalakshetra",
+		"difficulty": "red",
+		"room": "kalakshetra",
+		"voice": "page_12",
+		"source_layout": "page_09",
+		"width": 11,
 		"rail_span": [
 			0,
-			9
+			10
 		],
 		"spotlights": {
 			"count": 1,
 			"default_centres": [
-				6
+				4
 			]
 		},
 		"lanterns": {
 			"radius": 1.6,
 			"bounds": [
-				6.0,
+				0.0,
 				-1.2,
-				8.0,
+				10.0,
 				0.6
 			],
 			"count": 1,
 			"defaults": [
 				{
-					"x": 6.0,
+					"x": 4.0,
 					"y": -0.6,
 					"enabled": true
 				},
 				{
-					"x": 6.0,
+					"x": 0.0,
 					"y": -0.6,
 					"enabled": false
 				}
 			]
 		},
 		"obstacles": [],
-		"flick": 0,
+		"flick": 1,
 		"fixed_lights": [],
 		"lamps": [],
 		"characters": [
 			{
-				"id": "intern",
-				"name": "Intern",
-				"art": "intern",
-				"slot": 6,
-				"facing": "L",
-				"thought": "IN_LOVE",
+				"id": "grandma",
+				"name": "Mess Aunty",
+				"art": "grandma",
+				"slot": 0,
+				"facing": "R",
+				"thought": "SLEEPY",
 				"contradiction": false
 			},
 			{
-				"id": "boss",
-				"name": "Boss",
-				"art": "boss",
-				"slot": 7,
+				"id": "cat",
+				"name": "Dassi",
+				"art": "cat",
+				"slot": 3,
 				"facing": "R",
-				"thought": "HUNGRY",
+				"thought": "ANGRY",
 				"contradiction": true
 			},
 			{
-				"id": "cat",
-				"name": "Cat",
-				"art": "cat",
-				"slot": 8,
-				"facing": "R",
+				"id": "mouse",
+				"name": "Faccha",
+				"art": "mouse",
+				"slot": 5,
+				"facing": "L",
 				"thought": "SCARED",
 				"contradiction": false
 			},
 			{
-				"id": "grandma",
-				"name": "Grandma",
-				"art": "grandma",
-				"slot": 9,
+				"id": "dog",
+				"name": "Chintu",
+				"art": "dog",
+				"slot": 7,
 				"facing": "L",
-				"thought": "ANGRY",
+				"thought": "HUNGRY",
 				"contradiction": false
 			}
 		],
 		"objects": [
 			{
-				"id": "chair",
+				"id": "rocking_chair",
 				"type": "SEAT",
-				"art": "chair",
-				"slot": 3
+				"art": "rocker",
+				"name": "rocking chair",
+				"slot": 1
 			},
 			{
-				"id": "cake",
+				"id": "cheese",
 				"type": "FOOD",
-				"art": "cake",
-				"slot": 5
+				"art": "cheese",
+				"name": "cheese",
+				"slot": 9
 			}
 		],
-		"original_caption": "The Intern hugged the Boss. HR has been notified.",
-		"endings_total": 61,
-		"bonus": [
-			{
-				"id": "headline_1",
-				"caption": "THE BOSS BONKS GRANDMA. GRANDMA WILL REMEMBER THIS.",
-				"facts": [
-					{
-						"type": "BONKED",
-						"character": "boss",
-						"target": "grandma"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "GRANDMA MAKES THE FIRST MOVE",
-				"facts": [
-					{
-						"type": "HUGGED",
-						"character": "grandma",
-						"target": "boss"
-					}
-				]
-			}
-		],
+		"original_caption": "Dassi chased the Faccha out of the comic.",
+		"endings_total": 132,
 		"goal": {
 			"facts": [
 				{
-					"type": "HUGGED",
-					"character": "intern",
-					"target": "boss"
-				},
-				{
-					"type": "HUGGED",
-					"character": "boss",
-					"target": "grandma"
+					"type": "BONKED",
+					"character": "mouse",
+					"target": "cat"
 				}
 			],
-			"twist_caption": "The Intern hugged the Boss. The Boss hugged GRANDMA.",
+			"twist_caption": "The FACCHA bonked DASSI.",
 			"red_pen_words": [
-				"GRANDMA"
+				"FACCHA",
+				"DASSI"
 			]
 		},
+		"ladder": [
+			{
+				"id": "star_2",
+				"caption": "…and Chintu dozed off in the rocking chair.",
+				"facts": [
+					{
+						"type": "ASLEEP",
+						"character": "dog",
+						"object": "rocking_chair"
+					}
+				]
+			},
+			{
+				"id": "star_3",
+				"caption": "…and Mess Aunty walked out.",
+				"facts": [
+					{
+						"type": "EXITED",
+						"character": "grandma"
+					}
+				]
+			}
+		],
 		"narration": {
-			"intro": "The office party. The Intern, Gary, is in love with the Boss. The Boss is furious about everything. The Cat is here for the free buffet. Nobody knows why Grandma is here.",
-			"original": "The Intern hugged the Boss. HR has been notified. HR has notified HR.",
-			"twist": "The Intern hugged the Boss. The Boss hugged GRANDMA.",
-			"win": "The Intern hugged the Boss. The Boss hugged Grandma. Grandma has booked a church. I wrote a workplace drama, and you have turned it into a romance. A horrible, beautiful romance.",
-			"fail": "HR has been notified. Again.",
-			"fail_alt": [
-				"Love is in the air. So is HR.",
-				"Romance is dead. Long live the office."
-			]
+			"intro": "'Re: lite le guys.' Kalakshetra. Theme: Retro Disco. Forty disco balls, unpainted. Dassi is the Faccha's mentor, the only healthy senior-junior relationship on campus: she just makes him work. Get him painting, Dassi.",
+			"original": "Dassi chased the Faccha out of the comic. He's hiding at JC. Mentors know where JC is.",
+			"twist": "The FACCHA bonked DASSI.",
+			"win": "The Faccha bonked Dassi. His own mentor. With a disco ball. She says she's proud of him. She also says forty disco balls by morning.",
+			"stars": [
+				"And Chintu dozed off in the rocking chair. He was guarding the cheese. He doesn't even like cheese.",
+				"And Mess Aunty walked out. To Goa, with the fourth years. She has 'some invites to post'."
+			],
+			"fails": [
+				"Best mentor I ever hired.",
+				"Forty disco balls remain unpainted.",
+				"Come on. It's Kalakshetra time. Again."
+			],
+			"hidden": []
 		},
 		"dialogue": [
 			{
-				"character": "intern",
+				"character": "cat",
 				"when": "lit",
-				"line": "He looked at me. Twice. That's basically a date."
-			},
-			{
-				"character": "boss",
-				"when": "lit",
-				"line": "Everyone is fired. Even the cat."
-			},
-			{
-				"character": "grandma",
-				"when": "lit",
-				"line": "I'm only here for the buffet, dear."
+				"line": "Come on, Faccha. Disco balls. It builds character."
 			},
 			{
 				"character": "cat",
+				"when": "gets_HUNGRY",
+				"line": "Is there food at Kalakshetra? There is NEVER food at Kalakshetra."
+			},
+			{
+				"character": "mouse",
 				"when": "lit",
-				"line": "I'm not part of this."
+				"line": "I can't paint! I can barely C! Ask MOSS!"
 			},
 			{
-				"character": "boss",
-				"when": "swap",
-				"line": "WHO DID THIS? I'm FURIOUS. At... feelings?"
+				"character": "mouse",
+				"when": "gets_ANGRY",
+				"line": "Oh, it's ON. Mentor or no mentor."
+			},
+			{
+				"character": "mouse",
+				"when": "win",
+				"line": "Sorry, ma'am! Mentor ma'am! …Was that good?"
+			},
+			{
+				"character": "dog",
+				"when": "gets_SLEEPY",
+				"line": "Disco… ball… so… shiny… zzz."
 			},
 			{
 				"character": "grandma",
-				"when": "swap",
-				"line": "Is the buffet open?"
-			},
-			{
-				"character": "boss",
-				"when": "win",
-				"line": "Grandma... you smell like soup and danger."
-			},
-			{
-				"character": "grandma",
-				"when": "win",
-				"line": "First hug since the war. Which war? Yes."
+				"when": "gets_SCARED",
+				"line": "Forty disco balls? I'm going to Goa. With… a friend."
 			}
 		],
-		"tutorial": [
-			"NEW FEELING: IN LOVE. Walks to the nearest lit character and hugs them. Whoever gets hugged falls in love too and goes looking for someone else to hug!"
-		],
+		"stickers": [],
 		"hints": [
-			"A hug turns anger into love. Even the Boss's.",
-			"Make the Boss angry, and give Grandma his hunger so she stays put.",
-			"Swap the Boss and Grandma, then light the Intern, the Boss, the Cat and Grandma all at once."
+			"The Faccha has to be the angry one. Give him Dassi's anger.",
+			"An angry character bonks whoever they can see. Make sure the Faccha can see Dassi.",
+			"Light Dassi, or wake the Faccha with the spare bulb near her."
 		],
-		"bonus_hints": [
-			"Same swap as the twist, but keep the Intern in the dark. Nobody calms the Boss down.",
-			"Pass the love round: the Intern's love to the Cat, the Cat's fear to the Boss, the Boss's hunger to Grandma, Grandma's anger to the Intern. Light all four."
+		"star_hints": [
+			"Pass all four thoughts round: the Faccha gets Dassi's anger, Dassi gets Chintu's hunger, Chintu gets Mess Aunty's sleepiness, Mess Aunty gets the Faccha's fear. Light Dassi, and drop the spare bulb between Chintu and the Faccha.",
+			"Same plan, but light Mess Aunty too."
 		],
-		"new_feeling": "IN_LOVE"
+		"manhunt": {
+			"subject": "Re: Fwd: Re: lite le guys",
+			"unread": "8,888",
+			"suspect": "#7 The lamp. It was on every page. It was on page 4.",
+			"clue": "A greasy smudge on the Send key. The lamp has no fingers. …Or DOES it."
+		},
+		"postcard_after": {
+			"art": "postcard_goa",
+			"text": "Postcard from Goa. The fourth years went to Goa, as is tradition. Some uncles were being uncles. Senior Udhav sir stood up for his friends, and the other students calmed everyone down. Nobody got hurt. Wish you were here. P.S. Mess Aunty says hi. She posted a wedding invite. To whom? We'll see."
+		},
+		"voice_lengths_s": {
+			"page_12_intro": [
+				11.0,
+				15.0
+			],
+			"page_12_original": [
+				5.5,
+				8.0
+			],
+			"page_12_twist": [
+				1.5,
+				2.0
+			],
+			"page_12_win": [
+				8.0,
+				11.5
+			],
+			"page_12_stars_1": [
+				6.0,
+				8.5
+			],
+			"page_12_stars_2": [
+				5.5,
+				8.0
+			],
+			"page_12_fails_1": [
+				1.5,
+				2.5
+			],
+			"page_12_fails_2": [
+				1.5,
+				2.5
+			],
+			"page_12_fails_3": [
+				2.0,
+				3.0
+			],
+			"page_12_dialogue_cat_lit": [
+				2.5,
+				3.5
+			],
+			"page_12_dialogue_cat_gets_HUNGRY": [
+				3.5,
+				4.5
+			],
+			"page_12_dialogue_mouse_lit": [
+				3.0,
+				4.0
+			],
+			"page_12_dialogue_mouse_gets_ANGRY": [
+				2.5,
+				3.0
+			],
+			"page_12_dialogue_mouse_win": [
+				2.5,
+				3.0
+			],
+			"page_12_dialogue_dog_gets_SLEEPY": [
+				1.5,
+				2.5
+			],
+			"page_12_dialogue_grandma_gets_SCARED": [
+				3.5,
+				4.5
+			],
+			"postcard_goa": [
+				17.5,
+				22
+			]
+		},
+		"solver": {
+			"ideas": [
+				40,
+				2,
+				1
+			],
+			"win_percent": [
+				3.725,
+				0.04,
+				0.013
+			],
+			"grids": [
+				0.2,
+				0.02
+			]
+		}
 	}

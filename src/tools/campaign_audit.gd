@@ -74,8 +74,8 @@ func _find(parent: Dictionary, id: String) -> String:
 	return id
 
 
-func _audit(page: Dictionary) -> void:
-	var start := Time.get_ticks_msec()
+## Every distinct plan class: lit configs x thought arrangements x flicks.
+func plan_space(page: Dictionary) -> Dictionary:
 	var base := {}
 	for c in page.characters:
 		base[c.id] = c.thought
@@ -126,6 +126,28 @@ func _audit(page: Dictionary) -> void:
 		for beat in range(1, FLICK_BEATS + 1):
 			for centre in range(int(page.width)):
 				flicks.append({"beat": beat, "centre": centre})
+	return {"base": base, "configs": configs, "arrangements": arrangements, "flicks": flicks}
+
+
+## Star steps to check: the old "bonus" list, or the ladder's cumulative facts.
+static func star_steps(page: Dictionary) -> Array:
+	if not page.has("ladder"):
+		return page.get("bonus", [])
+	var steps := []
+	var facts: Array = page.goal.facts.duplicate(true)
+	for step in page.ladder:
+		facts = facts + Array(step.facts)
+		steps.append({"id": step.id, "caption": step.caption, "facts": facts.duplicate(true)})
+	return steps
+
+
+func _audit(page: Dictionary) -> void:
+	var start := Time.get_ticks_msec()
+	var space := plan_space(page)
+	var base: Dictionary = space.base
+	var configs: Dictionary = space.configs
+	var arrangements: Array = space.arrangements
+	var flicks: Array = space.flicks
 	var plans := 0
 	var wins := 0
 	var plain_wins := 0
@@ -163,7 +185,7 @@ func _audit(page: Dictionary) -> void:
 					win_arrangements[str(a)] = true
 					if flick.is_empty():
 						plain_wins += 1
-				for bonus in page.get("bonus", []):
+				for bonus in star_steps(page):
 					var challenge: Dictionary = page.duplicate()
 					challenge.goal = {"facts": bonus.facts, "twist_caption": bonus.caption}
 					if GOALS.evaluate(challenge, run).won:
@@ -182,5 +204,5 @@ func _audit(page: Dictionary) -> void:
 		captions.sort()
 		for caption in captions:
 			print("   ENDING x%d: %s" % [endings[caption], caption])
-	for bonus in page.get("bonus", []):
+	for bonus in star_steps(page):
 		print("   bonus %s: %d plans, %d ideas" % [bonus.id, bonus_hits.get(bonus.id, 0), star_ideas.get(bonus.id, {}).size()])

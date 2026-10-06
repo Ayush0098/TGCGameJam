@@ -217,8 +217,10 @@ func configure(page: Dictionary) -> void:
 			rig.z_index = -40
 			_root.add_child(rig)
 			rig.configure(record.art)
-			if record.get("phone_glow", false):
-				# Prompt Bhai shares a rig for now: a cool phone-lit tint tells him apart.
+			if record.has("tint"):
+				# Prompt Bhai shares the kid rig with the Saap: his phone-blue tint tells them apart.
+				rig.modulate = Color.WHITE.lerp(Color(str(record.tint)), 0.6)
+			elif record.get("phone_glow", false):
 				rig.modulate = Color(0.82, 0.95, 1.18)
 			_rigs[record.id] = rig
 		for record in page.objects:
@@ -278,6 +280,16 @@ func _light_position(light: Dictionary) -> Vector2:
 
 func _world_position(at: Vector2) -> Vector2:
 	return stage_to_world(at)
+
+## A floor switch sharing a slot with a seat or food sits just left of it so both read.
+func _object_x(object: Dictionary) -> float:
+	var x := _x(object.slot)
+	if object.get("type", "") == "SWITCH":
+		for other in _page.get("objects", []):
+			if other.id != object.id and int(other.slot) == int(object.slot):
+				return x - 46.0
+	return x
+
 
 func _lit(slot: float, world: Dictionary) -> bool:
 	return LIGHTING.is_lit(_page, _plan, world, slot)
@@ -364,7 +376,7 @@ func _update_visuals() -> void:
 				key += "_down"
 		var sprite: Sprite2D = _prop_sprites[object.id]
 		sprite.texture = _textures[key]
-		sprite.position = Vector2(_x(object.slot) - sprite.texture.get_width() * 0.5, FLOOR_Y - sprite.texture.get_height())
+		sprite.position = Vector2(_object_x(object) - sprite.texture.get_width() * 0.5, FLOOR_Y - sprite.texture.get_height())
 		sprite.material.set_shader_parameter("lit", 1.0 if _lit(object.slot, world) else 0.0)
 	_props.queue_redraw()
 	if is_instance_valid(_glow):
@@ -672,6 +684,7 @@ func _draw() -> void:
 		var start := world_to_stage(Vector2(obstacle.from[0], obstacle.from[1]))
 		var end := world_to_stage(Vector2(obstacle.to[0], obstacle.to[1]))
 		_draw_screen(start, end)
+	_draw_decor(world)
 	_draw_flick(world)
 	for lamp in world.get("lamps", []):
 		if lamp.get("id", "") == "flick":
@@ -684,7 +697,7 @@ func _draw() -> void:
 			draw_circle(centre, 10, Color("efce66") if lamp.on else Color("687489"))
 		for object in world.get("objects", []):
 			if object.id == lamp.switch_id:
-				var wire := PackedVector2Array([Vector2(_x(object.slot), FLOOR_Y), Vector2(_x(object.slot), FLOOR_Y + 5), Vector2(centre.x, FLOOR_Y + 5), centre])
+				var wire := PackedVector2Array([Vector2(_object_x(object), FLOOR_Y), Vector2(_object_x(object), FLOOR_Y + 5), Vector2(centre.x, FLOOR_Y + 5), centre])
 				if lamp.on:
 					draw_polyline(wire, Color(1, 0.82, 0.4, 0.35), 7, true)
 					draw_polyline(wire, Color("ffd27a"), 3, true)
@@ -928,6 +941,44 @@ func _gui_input(event: InputEvent) -> void:
 				else:
 					preview_requested.emit(_drag_bubble, _target)
 		queue_redraw()
+
+
+## Small non-interactive props drawn in code (page 4's laptop and wall clock, page 13's invite).
+func _draw_decor(world: Dictionary) -> void:
+	var font := ThemeDB.fallback_font
+	for item in _page.get("decor", []):
+		if not item is Dictionary:
+			continue
+		var x := _x(float(item.get("slot", 0)))
+		var lit := _lit(int(item.get("slot", 0)), world)
+		match str(item.get("art", "")):
+			"laptop":
+				var base := Vector2(x, FLOOR_Y - 6)
+				draw_rect(Rect2(base - Vector2(30, 4), Vector2(60, 6)), Color("3b3f4a"))
+				var screen := Rect2(base - Vector2(24, 40), Vector2(48, 36))
+				draw_rect(screen.grow(3), Color("2a2d36"))
+				draw_rect(screen, Color("bfe6ff") if lit else Color("31405a"))
+				if lit:
+					draw_string(font, screen.position + Vector2(3, 15), "Drafts (1)", HORIZONTAL_ALIGNMENT_LEFT, 44, 9, INK)
+					draw_line(screen.position + Vector2(4, 22), screen.position + Vector2(40, 22), Color(INK, 0.5), 1)
+					draw_line(screen.position + Vector2(4, 28), screen.position + Vector2(32, 28), Color(INK, 0.5), 1)
+			"wall_clock":
+				# The JC painting has its own clock at 1:03; a little tag under it ticks to 1:04 when the page ends.
+				var at: Array = item.get("at", [x, 112])
+				var tag := Vector2(float(at[0]), float(at[1]))
+				var ended := _bulb_mood in ["win", "fail"] or _mood_after in ["win", "fail"]
+				var box := Rect2(tag - Vector2(34, 12), Vector2(68, 24))
+				draw_rect(box.grow(2), INK)
+				draw_rect(box, Color("2b2733"))
+				draw_string(font, box.position + Vector2(0, 18), "1:04 AM" if ended else "1:03 AM", HORIZONTAL_ALIGNMENT_CENTER, 68, 15, Color("ff6b5b") if ended else Color("ffd27a"))
+			"wedding_invite":
+				var card := Rect2(Vector2(x - 26, 150), Vector2(52, 66))
+				draw_rect(card.grow(2), Color(INK, 0.7))
+				draw_rect(card, Color("fff3f6") if lit else Color("9a8f93"))
+				draw_rect(card.grow(-5), Color("d9a521"), false, 1.5)
+				draw_string(font, card.position + Vector2(0, 26), "YOU'RE", HORIZONTAL_ALIGNMENT_CENTER, 52, 10, Color("a4383e"))
+				draw_string(font, card.position + Vector2(0, 38), "INVITED", HORIZONTAL_ALIGNMENT_CENTER, 52, 10, Color("a4383e"))
+				draw_circle(card.position + Vector2(26, 50), 4, Color("c0392b"))
 
 
 func set_mood(mood: String, seconds: float = 0.0) -> void:
@@ -1342,7 +1393,8 @@ func _draw_object_tags(world: Dictionary) -> void:
 		if _prop_sprites.has(object.id) and _prop_sprites[object.id].texture != null:
 			height = _prop_sprites[object.id].texture.get_height()
 		var width := TEXT_FONT.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 10
-		var plate := Rect2(Vector2(_x(object.slot) - width * 0.5, FLOOR_Y + 10), Vector2(width, 15))
+		var drop := 17.0 if _object_x(object) != _x(object.slot) else 0.0
+		var plate := Rect2(Vector2(_object_x(object) - width * 0.5, FLOOR_Y + 10 + drop), Vector2(width, 15))
 		draw_rect(plate, Color("fffaf0"))
 		draw_rect(plate, Color("8c8679"), false, 1.2)
 		draw_string(TEXT_FONT, plate.position + Vector2(5, 11.5), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("5a5448"))

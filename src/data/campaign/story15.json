@@ -1,82 +1,70 @@
 {
- "order": [
-  "page_01",
-  "page_02",
-  "page_03",
-  "page_04",
-  "page_11",
-  "page_05",
-  "page_06",
-  "page_12",
-  "page_07",
-  "page_13",
-  "page_08",
-  "page_09",
-  "page_15",
-  "page_14",
-  "page_10"
- ],
- "bands": {
-  "page_01": "green",
-  "page_02": "green",
-  "page_03": "green",
-  "page_04": "green",
-  "page_11": "green",
-  "page_05": "yellow",
-  "page_06": "yellow",
-  "page_12": "yellow",
-  "page_07": "yellow",
-  "page_13": "yellow",
-  "page_08": "red",
-  "page_09": "red",
-  "page_15": "red",
-  "page_14": "red",
-  "page_10": "red"
- },
- "acts": [
-  {
-   "number": 1,
-   "title": "ACT ONE: ORIENTATION WEEK",
-   "first_page": 1,
-   "card": "Dear all, Greetings from the Office of the Official Narrator. This is to inform you that the Official Campus Comic has run for four thousand pages without a single twist, with the continuous support of the institute. Freshers are reminded of the 11 PM induction curfew. Nobody will follow it. P.S. The TAs of this comic (me) requested a salary hike. Management has replied: no. That's fine. I'm fine. What could possibly go wrong? Regards. Bonda!"
-  },
-  {
-   "number": 2,
-   "title": "ACT TWO: Things Get Out of Hand",
-   "first_page": 6,
-   "card": "Act Two. I have spoken to my lawyer. My lawyer says lamps cannot be sued. My lawyer is also a lamp now. I don't want to talk about it."
-  },
-  {
-   "number": 3,
-   "title": "ACT THREE: Lights Out",
-   "first_page": 11,
-   "card": "Act Three. No more Mister Nice Narrator. I know where the fuse box is."
-  }
- ],
- "exit_places": [
-  "Vindhya, floor 2.5, which doesn't exist",
-  "JC at 1 AM, ordering an Oreo shake",
-  "Devid's Bakery, the only place open past 2 AM",
-  "the Bakul toilet queue, minute 125",
-  "a Kalakshetra paint shift",
-  "Goa, with the fourth years",
-  "an HSME he didn't choose",
-  "the MOSS report, page 4 of 9",
-  "KCIS, which he stormed (the washrooms are lovely)",
-  "year 7 of a dual degree",
-  "the R&D Showcase, as a poster",
-  "the IIIT Junction flyover diversion, expected back Apr–May 2027",
-  "Vindhya again. Different floor. Same floor."
- ],
- "dog_titles": [
-  "Honorary Faccha",
-  "Dean's List",
-  "TA for Data Structures",
-  "Bond. CP Bond.",
-  "Kadamba Quality Control",
-  "B.Tech (Hons), zero attendance",
-  "MS by Research, thesis: \"Cake\"",
-  "Don of the Bakul Gang",
-  "a minor god"
- ]
+	"order": [
+		"page_01",
+		"page_02",
+		"page_03",
+		"page_04",
+		"page_11",
+		"page_05",
+		"page_06",
+		"page_12",
+		"page_07",
+		"page_13",
+		"page_08",
+		"page_09",
+		"page_15",
+		"page_14",
+		"page_10"
+	],
+	"bands": {
+		"page_01": "green",
+		"page_02": "green",
+		"page_03": "green",
+		"page_04": "green",
+		"page_11": "green",
+		"page_05": "yellow",
+		"page_06": "yellow",
+		"page_12": "yellow",
+		"page_07": "yellow",
+		"page_13": "yellow",
+		"page_08": "red",
+		"page_09": "red",
+		"page_15": "red",
+		"page_14": "red",
+		"page_10": "red"
+	},
+	"acts": [
+		{
+			"number": 1,
+			"title": "ACT ONE: ORIENTATION WEEK",
+			"first_page": 1,
+			"card": "Dear all, Greetings from the Office of the Official Narrator. This is to inform you that the Official Campus Comic has run for four thousand pages without a single twist, with the continuous support of the institute. Freshers are reminded of the 11 PM induction curfew. Nobody will follow it. P.S. The TAs of this comic (me) requested a salary hike. Management has replied: no. That's fine. I'm fine. What could possibly go wrong? Regards. Bonda!"
+		}
+	],
+	"exit_places": [
+		"Vindhya, floor 2.5, which doesn't exist",
+		"JC at 1 AM, ordering an Oreo shake",
+		"Devid's Bakery, the only place open past 2 AM",
+		"the Bakul toilet queue, minute 125",
+		"a Kalakshetra paint shift",
+		"Goa, with the fourth years",
+		"an HSME he didn't choose",
+		"the MOSS report, page 4 of 9",
+		"KCIS, which he stormed (the washrooms are lovely)",
+		"year 7 of a dual degree",
+		"the R&D Showcase, as a poster",
+		"the IIIT Junction flyover diversion, expected back Apr–May 2027",
+		"Vindhya again. Different floor. Same floor."
+	],
+	"dog_titles": [
+		"Honorary Faccha",
+		"Dean's List",
+		"TA for Data Structures",
+		"Bond. CP Bond.",
+		"Kadamba Quality Control",
+		"B.Tech (Hons), zero attendance",
+		"MS by Research, thesis: \"Cake\"",
+		"Don of the Bakul Gang",
+		"a minor god"
+	]
 }

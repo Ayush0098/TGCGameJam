@@ -67,7 +67,8 @@ func validate(content: Variant) -> Dictionary:
 		_slot(object, path)
 		_field(object, "art", TYPE_STRING, path + ".art")
 		_choice(object, "type", OBJECT_TYPES, path)
-		if typeof(object.get("slot")) == TYPE_INT:
+		# A floor light switch can share its slot with a seat or food.
+		if typeof(object.get("slot")) == TYPE_INT and object.get("type") != "SWITCH":
 			if object_slots.has(object.slot):
 				_error(path + ".slot", object.slot, "at most one object per slot")
 			object_slots[object.slot] = true

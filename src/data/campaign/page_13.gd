@@ -1,105 +1,96 @@
 extends RefCounted
-## Page 10/15 "The Last Slice", designed by the story thread (design/story.md, design/levels.md).
-## Verified by design/levels_solver/audit15.py (twist and each headline reachable by 1-2 distinct solutions).
+## Page 13 "Haunted OBH", IIIT-H story rev 4 (design/story_proposal.md, design/build_p4_15/spec.md).
+## Layout page_15; star ladder verified by the solver (levels_solver/ladder), 0.2 and 0.02 lantern grids: ideas 4/2/1.
 
 
 static func definition() -> Dictionary:
 	return {
 		"id": "page_13",
-		"number": 10,
-		"title": "The Last Slice",
-		"voice": "slice",
-		"room": "kitchen",
-		"difficulty": "yellow",
-		"width": 9,
+		"number": 13,
+		"title": "Haunted OBH",
+		"difficulty": "red",
+		"room": "obh_washroom",
+		"voice": "page_13",
+		"source_layout": "page_15",
+		"width": 11,
 		"rail_span": [
 			0,
-			8
+			10
 		],
 		"spotlights": {
 			"count": 1,
 			"default_centres": [
-				6
+				4
 			]
 		},
 		"lanterns": {
 			"radius": 1.6,
 			"bounds": [
-				3.0,
+				4.0,
 				-1.2,
-				6.0,
+				8.0,
 				-0.6
 			],
 			"count": 1,
 			"defaults": [
 				{
-					"x": 6.0,
+					"x": 4.0,
 					"y": -0.6,
 					"enabled": true
 				},
 				{
-					"x": 3.0,
+					"x": 4.0,
 					"y": -0.6,
 					"enabled": false
 				}
 			]
 		},
 		"obstacles": [],
-		"flick": 0,
+		"flick": 1,
 		"fixed_lights": [],
-		"lamps": [
-			{
-				"id": "lamp",
-				"zone": [
-					1,
-					3
-				],
-				"switch_id": "pedal",
-				"initially_on": false
-			}
-		],
+		"lamps": [],
 		"characters": [
 			{
 				"id": "intern",
-				"name": "Intern",
+				"name": "Kassi",
 				"art": "intern",
 				"slot": 2,
 				"facing": "R",
-				"thought": "JEALOUS",
-				"contradiction": true
-			},
-			{
-				"id": "grandma",
-				"name": "Grandma",
-				"art": "grandma",
-				"slot": 3,
-				"facing": "L",
-				"thought": "HUNGRY",
-				"contradiction": false
-			},
-			{
-				"id": "kid",
-				"name": "Kid",
-				"art": "kid",
-				"slot": 4,
-				"facing": "L",
-				"thought": "HUNGRY",
-				"contradiction": false
-			},
-			{
-				"id": "dog",
-				"name": "Dog",
-				"art": "dog",
-				"slot": 5,
-				"facing": "L",
-				"thought": "SLEEPY",
+				"thought": "ANGRY",
 				"contradiction": false
 			},
 			{
 				"id": "boss",
-				"name": "Boss",
+				"name": "Prof",
 				"art": "boss",
-				"slot": 6,
+				"slot": 3,
+				"facing": "R",
+				"thought": "SLEEPY",
+				"contradiction": false
+			},
+			{
+				"id": "mouse",
+				"name": "Faccha",
+				"art": "mouse",
+				"slot": 4,
+				"facing": "L",
+				"thought": "SHY",
+				"contradiction": true
+			},
+			{
+				"id": "kid",
+				"name": "Saap",
+				"art": "kid",
+				"slot": 5,
+				"facing": "L",
+				"thought": "SCARED",
+				"contradiction": false
+			},
+			{
+				"id": "grandma",
+				"name": "Mess Aunty",
+				"art": "grandma",
+				"slot": 10,
 				"facing": "L",
 				"thought": "SCARED",
 				"contradiction": false
@@ -107,145 +98,229 @@ static func definition() -> Dictionary:
 		],
 		"objects": [
 			{
-				"id": "armchair",
+				"id": "coffin",
 				"type": "SEAT",
-				"art": "armchair",
-				"slot": 1
+				"art": "coffin",
+				"name": "coffin",
+				"slot": 0
 			},
 			{
-				"id": "slice",
+				"id": "cake",
 				"type": "FOOD",
-				"art": "slice",
-				"slot": 7
-			},
-			{
-				"id": "pedal",
-				"type": "SWITCH",
-				"art": "pedal",
-				"slot": 8
+				"art": "cake",
+				"name": "cake",
+				"slot": 6
 			}
 		],
-		"original_caption": "Grandma ate the last slice. The Boss ran off screaming. The Dog slept through it.",
-		"endings_total": 24,
-		"bonus": [
-			{
-				"id": "headline_1",
-				"caption": "GRANDMA NAPS, THE DOG GETS THE LAST SLICE",
-				"facts": [
-					{
-						"type": "ASLEEP",
-						"character": "grandma",
-						"object": "armchair"
-					},
-					{
-						"type": "ATE",
-						"character": "dog",
-						"object": "slice"
-					}
-				]
-			},
-			{
-				"id": "headline_2",
-				"caption": "THE KID NAPS, THE DOG RUNS FOR HIS LIFE",
-				"facts": [
-					{
-						"type": "ASLEEP",
-						"character": "kid",
-						"object": "armchair"
-					},
-					{
-						"type": "EXITED",
-						"character": "dog"
-					}
-				]
-			}
-		],
+		"original_caption": "The Saap ran screaming, and the Faccha hid in the dark.",
+		"endings_total": 71,
 		"goal": {
 			"facts": [
 				{
-					"type": "CLONK",
-					"character": "grandma"
-				},
-				{
-					"type": "CLONK",
-					"character": "dog"
-				},
-				{
-					"type": "ATE",
-					"character": "intern",
-					"object": "slice"
+					"type": "ASLEEP",
+					"character": "boss",
+					"object": "coffin"
 				}
 			],
-			"twist_caption": "Grandma and the Dog CLONKED heads over the armchair. The INTERN ate the last slice.",
+			"twist_caption": "The PROF took a nap in the COFFIN.",
 			"red_pen_words": [
-				"CLONKED",
-				"INTERN"
+				"PROF",
+				"COFFIN"
 			]
 		},
+		"ladder": [
+			{
+				"id": "star_2",
+				"caption": "…and the Kassi bonked the Faccha in the dark.",
+				"facts": [
+					{
+						"type": "BONKED",
+						"character": "intern",
+						"target": "mouse"
+					}
+				]
+			},
+			{
+				"id": "star_3",
+				"caption": "…and the Saap hid.",
+				"facts": [
+					{
+						"type": "HIDING",
+						"character": "kid"
+					}
+				]
+			}
+		],
 		"narration": {
-			"intro": "The morning after the Boss's birthday. One slice of cake survived. One. And the Intern, Doug? Dave? Doug, is jealous of everyone. Which is fair. Nobody has ever invited him to anything.",
-			"original": "Grandma ate the last slice. The Boss ran off screaming. The Dog slept through it. A quiet morning.",
-			"twist": "Grandma and the Dog CLONKED heads over the armchair. The INTERN ate the last slice.",
-			"win": "The Intern ate the last slice. The INTERN. He wasn't even invited to this PAGE. Meanwhile Grandma and the Dog knocked each other out over an armchair neither of them owns. Boss Cake Count: zero. Intern Cake Count: ONE. The Boss has asked HR to investigate.",
-			"fail": "Grandma got the last slice. Grandma always gets the last slice. Grandma has a system.",
-			"fail_alt": [
-				"The Intern remains jealous. And slice-less.",
-				"The slice has been claimed. Not by you."
-			]
+			"intro": "'Ok who's typing.' New genre: HORROR. The old OBH washrooms, 3 AM. Jagruti the banyan reaches in with her roots. There is a coffin. There is a cake. There is a wedding invite on the door, and it's still not the scariest thing here.",
+			"original": "The Saap ran screaming, and the Faccha hid in the dark. Terrifying. I scared myself.",
+			"twist": "The PROF took a nap in the COFFIN.",
+			"win": "The Prof climbed into the coffin for a nap. Best sleep since his PhD. He's nervous about something next week. He won't say what.",
+			"stars": [
+				"And the Kassi bonked the Faccha in the dark. He thought it was Cthulhu.",
+				"And the Saap hid. He says he wasn't scared. He says he didn't even come. He's in the cupboard."
+			],
+			"fails": [
+				"BOO! …Did that work?",
+				"The washrooms remain haunted. Mostly by you.",
+				"Jagruti sends her regards."
+			],
+			"hidden": []
 		},
 		"dialogue": [
 			{
+				"character": "kid",
+				"when": "lit",
+				"line": "Haunted? Bro, I'm not scared. I'm leaving. Calmly. Screaming."
+			},
+			{
+				"character": "kid",
+				"when": "gets_SHY",
+				"line": "Nobody look at me. Not even ghosts."
+			},
+			{
+				"character": "mouse",
+				"when": "lit",
+				"line": "Nobody look at me. Especially seniors. Especially MOSS."
+			},
+			{
+				"character": "mouse",
+				"when": "gets_SCARED",
+				"line": "Is something behind me? EVERYTHING is behind me!"
+			},
+			{
 				"character": "intern",
 				"when": "lit",
-				"line": "Why does everyone else get things? I want things."
-			},
-			{
-				"character": "grandma",
-				"when": "lit",
-				"line": "That slice has my name on it. I wrote it there."
-			},
-			{
-				"character": "dog",
-				"when": "lit",
-				"line": "Nap first. Then cake. Then nap."
+				"line": "Who's there? Is it the TA? I want a re-evaluation!"
 			},
 			{
 				"character": "boss",
 				"when": "lit",
-				"line": "Who left a DOG near my cake?!"
+				"line": "Is that a coffin? Is it… ergonomic?"
 			},
 			{
-				"character": "kid",
-				"when": "lit",
-				"line": "Is that the last slice? Can I just lick it?"
+				"character": "boss",
+				"when": "win",
+				"line": "Comfy. Roomy. Wake me after the wedding. I mean, after nothing."
 			},
 			{
 				"character": "grandma",
-				"when": "swap",
-				"line": "Ooh, what's HE got? I want what he's got."
-			},
-			{
-				"character": "intern",
-				"when": "swap",
-				"line": "Wait... I'm allowed to WANT things?"
-			},
-			{
-				"character": "intern",
-				"when": "win",
-				"line": "I've never been invited to anything. Best day of my life."
+				"when": "lit",
+				"line": "Beta, I only came to pin this. Don't read it."
 			}
 		],
-		"tutorial": [
-			"NEW FEELING: JEALOUS. Wants whatever the nearest busy character is going for, and races them to it. Two arriving at once? CLONK!"
+		"stickers": [
+			{
+				"text": "Rumour Meter: WEDDING INVITE RECEIVED",
+				"when": "result"
+			}
 		],
 		"hints": [
-			"A jealous character wants whatever the nearest busy character is going for. Even an armchair.",
-			"Give Grandma the Intern's jealousy. The Dog will be heading for the armchair, and she'll want it too.",
-			"Swap the Intern and Grandma. Light only the Dog and the Boss: the Boss bolts over the pedal and wakes everyone."
+			"The Prof is already sleepy. He just needs your light.",
+			"Light the Prof, the Faccha and the Saap together.",
+			"Press ACTION and let the Prof find the coffin."
 		],
-		"bonus_hints": [
-			"Grandma takes the Dog's sleepiness, the Dog takes the Intern's jealousy. Light the Dog and the Boss.",
-			"Big shuffle: the Dog scared, the Kid sleepy, the Intern hungry, the Boss jealous. Light the Kid and the Dog, not the Boss."
+		"star_hints": [
+			"During ACTION, wake the Kassi with the spare bulb. Angry in the dark, he bonks the Faccha.",
+			"Swap the Faccha's shyness onto the Saap. A shy Saap hides instead of running."
 		],
-		"new_feeling": "JEALOUS"
+		"decor": [
+			{
+				"art": "wedding_invite",
+				"slot": 9,
+				"note": "A wedding invite pinned to the door. Small; a recoloured paper card is fine."
+			}
+		],
+		"manhunt": {
+			"subject": "Re: Re: Re: Re: Re: Re: ok who's typing",
+			"unread": "9,999+",
+			"suspect": "#8 The frog 👌",
+			"clue": "The TAs MOSSed the mail: 100% match with a draft on Prompt Bhai's laptop, 'testing AI for hackathon, DO NOT SEND'. He wrote it. Who sent it?"
+		},
+		"voice_lengths_s": {
+			"page_13_intro": [
+				14.5,
+				20
+			],
+			"page_13_original": [
+				5.0,
+				7.0
+			],
+			"page_13_twist": [
+				2.5,
+				3.5
+			],
+			"page_13_win": [
+				8.0,
+				11.0
+			],
+			"page_13_stars_1": [
+				4.5,
+				6.5
+			],
+			"page_13_stars_2": [
+				6.0,
+				9.0
+			],
+			"page_13_fails_1": [
+				1.5,
+				2.0
+			],
+			"page_13_fails_2": [
+				2.5,
+				3.0
+			],
+			"page_13_fails_3": [
+				1.5,
+				2.0
+			],
+			"page_13_dialogue_kid_lit": [
+				3.0,
+				4.0
+			],
+			"page_13_dialogue_kid_gets_SHY": [
+				2.5,
+				3.0
+			],
+			"page_13_dialogue_mouse_lit": [
+				2.5,
+				3.5
+			],
+			"page_13_dialogue_mouse_gets_SCARED": [
+				2.5,
+				3.5
+			],
+			"page_13_dialogue_intern_lit": [
+				3.5,
+				4.5
+			],
+			"page_13_dialogue_boss_lit": [
+				2.5,
+				3.0
+			],
+			"page_13_dialogue_boss_win": [
+				3.5,
+				4.5
+			],
+			"page_13_dialogue_grandma_lit": [
+				3.5,
+				4.5
+			]
+		},
+		"solver": {
+			"ideas": [
+				4,
+				2,
+				1
+			],
+			"win_percent": [
+				0.356,
+				0.15,
+				0.019
+			],
+			"grids": [
+				0.2,
+				0.02
+			]
+		}
 	}

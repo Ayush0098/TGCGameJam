@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/room_dasa_workspace.png-5a89e0c9d03b5f1cc5235
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
