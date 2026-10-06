@@ -54,6 +54,12 @@ func run(check: Callable) -> bool:
 	game._move_lantern(0, Vector2(6.0, 0.0), true)
 	var lit: Array = game._lit_ids()
 	check.call("dog" in lit and "boss" in lit, "Bulb lights Chintu and the Prof")
+	# A menu over a page stops its narration; coming back restarts the intro from the top.
+	game._narration_playing_moment = "intro"
+	game._menu_changed(true)
+	check.call(game._resume_moment == "intro" and game._lit_waiting.is_empty(), "Opening a menu stops the narration and remembers the intro")
+	game._menu_changed(false)
+	check.call(game._resume_moment == "" and game._stage._caption_text != "", "Back on the page the intro narration starts again from the beginning")
 	# A thought held back while the narrator talks is spoken once it stops.
 	game._said_scripted.clear()
 	game._lit_waiting = ["dog"] as Array[String]

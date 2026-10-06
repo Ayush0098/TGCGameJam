@@ -37,8 +37,11 @@ mono_crash.*.json
 # Local AI-tool settings
 .claude/
 .codex/
+/.mcp.json
 !/proposal.pdf
 
 # Python bytecode
 __pycache__/
 *.pyc
+# Added by code-review-graph
+.code-review-graph/

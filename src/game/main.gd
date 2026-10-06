@@ -509,6 +509,8 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	_said_scripted.clear()
 	_lit_waiting.clear()
 	_redpen_waiting = false
+	_resume_moment = ""
+	_narration_playing_moment = ""
 	if is_instance_valid(_legend):
 		_legend.text = _legend_text()
 	_queue_story_cards()
@@ -593,21 +595,59 @@ func _watch_window() -> void:
 	_hidden_timer.start()
 
 
-## Narration belongs to an open page: nothing may talk on the title or main menu.
-func _silence_menu() -> void:
-	if not (is_instance_valid(_front) and _front.visible) or _title_voice:
-		return
-	if _voice_busy() or not _voice_queue.is_empty() or _narrator_hold:
+var _narration_playing_moment := ""
+var _resume_moment := ""
+var _menu_was_open := false
+
+
+## Any menu or overlay on top of a page: pause menu, settings, Endings book, the
+## title / Levels screen.
+func _menu_open() -> bool:
+	return (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible) or is_instance_valid(_endings_book)
+
+
+## Narration belongs to an open page: while a menu is up everything stops (narrator,
+## character voices, held-back thoughts) and when the page is back the interrupted
+## intro starts again from its first word.
+func _menu_changed(open: bool) -> void:
+	if open:
+		# Only a line that is still being spoken restarts; a finished one does not replay.
+		if _narration_playing_moment != "" and (_voice_busy() or DisplayServer.get_name() == "headless"):
+			_resume_moment = _narration_playing_moment
+		elif _redpen_waiting:
+			_resume_moment = "redpen"
+		var talking := _voice_busy() or not _voice_queue.is_empty() or _redpen_waiting or not _lit_waiting.is_empty() or _resume_moment != ""
+		for player in _character_players:
+			talking = talking or player.playing
+		if _title_voice or not talking:
+			return
 		_stop_voice()
-	for player in _character_players:
-		if player.playing:
-			_fade_out(player, 0.15)
-	_lit_waiting.clear()
-	_redpen_waiting = false
+		for player in _character_players:
+			if player.playing:
+				_fade_out(player, 0.15)
+		_lit_waiting.clear()
+		_redpen_waiting = false
+		_narration_playing_moment = ""
+		if _resume_moment != "":
+			_stage.set_caption("", 0.0)
+	elif _resume_moment != "" and not page.is_empty():
+		var moment := _resume_moment
+		_resume_moment = ""
+		_narrate(moment)
+
+
+func _watch_menus() -> void:
+	var open := _menu_open()
+	if open != _menu_was_open:
+		_menu_was_open = open
+		_menu_changed(open)
+	elif open and not _title_voice and (_voice_busy() or not _voice_queue.is_empty()):
+		# Something started talking behind a menu (a late timer): quiet it again.
+		_stop_voice()
 
 
 func _process(delta: float) -> void:
-	_silence_menu()
+	_watch_menus()
 	if _redpen_waiting and mode == "PLAN" and not _voice_busy() and not _screen_covered():
 		_redpen_waiting = false
 		_narrate("redpen")
@@ -1925,6 +1965,8 @@ func _play_voice_file(base: String, player: AudioStreamPlayer = null) -> bool:
 	_cancel_fade(player)
 	player.stream = load(path)
 	player.play()
+	if player == _voice:
+		_narration_playing_moment = ""  # _narrate sets it again for page narration
 	return true
 
 
@@ -1986,6 +2028,8 @@ func _narrate(moment: String) -> void:
 	if is_instance_valid(_result_stage):
 		_result_stage.set_caption(text if moment == "twist" or moment.begins_with("fail") else "", 0.0)
 	var voiced := not key.is_empty() and _play_voice_file("narrator/" + key, _voice)
+	# Plan-phase narration that a menu may interrupt restarts from its beginning afterwards.
+	_narration_playing_moment = moment if voiced and moment in ["intro", "original", "redpen"] else ""
 	_voice_queue = queue if voiced else ([] as Array[String])
 	_narrator_hold = voiced and moment == "intro"
 	if voiced:
