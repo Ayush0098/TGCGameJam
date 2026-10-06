@@ -88,7 +88,7 @@ static func definition() -> Dictionary:
 			{
 				"id": "cat",
 				"name": "Dassi",
-				"art": "cat",
+				"art": "dassi",
 				"slot": 8,
 				"facing": "L",
 				"thought": "SCARED",

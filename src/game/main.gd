@@ -1684,7 +1684,7 @@ func _find_decisive_beat(recorded: Dictionary) -> int:
 
 
 ## Gibberish voices: pitch per character, a few syllables per line.
-const VOICE_PITCH := {"boss": 120.0, "intern": 190.0, "grandma": 260.0, "kid": 320.0, "dog": 380.0, "cat": 520.0, "mouse": 760.0}
+const VOICE_PITCH := {"boss": 120.0, "intern": 190.0, "grandma": 260.0, "kid": 320.0, "dog": 380.0, "cat": 520.0, "dassi": 430.0, "mouse": 760.0}
 const LINES := {
 	"DING": ["Aha!", "Ooh!", "Hmm!", "Oh!"],
 	"EAT": ["Yum!", "Mine!", "Nom!"],

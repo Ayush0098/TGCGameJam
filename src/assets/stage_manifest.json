@@ -35,6 +35,10 @@
 			"rig": "res://assets/characters/cat/rig.json",
 			"scale": 0.27
 		},
+		"dassi": {
+			"rig": "res://assets/characters/dassi/rig.json",
+			"scale": 0.44
+		},
 		"mouse": {
 			"rig": "res://assets/characters/mouse/rig.json",
 			"scale": 0.2

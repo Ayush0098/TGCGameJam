@@ -52,7 +52,7 @@ static func definition() -> Dictionary:
 			{
 				"id": "cat",
 				"name": "Dassi",
-				"art": "cat",
+				"art": "dassi",
 				"slot": 3,
 				"facing": "R",
 				"thought": "SCARED",
@@ -224,7 +224,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "cat",
 							"name": "Dassi",
-							"art": "cat",
+							"art": "dassi",
 							"slot": 1,
 							"facing": "R",
 							"thought": "HUNGRY",
@@ -379,7 +379,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "cat",
 							"name": "Dassi",
-							"art": "cat",
+							"art": "dassi",
 							"slot": 2,
 							"facing": "L",
 							"thought": "SLEEPY",
@@ -556,7 +556,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "cat",
 							"name": "Dassi",
-							"art": "cat",
+							"art": "dassi",
 							"slot": 4,
 							"facing": "L",
 							"thought": "ANGRY",
@@ -866,7 +866,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "cat",
 							"name": "Dassi",
-							"art": "cat",
+							"art": "dassi",
 							"slot": 1,
 							"facing": "R",
 							"thought": "HUNGRY",
@@ -997,7 +997,7 @@ static func definition() -> Dictionary:
 						{
 							"id": "cat",
 							"name": "Dassi",
-							"art": "cat",
+							"art": "dassi",
 							"slot": 2,
 							"facing": "R",
 							"thought": "HUNGRY",
