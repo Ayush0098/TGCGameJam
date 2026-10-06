@@ -1,6 +1,8 @@
 # Cast art request for ChatGPT (every character that needs new art)
 
-**Status — 2026-10-06:** the whole cast was drawn as the old family / animal archetypes
+**Update — 2026-10-06:** the ChatGPT art for all seven characters arrived and is in the game (`assets/production/slice_cast_art.py` cuts each master and faces sheet into the cutout rig). Everything below is kept as the record of the brief.
+
+**Status — 2026-10-06 (earlier):** the whole cast was drawn as the old family / animal archetypes
 (a dad, an office intern, a boy, a granny, a mouse, a cat). The story says otherwise, so every
 character except **Chintu (stays a dog, no new art needed)** gets new art. Stand-ins are
 already in the game: re-skins of the existing cutout rigs built by

@@ -1,0 +1,170 @@
+[
+  {
+    "file": "assets/art/story/prof_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "DD49BB4C8AAD422481E405612232C624F9B0C6EC6D7BB818E396EADE4FEF3654"
+  },
+  {
+    "file": "assets/art/story/prof_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "CE7EDB0E7C5AF1009D69D856321D3B6EF42FC90EE02B51CC64FDCC137E67E047"
+  },
+  {
+    "file": "assets/art/story/kassi_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "713DE5DB20EB72438CBF097A229FE46E68DE5EEB285C928839C11B1816EAA728"
+  },
+  {
+    "file": "assets/art/story/kassi_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "09AAAF4C9D9FD8393F5E1E728E5F406B8FC59C7AAFC16930574CB8920440C9FD"
+  },
+  {
+    "file": "assets/art/story/saap_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "644A44E88EFF4D62BB2DE00726B5073DAE299572893D54F19497D2AFE9665A05"
+  },
+  {
+    "file": "assets/art/story/saap_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "8B6D878A0CB67912E5C1CC0734E0EF1FED473A470EE8FB77F17FAABAED7D5A9C"
+  },
+  {
+    "file": "assets/art/story/prompt_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "A5E543AE3099244016C30EF91030C0291AD7FAD8D3118A3B265803184CE74B5C"
+  },
+  {
+    "file": "assets/art/story/prompt_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "364FC40F0A5DC835ED0540FA82E8187225D2CAA5418EC9552C4FE304A240B88C"
+  },
+  {
+    "file": "assets/art/story/aunty_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "D5B6295ACD9EF82C369A6A30FC2CA0BF75B4672FB4AAFA8E7E9EBB3821AE9678"
+  },
+  {
+    "file": "assets/art/story/aunty_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "50E435B7137EAE197E3911F19484392361C7EC16E680EE21A55CDA1EEEAAF16B"
+  },
+  {
+    "file": "assets/art/story/faccha_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "29B6B6583CE9EB3200D7D8AFD5B1C51C9926B58081FA88BD26AEC5081C72CD88"
+  },
+  {
+    "file": "assets/art/story/faccha_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "C8ADE3CC5C928DFA281F031B1182849FDFCA247CB448A508F96DE531B02BA924"
+  },
+  {
+    "file": "assets/art/story/dassi_master.png",
+    "generated_size": [
+      1254,
+      1254
+    ],
+    "saved_size": [
+      2048,
+      2048
+    ],
+    "sha256": "CFD0E98CC81382641711A76B0BDFC3DC0DCDC41292ACED33FC2D99BC94EBC609"
+  },
+  {
+    "file": "assets/art/story/dassi_faces.png",
+    "generated_size": [
+      1672,
+      941
+    ],
+    "saved_size": [
+      2048,
+      1152
+    ],
+    "sha256": "B05D8F3AB11C76B645CEA4DA13733EBF4DC5AC26406F030033E2B4B1ABE0BB9C"
+  }
+]

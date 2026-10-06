@@ -11,67 +11,67 @@
   "parts": [
     {
       "name": "leg_left",
-      "texture": "res://assets/characters/saap/leg_left.svg",
+      "texture": "res://assets/characters/saap/leg_left.png",
       "pivot": [
-        133,
-        298
+        135,
+        259
       ],
       "z": -3
     },
     {
       "name": "leg_right",
-      "texture": "res://assets/characters/saap/leg_right.svg",
+      "texture": "res://assets/characters/saap/leg_right.png",
       "pivot": [
         185,
-        298
+        259
       ],
       "z": -2
     },
     {
       "name": "arm_left",
-      "texture": "res://assets/characters/saap/arm_left.svg",
+      "texture": "res://assets/characters/saap/arm_left.png",
       "pivot": [
-        104,
-        187
+        108,
+        178
       ],
       "z": -1
     },
     {
       "name": "body",
-      "texture": "res://assets/characters/saap/body.svg",
+      "texture": "res://assets/characters/saap/body.png",
       "pivot": [
         160,
-        218
+        203
       ],
       "z": 0
     },
     {
       "name": "arm_right",
-      "texture": "res://assets/characters/saap/arm_right.svg",
+      "texture": "res://assets/characters/saap/arm_right.png",
       "pivot": [
-        213,
-        190
+        208,
+        178
       ],
       "z": 1
     },
     {
       "name": "head",
-      "texture": "res://assets/characters/saap/head.svg",
+      "texture": "res://assets/characters/saap/head.png",
       "pivot": [
         160,
-        114
+        143
       ],
       "z": 2
     }
   ],
   "expressions": {
-    "neutral": "res://assets/characters/saap/face_neutral.svg",
-    "hungry": "res://assets/characters/saap/face_hungry.svg",
-    "sleepy": "res://assets/characters/saap/face_sleepy.svg",
-    "angry": "res://assets/characters/saap/face_angry.svg",
-    "frightened": "res://assets/characters/saap/face_frightened.svg",
-    "surprised": "res://assets/characters/saap/face_surprised.svg",
-    "pleased": "res://assets/characters/saap/face_pleased.svg"
+    "neutral": "res://assets/characters/saap/face_neutral.png",
+    "pleased": "res://assets/characters/saap/face_pleased.png",
+    "hungry": "res://assets/characters/saap/face_hungry.png",
+    "sleepy": "res://assets/characters/saap/face_sleepy.png",
+    "angry": "res://assets/characters/saap/face_angry.png",
+    "frightened": "res://assets/characters/saap/face_frightened.png",
+    "surprised": "res://assets/characters/saap/face_surprised.png"
   },
   "animations": [
     "idle",
@@ -86,5 +86,5 @@
     "exit",
     "celebrate"
   ],
-  "author": "saap: re-skin of the kid cutout rig (stand-in until the ChatGPT art arrives)"
+  "author": "saap: cut from the ChatGPT cast art (assets/art/story/saap_master.png and _faces.png)"
 }
