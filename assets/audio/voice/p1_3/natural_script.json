@@ -1,0 +1,326 @@
+[
+  {
+    "file": "v_title.mp3",
+    "voice": "NARRATOR",
+    "direction": "proud, like announcing a fest event",
+    "text": "The Official Campus Comic presents… Lightbulb Moment!"
+  },
+  {
+    "file": "v_twist_stamp.mp3",
+    "voice": "NARRATOR",
+    "direction": "shocked, offended",
+    "text": "TWIST!"
+  },
+  {
+    "file": "v_act1.mp3",
+    "voice": "NARRATOR",
+    "direction": "reading an institute mail aloud; voice cracks a little on \"I'm fine\"",
+    "text": "Dear all, Greetings from the Office of the Official Narrator. This is to inform you that the Official Campus Comic has run for four thousand pages without a single twist, with the continuous support of the institute. Freshers are reminded of the 11 PM induction curfew. Nobody will follow it. P.S. The TAs of this comic (me) requested a salary hike. Management has replied: no. That's fine. I'm fine. What could possibly go wrong? Regards. Bonda!"
+  },
+  {
+    "file": "v_tut_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "Welcome to the Official Campus Comic (Approved). Every page has already been printed. That's the ORIGINAL story."
+  },
+  {
+    "file": "v_tut_2.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "You're Bulby, the only working bulb in OBH. Characters only act when they're in your light, and each one does what its thought bubble says."
+  },
+  {
+    "file": "v_tut_3.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "Your goal: change who's lit and what they think, so the page ends with the TWIST written in red pen. The grey pencil lines are fine-tunes for extra stars."
+  },
+  {
+    "file": "v_tut_4.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "One star for the twist, more for the fine-tunes, and collect every ending. Let's start with Biryani Sunday…"
+  },
+  {
+    "file": "page_01_intro.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "Sunday. Biryani Day at Kadamba, the one day there's no Pappu in it. Every Sunday for eleven years, Chintu the campus dog has eaten the biryani. Chintu does not refuse literally anything. Dassi does not eat biryani. Dassi has seen what is IN the biryani."
+  },
+  {
+    "file": "page_01_original.mp3",
+    "voice": "NARRATOR",
+    "direction": "deadpan, satisfied",
+    "text": "Chintu ate the biryani. Frog and all. A classic."
+  },
+  {
+    "file": "page_01_twist.mp3",
+    "voice": "NARRATOR",
+    "direction": "grudging, reading the red pen",
+    "text": "DASSI ate the biryani."
+  },
+  {
+    "file": "page_01_win.mp3",
+    "voice": "NARRATOR",
+    "direction": "losing his composure",
+    "text": "Dassi ate the biryani. Ten CGPA, never touches mess food. Who moved my lamp? Somebody MOVED my LAMP."
+  },
+  {
+    "file": "page_01_stars_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "bonus sting, one notch more exasperated",
+    "text": "And Chintu ran out of the comic. The dog who eats everything has refused something. Write it down. History."
+  },
+  {
+    "file": "page_01_fails_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "Chintu ate the biryani. As per policy."
+  },
+  {
+    "file": "page_01_fails_2.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "Ah, the classics. Like the mess menu."
+  },
+  {
+    "file": "page_01_fails_3.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "Wrong Answer on test 1. Lovely."
+  },
+  {
+    "file": "page_02_intro.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "Monday. Today's Kadamba menu: Tomato Pappu. Also Dal Pappu, Palak Pappu, Pappu Rice, and for dessert, a sweet Pappu. One bowl of Tomato Pappu has sat on that counter since 2009. Everyone is scared of the Pappu. The Pappu is scared of nobody. Also new this week: Prompt Bhai, registered for all fourteen Infinium events. ChatGPT filled in the form. The quiz and the hackathon start at the same time. He's in both."
+  },
+  {
+    "file": "page_02_original.mp3",
+    "voice": "NARRATOR",
+    "direction": "deadpan, satisfied",
+    "text": "Nobody ate anything. Everyone stared at the Pappu. The Pappu stared back. I call this suspense."
+  },
+  {
+    "file": "page_02_twist.mp3",
+    "voice": "NARRATOR",
+    "direction": "grudging, reading the red pen",
+    "text": "The Saap ate the PAPPU."
+  },
+  {
+    "file": "page_02_win.mp3",
+    "voice": "NARRATOR",
+    "direction": "losing his composure",
+    "text": "The Saap ate the Pappu. Voluntarily. And now he says he 'didn't even eat that much'. Somebody check him for a fever. Somebody check the PAPPU for a fever."
+  },
+  {
+    "file": "page_02_stars_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "bonus sting, one notch more exasperated",
+    "text": "And Chintu fled the mess. The one dog who eats everything has drawn a line. The line is Pappu."
+  },
+  {
+    "file": "page_02_stars_2.mp3",
+    "voice": "NARRATOR",
+    "direction": "bonus sting, one notch more exasperated",
+    "text": "And Mess Aunty fled her own mess. She made it. She knows."
+  },
+  {
+    "file": "page_02_fails_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "The Pappu survives another semester."
+  },
+  {
+    "file": "page_02_fails_2.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "The Pappu remains uneaten. As it has since 2009."
+  },
+  {
+    "file": "page_02_fails_3.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "Wrong Answer on test 2. The Pappu thanks you."
+  },
+  {
+    "file": "page_02_hidden_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "aside, amused",
+    "text": "Prompt Bhai fled too. He asked Claude what was in the Pappu. Claude asked for more context. There is no more context. It's Pappu."
+  },
+  {
+    "file": "page_03_intro.mp3",
+    "voice": "NARRATOR",
+    "direction": "",
+    "text": "Office hours. Nobody ever comes, so the Prof has bought himself a cake. Prof Cake Count: zero. For now. The Kassi is here with two coffees. One is for a facchi who said she'd 'maybe come to office hours'. Nobody comes to office hours."
+  },
+  {
+    "file": "page_03_original.mp3",
+    "voice": "NARRATOR",
+    "direction": "deadpan, satisfied",
+    "text": "The Prof ate the cake. Hard work pays off. So do grants. (Cakes in my version don't count. As per rubric.)"
+  },
+  {
+    "file": "page_03_twist.mp3",
+    "voice": "NARRATOR",
+    "direction": "grudging, reading the red pen",
+    "text": "CHINTU ate the Prof's cake."
+  },
+  {
+    "file": "page_03_win.mp3",
+    "voice": "NARRATOR",
+    "direction": "losing his composure",
+    "text": "Chintu ate the Prof's cake. During office hours. Making Chintu the first person ever to attend them. Prof Cake Count: still zero. Chintu has been promoted."
+  },
+  {
+    "file": "page_03_stars_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "bonus sting, one notch more exasperated",
+    "text": "And the Kassi bonked Chintu. He says Chintu skipped the queue. There is no queue. There is no facchi. There are two coffees."
+  },
+  {
+    "file": "page_03_stars_2.mp3",
+    "voice": "NARRATOR",
+    "direction": "bonus sting, one notch more exasperated",
+    "text": "And the Prof walked out of the comic. Office hours are now closed. Check Moodle for the new location."
+  },
+  {
+    "file": "page_03_fails_1.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "The Prof ate his cake. Check Moodle for office hours."
+  },
+  {
+    "file": "page_03_fails_2.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "Order is restored. I love order. I love rubrics."
+  },
+  {
+    "file": "page_03_fails_3.mp3",
+    "voice": "NARRATOR",
+    "direction": "smug, relieved",
+    "text": "A tidy ending. Typeset in LaTeX."
+  },
+  {
+    "file": "page_01_dialogue_cat_lit.mp3",
+    "voice": "DASSI",
+    "direction": "",
+    "text": "I have a ten CGPA. I KNOW what's in that biryani."
+  },
+  {
+    "file": "page_01_dialogue_cat_gets_HUNGRY.mp3",
+    "voice": "DASSI",
+    "direction": "",
+    "text": "Actually… a ten CGPA needs protein."
+  },
+  {
+    "file": "page_01_dialogue_cat_win.mp3",
+    "voice": "DASSI",
+    "direction": "",
+    "text": "Write it down, Narrator. Dassi. Ate. The. Biryani."
+  },
+  {
+    "file": "page_01_dialogue_dog_lit.mp3",
+    "voice": "CHINTU",
+    "direction": "Three distinct real puppy barks: curious, eager, delighted; pitch and intensity rise. The words appear in captions only.",
+    "text": "Biryani? Biryani! BIRYANI!!"
+  },
+  {
+    "file": "page_01_dialogue_dog_gets_SCARED.mp3",
+    "voice": "CHINTU",
+    "direction": "Quick, alarmed puppy barks; words appear in captions only.",
+    "text": "Something in there just did a 👌 at me."
+  },
+  {
+    "file": "page_01_dialogue_dog_fail.mp3",
+    "voice": "CHINTU",
+    "direction": "One eager puppy bark; word appears in caption only.",
+    "text": "Biryani."
+  },
+  {
+    "file": "page_02_dialogue_kid_lit.mp3",
+    "voice": "SAAP",
+    "direction": "",
+    "text": "Bro, I'm not scared of Pappu. I just didn't study the Pappu."
+  },
+  {
+    "file": "page_02_dialogue_kid_gets_HUNGRY.mp3",
+    "voice": "SAAP",
+    "direction": "",
+    "text": "Fine. I'll eat it. I won't even like it. I'll top it."
+  },
+  {
+    "file": "page_02_dialogue_kid_win.mp3",
+    "voice": "SAAP",
+    "direction": "",
+    "text": "Bro, it was mid. Ten on ten. Mid."
+  },
+  {
+    "file": "page_02_dialogue_prompt_lit.mp3",
+    "voice": "PROMPT BHAI",
+    "direction": "",
+    "text": "Let me ask ChatGPT what's in this. …It says 'Pappu'. Thanks, ChatGPT."
+  },
+  {
+    "file": "page_02_dialogue_dog_lit.mp3",
+    "voice": "CHINTU",
+    "direction": "Three distinct puppy barks rising in pitch and intensity; words appear in caption only.",
+    "text": "Bonda? Bonda! BONDA!"
+  },
+  {
+    "file": "page_02_dialogue_dog_gets_SCARED.mp3",
+    "voice": "CHINTU",
+    "direction": "Alarmed puppy barks; words appear in caption only.",
+    "text": "The Pappu just gave me a 👌. I'm out."
+  },
+  {
+    "file": "page_02_dialogue_grandma_lit.mp3",
+    "voice": "MESS AUNTY",
+    "direction": "",
+    "text": "Beta, even I don't eat my Pappu. And I put it in everything."
+  },
+  {
+    "file": "page_03_dialogue_boss_lit.mp3",
+    "voice": "PROF",
+    "direction": "",
+    "text": "Office hours. Nobody comes. More cake for me."
+  },
+  {
+    "file": "page_03_dialogue_boss_gets_SCARED.mp3",
+    "voice": "PROF",
+    "direction": "",
+    "text": "Wait. Someone is ATTENDING my office hours?"
+  },
+  {
+    "file": "page_03_dialogue_intern_lit.mp3",
+    "voice": "KASSI",
+    "direction": "",
+    "text": "She said 'maybe'. Maybe is basically yes. It's been two hours."
+  },
+  {
+    "file": "page_03_dialogue_intern_fail.mp3",
+    "voice": "KASSI",
+    "direction": "",
+    "text": "Sir, small doubt, sir. Is 'maybe' a no?"
+  },
+  {
+    "file": "page_03_dialogue_dog_lit.mp3",
+    "voice": "CHINTU",
+    "direction": "Uneasy puppy barks; words appear in caption only.",
+    "text": "I don't have a doubt. Please don't ask me a doubt."
+  },
+  {
+    "file": "page_03_dialogue_dog_gets_HUNGRY.mp3",
+    "voice": "CHINTU",
+    "direction": "Hungry, excited puppy barks; words appear in caption only.",
+    "text": "Doubt: can I eat that? Doubt cleared."
+  },
+  {
+    "file": "page_03_dialogue_dog_win.mp3",
+    "voice": "CHINTU",
+    "direction": "Celebratory puppy barks; words appear in caption only.",
+    "text": "First office hours I ever attended. Ten on ten."
+  }
+]

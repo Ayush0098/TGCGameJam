@@ -1,5 +1,24 @@
 # LIGHTBULB MOMENT voice pack
 
+## Pages 1–3 Indian English replacement (2026-10-05)
+
+`p1_3/` contains 54 exact-name MP3s (34 narrator, 20 character balloons)
+and their script/manifest. They are copied to the matching production and
+runtime paths. The two Professor cues now use locally generated Chatterbox
+takes with an Indian English reference; Ayush approved their delivery. Chintu's
+page 1 lit cue uses three edited real puppy barks rising in pitch and intensity,
+with “Biryani” conveyed by the game caption; listening feedback is pending.
+The other 51 cues still use the earlier Windows Indian English Ravi/Heera takes
+and remain under acting and pronunciation review. `p1_3/manifest.json` records decoded checks and hashes. The older
+pack counts and voice profiles below describe the other cues.
+
+To reproduce the earlier Windows voice batch on a machine with those voices: run
+`assets/audio/synthesize_p1_3_windows.ps1` with `-Manifest` set to
+`p1_3/script.json` and `-OutputDirectory` set to `.codex/tools/voice/p1_3_wav`;
+then run `assets/audio/generate_p1_3_indian.py` using the existing offline voice
+environment and `assets/audio/import_p1_3_voice.py`. That batch predates the
+approved Professor takes and would overwrite them if copied into the game.
+
 Updated 2026-10-04 through Parts F/G:222 named MP3 files, mono44.1kHz.
 110 narrator lines in narrator/,84 reactions and28 blips in characters/.
 Includes73 new narr15_* lines and28 hug/hugged/hide/jealous reactions.

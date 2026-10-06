@@ -143,7 +143,7 @@ static func definition() -> Dictionary:
 			{
 				"character": "dog",
 				"when": "lit",
-				"line": "Biryani biryani biryani."
+				"line": "Biryani? Biryani! BIRYANI!!"
 			},
 			{
 				"character": "dog",

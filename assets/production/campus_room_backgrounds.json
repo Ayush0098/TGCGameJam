@@ -1,0 +1,29 @@
+{
+  "generated_date": "2026-10-05",
+  "generator": "OpenAI built-in image generation",
+  "output_directory": "src/assets/art/rooms",
+  "output_dimensions": [1672, 941],
+  "style_references": [
+    "src/assets/art/cameos/ishaan_idle.png",
+    "src/assets/art/cameos/postcard_goa.png"
+  ],
+  "shared_prompt": "Use case illustration-story. Create a NEW 16:9 landscape game room BACKGROUND. Supplied images are STYLE REFERENCES ONLY. Match their polished Indian comic storybook painting, soft brush texture, warm palette, and gentle #1E1B2E ink outline. Straight-on stage-set side view, minimal perspective. Fully lit and visually clear even at night; the game applies darkness itself. Bottom third mostly empty flat walkable floor for player characters. No people, animals, foreground interactive furniture, chairs, bean bags, cakes, switches, coffin, dark overlay, watermark, comic panels or captions.",
+  "rooms": [
+    {"file": "room_kadamba.png", "pages": [1, 2, 7], "scene_prompt": "Kadamba mess. Indian college dining hall, long steel serving counter with vessels and ladles on back wall, tiled walls, ceiling fans, tube lights, notice board, window with trees. Menu board reads PAPPU only."},
+    {"file": "room_prof_lab.png", "pages": [3, 6], "scene_prompt": "The Prof's lab. Cluttered professor office-lab, back-wall whiteboard with equations, textbooks, framed certificate, potted plant, window blinds, door sign reading OFFICE HOURS."},
+    {"file": "room_jc_night.png", "pages": [4], "scene_prompt": "JC at 1 AM. Open-air college canteen at night, serving window and hanging bulb, menu board reading MAGGI and OREO SHAKE, round wall clock requested at 1:03, string lights, stools stacked by wall, dark sky and trees. No long table."},
+    {"file": "room_amphi.png", "pages": [5, 8], "scene_prompt": "The Amphi. Open-air college amphitheatre viewed from the stage, stone steps rising at back, open stage floor, blank banner frame, festival lights and evening sky."},
+    {"file": "room_vindhya.png", "pages": [9], "scene_prompt": "Vindhya floor 2.5. Funny surreal corridor maze with odd-angle stairs, identical doors, EXIT arrows in all directions, FLOOR 2.5 sign, You were here map. Not scary."},
+    {"file": "room_dasa_workspace.png", "pages": [10], "scene_prompt": "DASA workspace at 2 AM. Modern study space with back-wall desks, laptops and desk lamps, whiteboard recursion tree, posters and night windows, cosy lamp light."},
+    {"file": "room_obh_dark.png", "pages": [11], "scene_prompt": "OBH hostel corridor. Old college corridor, rows of doors, notice board, broken water cooler, one tube light, overhead clothesline and wall fuse box. Render room clearly so game can darken it."},
+    {"file": "room_kalakshetra.png", "pages": [12], "scene_prompt": "Kalakshetra decoration room. Festival workshop with paint buckets, cardboard cut-outs, unfinished banners, many unpainted grey disco balls hanging and piled at back, textless retro disco posters."},
+    {"file": "room_obh_washroom.png", "pages": [13], "scene_prompt": "Old OBH washrooms at 3 AM. Cracked-tile washroom with back-wall row of sinks and mirrors, flickering bulb, huge banyan roots entering through a broken window. Spooky, cartoonish and funny."},
+    {"file": "room_amphi_wedding.png", "pages": [14], "additional_reference": "src/assets/art/rooms/room_amphi.png", "scene_prompt": "Preserve the ordinary Amphi background's architecture, camera, steps, floor, sky and lights. Add marigold garlands, flower arch at back, fairy lights and side buffet counter with steel vessels. Keep stage foreground open."},
+    {"file": "room_workspaces.png", "pages": [15], "scene_prompt": "Workspaces on endsem eve. Shared study hall with book stacks, sticky notes, formula whiteboards, coffee cups on back shelves, wall clock showing 3 AM and windows hinting at dawn."}
+  ],
+  "verification": "11 PNG files saved; header dimensions checked as 1672x941. Images inspected in generation output. Godot integration, crop, lighting and gameplay checks pending.",
+  "known_limitations": [
+    "The JC wall clock is painted and its hands need a visual check for the requested 1:03 during integration.",
+    "The optional transparent laptop and handless wall-clock props were not delivered because image generation failed."
+  ]
+}

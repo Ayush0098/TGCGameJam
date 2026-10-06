@@ -14,6 +14,24 @@ Do not list planned resources as used. Recheck this inventory before release.
 
 ## Used resources
 
+Pages 1–3 voice replacement (2026-10-05): 51 current game MP3s were synthesized
+offline with the installed Microsoft Windows Indian English Ravi and Heera
+speech voices through Windows System.Speech. The two Professor cues use
+[Resemble AI Chatterbox TTS](https://github.com/resemble-ai/chatterbox) and its
+[model weights](https://huggingface.co/ResembleAI/chatterbox) (MIT license), with
+a locally generated Indian English voice reference from
+[Kenpath Svara TTS](https://huggingface.co/kenpath/svara-tts-v1-openvino-int4)
+(Apache-2.0 license). The models and reference are local production tools, not
+bundled with the game. NumPy/SoundFile processed and encoded the MP3s. Microsoft
+is the publisher of the OS voices; redistribution/use terms for those 51
+generated recordings have not yet been established, so confirm them before a
+public release. Per-file provenance and hashes are in
+`assets/audio/voice/p1_3/manifest.json`.
+
+Chintu's page 1 lit cue uses three edited barks from [“Chihuahua Barks” by Mewsel](https://freesound.org/people/Mewsel/sounds/208030/), recorded from the creator's puppy and published under Creative Commons Zero (CC0 1.0). No attribution is required by the license; this record credits the creator. The high-quality Freesound preview was the source. The edited 1.47-second MP3 is shipped at `assets/audio/voice/characters/page_01_dialogue_dog_lit.mp3` and its matching runtime copy. The dialogue text appears as a caption only.
+
+Campus room background batch (2026-10-05): eleven original PNG paintings in `src/assets/art/rooms/` were generated using OpenAI built-in image generation. The project's `ishaan_idle.png` and `postcard_goa.png` were style references; `room_amphi.png` was also the architectural reference for `room_amphi_wedding.png`. No new stock art or external reference was introduced. Prompts, page mapping and generated dimensions are recorded in `assets/production/campus_room_backgrounds.json`. These are delivered art files, not yet verified as loaded by the game.
+
 Voice-file batch (2026-10-04, through Parts F/G):222 MP3s in assets/audio/voice/ generated
 with the existing Kokoro/ONNX/SoundFile stack listed below, no new downloads or
 dependencies. Additional profiles:bf_lily,af_sky,am_puck,am_santa,af_nicole;
