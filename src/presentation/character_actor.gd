@@ -169,6 +169,11 @@ func stop() -> void:
 
 
 func _track(animation: Animation, target: String, keys: Array) -> void:
+	# A later definition replaces an earlier one for the same property. (Two tracks on
+	# one property add up, which doubled the Prof's idle breathing to 2x size.)
+	var existing := animation.find_track(NodePath(target), Animation.TYPE_VALUE)
+	if existing >= 0:
+		animation.remove_track(existing)
 	var index := animation.add_track(Animation.TYPE_VALUE)
 	animation.track_set_path(index, NodePath(target))
 	animation.value_track_set_update_mode(index, Animation.UPDATE_CONTINUOUS)

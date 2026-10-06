@@ -468,8 +468,8 @@ func _build_credits() -> void:
 		[300, "Made in 100 hours for the TGC Game Jam, Infinium 2026", 14, MUTED],
 		[324, "Themes: COMIC  ·  TWIST  ·  LIGHT", 14, MUTED],
 		[348, "Printed with Godot Engine 4 (MIT licence)  ·  Type: Bangers and Comic Neue (SIL OFL)", 14, MUTED],
-		[372, "Characters, props, icons, sound effects and music: original work", 14, MUTED],
-		[396, "Room paintings: AI image generation  ·  Voices: synthetic (see THIRD_PARTY.md)", 14, MUTED],
+		[372, "Props, icons, sound effects and music: original work", 14, MUTED],
+		[396, "Character and room art: AI image generation  ·  Voices: synthetic (see THIRD_PARTY.md)", 14, MUTED],
 		[440, "Thanks for reading the Official Campus Comic. In memory of Oreo, Queen of IIITH.", 16, RED],
 	]
 	for entry in lines:
