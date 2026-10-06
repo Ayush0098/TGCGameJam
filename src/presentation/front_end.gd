@@ -15,6 +15,8 @@ const TIER_NAMES := ["EASY", "MEDIUM", "HARD"]
 var _star_total: Label
 var _credits_panel: Control
 var _credits_back: Button
+var _credits_button: Button
+var _pages_button: Button
 
 const INK := Color("1e1b2e")
 const PAPER := Color("f4e9d2")
@@ -142,6 +144,7 @@ func _build_title() -> void:
 		_edition_from_title = true
 		levels_requested.emit())
 	buttons.add_child(pages)
+	_pages_button = pages
 	var settings := _button("SETTINGS", 22, false)
 	settings.name = "Settings"
 	settings.pressed.connect(func(): settings_requested.emit())
@@ -149,6 +152,7 @@ func _build_title() -> void:
 	var credits := _button("CREDITS", 22, false)
 	credits.name = "Credits"
 	credits.pressed.connect(func(): _credits_panel.show())
+	_credits_button = credits
 	buttons.add_child(credits)
 	if not OS.has_feature("web"):
 		# A browser tab cannot quit itself, so EXIT only exists on desktop.
@@ -224,6 +228,7 @@ func _build_edition() -> void:
 			_edition_from_title = false
 			_title_panel.show()
 			_edition_panel.hide()
+			_pages_button.grab_focus()
 		else:
 			hide()
 			closed.emit()
@@ -484,7 +489,7 @@ func _build_credits() -> void:
 	back.custom_minimum_size = Vector2(160, 48)
 	back.size = Vector2(160, 48)
 	back.position = Vector2(260, 500)
-	back.pressed.connect(func(): _credits_panel.hide())
+	back.pressed.connect(go_back)
 	box.add_child(back)
 	_credits_back = back
 	_credits_panel.visibility_changed.connect(func():
@@ -518,6 +523,13 @@ func set_credits_extra(lines: Array) -> void:
 
 func show_credits() -> void:
 	_credits_panel.show()
+
+
+## Whichever part of the front end the keyboard is working in right now.
+func menu_scope() -> Control:
+	if _credits_panel.visible:
+		return _credits_panel
+	return _edition_panel if _edition_panel.visible else _title_panel
 
 
 func _process(delta: float) -> void:
@@ -560,7 +572,7 @@ func _input(event: InputEvent) -> void:
 func go_back() -> void:
 	if _credits_panel.visible:
 		_credits_panel.hide()
-		_start.grab_focus()
+		_credits_button.grab_focus()
 	elif _edition_panel.visible:
 		_close.pressed.emit()
 

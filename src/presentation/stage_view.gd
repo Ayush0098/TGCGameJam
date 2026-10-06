@@ -169,6 +169,9 @@ const LAND_POP := 0.3
 var _flights: Array[Dictionary] = []
 var _sparks: Array[Dictionary] = []
 var _lift: Dictionary = {}
+## Per bubble 0..1: how strongly its colour halo shows (hover, keyboard cursor, picked, swap target).
+var _halo: Dictionary = {}
+var _hover_id := ""
 var _landed: Dictionary = {}
 var _last_bubbles: Dictionary = {}
 var _drag_trail: Array[Vector2] = []
@@ -197,6 +200,12 @@ func _layout() -> void:
 		_root.position = _offset()
 		_root.scale = Vector2.ONE * _fit()
 	queue_redraw()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_MOUSE_EXIT and not _hover_id.is_empty():
+		_hover_id = ""
+		queue_redraw()
+
 
 func _cancel_drag() -> void:
 	_drag_bubble = ""
@@ -756,7 +765,7 @@ func _draw() -> void:
 			var centre := rect.get_center()
 			var local := Rect2(rect.position - centre, rect.size)
 			draw_set_transform(_offset() + (centre - Vector2(0, pose.lift)) * _fit(), pose.rot, pose.scale * _fit())
-			_draw_thought_cloud(local, at - Vector2(0, _figure_height(actor.art) - 5.0) - centre + Vector2(0, pose.lift), colour)
+			_draw_thought_cloud(local, at - Vector2(0, _figure_height(actor.art) - 5.0) - centre + Vector2(0, pose.lift), colour, float(_halo.get(actor.id, 0.0)))
 			if _textures.has(actor.thought):
 				draw_texture_rect(_textures[actor.thought], Rect2(local.position + Vector2(32, 4), Vector2(32, 32)), false)
 			var thought_text := str(actor.thought).replace("_", " ")
@@ -766,15 +775,9 @@ func _draw() -> void:
 		if _planning:
 			_bubble_rects[actor.id] = rect
 			_actor_rects[actor.id] = Rect2(at - Vector2(42, _figure_height(actor.art)), Vector2(84, _figure_height(actor.art)))
-		if actor.id == _target:
-			draw_rect(rect.grow(5), Color("42a88c"), false, 3)
-		if _planning and actor.id == key_picked:
-			draw_rect(rect.grow(8), Color("ffd27a"), false, 5)
-			_label(self, rect.position + Vector2(10, -16), "PICKED", Color("ffd27a"), 14)
-		if _planning and actor.id == key_cursor:
-			var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() * 0.008)
-			draw_rect(rect.grow(4), Color(Color("42a88c"), pulse), false, 3)
-			draw_colored_polygon(PackedVector2Array([rect.position + Vector2(40, -22), rect.position + Vector2(56, -22), rect.position + Vector2(48, -10)]), Color("42a88c"))
+		if _planning and not pose.hidden:
+			_draw_bubble_tags(str(actor.id), rect, colour)
+	_draw_swap_link()
 	for effect in _effects:
 		_draw_word(effect)
 	for saying in _sayings:
@@ -970,6 +973,14 @@ func _gui_input(event: InputEvent) -> void:
 			queue_redraw()
 	elif event is InputEventMouseMotion:
 		_look = _mouse
+		var hovered := ""
+		if _planning and _drag_bubble.is_empty() and _drag_bulb < 0 and not lock_bubbles:
+			for id in _bubble_rects:
+				if _bubble_rects[id].grow(6).has_point(_mouse) or _actor_rects[id].has_point(_mouse):
+					hovered = id
+		if hovered != _hover_id:
+			_hover_id = hovered
+			queue_redraw()
 		if _drag_bulb >= 0:
 			_move_selected(_world_position(_mouse))
 		elif _drag_bubble != "":
@@ -1088,6 +1099,71 @@ func _bubble_pose(id: String) -> Dictionary:
 	return pose
 
 
+## How strongly a bubble's colour halo shows: picked 1.0, swap target 0.85,
+## mouse hover or the keyboard cursor 0.5 (they look the same on purpose).
+func _halo_target(id: String) -> float:
+	if not _planning:
+		return 0.0
+	if id == key_picked or id == _drag_bubble:
+		return 1.0
+	if id == _target or (not key_picked.is_empty() and id == key_cursor):
+		return 0.85
+	if id == key_cursor or id == _hover_id:
+		return 0.5
+	return 0.0
+
+
+func _thought_colour(id: String) -> Color:
+	for actor in _shown().get("characters", []):
+		if actor.id == id:
+			return COLOURS.get(actor.thought, MEMORY)
+	return MEMORY
+
+
+## Small tags in the thought's own colour: PICKED on the held bubble, SWAP? on its
+## target, and a bobbing pointer over the bubble the keyboard cursor is on.
+func _draw_bubble_tags(id: String, rect: Rect2, colour: Color) -> void:
+	var picked := id == key_picked or id == _drag_bubble
+	var swap_target := id == _target or (not key_picked.is_empty() and id == key_cursor and id != key_picked)
+	if picked or swap_target:
+		var text := "PICKED" if picked else "SWAP?"
+		var width := TEXT_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 14.0
+		var tag := Rect2(Vector2(rect.get_center().x - width * 0.5, rect.position.y - 34.0), Vector2(width, 20))
+		draw_rect(tag.grow(2), INK)
+		draw_rect(tag, colour)
+		_label(self, tag.position + Vector2(7, 15), text, INK, 14)
+	if id == key_cursor and not picked:
+		var tip := Vector2(rect.get_center().x, rect.position.y - 8.0 - (0.0 if _reduced_motion else 3.0 * sin(Time.get_ticks_msec() * 0.01)))
+		var arrow := PackedVector2Array([tip + Vector2(-9, -13), tip + Vector2(9, -13), tip])
+		draw_colored_polygon(arrow, colour)
+		draw_polyline(PackedVector2Array([arrow[0], arrow[1], arrow[2], arrow[0]]), INK, 2.0)
+
+
+## While a thought is picked, a two-coloured arc joins it to the bubble it would swap with.
+func _draw_swap_link() -> void:
+	if not _planning:
+		return
+	var source := key_picked if not key_picked.is_empty() else _drag_bubble
+	var target := _target
+	if not key_picked.is_empty() and key_cursor != key_picked:
+		target = key_cursor
+	if source.is_empty() or target.is_empty() or not _last_bubbles.has(source) or not _last_bubbles.has(target):
+		return
+	var from: Vector2 = _last_bubbles[source].get_center()
+	var to: Vector2 = _last_bubbles[target].get_center()
+	var mid := from.lerp(to, 0.5) + Vector2(0, -34.0 - 0.05 * absf(to.x - from.x))
+	var from_colour := _thought_colour(source)
+	var to_colour := _thought_colour(target)
+	var previous := from
+	for k in range(1, 15):
+		var t := k / 14.0
+		var point := from.lerp(mid, t).lerp(mid.lerp(to, t), t)
+		if k % 2 == 1:
+			draw_line(previous, point, INK, 7.0, true)
+			draw_line(previous, point, from_colour.lerp(to_colour, t), 4.0, true)
+		previous = point
+
+
 func _update_swap_juice(delta: float) -> void:
 	var busy := false
 	for id in _last_bubbles.keys():
@@ -1095,6 +1171,13 @@ func _update_swap_juice(delta: float) -> void:
 		var current: float = _lift.get(id, 0.0)
 		if not is_equal_approx(current, target):
 			_lift[id] = move_toward(current, target, delta * 9.0)
+			busy = true
+		var halo_target := _halo_target(str(id))
+		var halo: float = _halo.get(id, 0.0)
+		if not is_equal_approx(halo, halo_target):
+			_halo[id] = move_toward(halo, halo_target, delta * 7.0)
+			busy = true
+		elif halo > 0.0 and not _reduced_motion:
 			busy = true
 	for flight in _flights:
 		flight.age += delta
@@ -1374,8 +1457,10 @@ func _draw_glow(canvas: CanvasItem) -> void:
 		canvas.draw_polygon(PackedVector2Array([top + Vector2(-18, 0), top + Vector2(18, 0), Vector2(right, FLOOR_Y + 30), Vector2(left, FLOOR_Y + 30)]), PackedColorArray([Color(warm, 0.22), Color(warm, 0.22), Color(warm, 0.03), Color(warm, 0.03)]))
 
 
-func _draw_thought_cloud(rect: Rect2, head: Vector2, colour: Color) -> void:
+func _draw_thought_cloud(rect: Rect2, head: Vector2, colour: Color, glow := 0.0) -> void:
 	# Comic thought bubble: a puffy cloud plus shrinking puffs down to the head.
+	# The paper takes a little of the thought's colour; `glow` (0..1) adds a soft
+	# halo and a coloured rim that follow the cloud's outline.
 	var centre := rect.get_center()
 	var puffs: Array[Vector3] = []
 	var rx := rect.size.x * 0.5
@@ -1389,13 +1474,27 @@ func _draw_thought_cloud(rect: Rect2, head: Vector2, colour: Color) -> void:
 		var t := (k + 1) / 4.0
 		var point := bottom.lerp(head, t)
 		trail.append(Vector3(point.x, point.y, 6.0 - k * 1.6))
+	if glow > 0.0:
+		var pulse := 1.0 if _reduced_motion else 0.82 + 0.18 * sin(Time.get_ticks_msec() * 0.011)
+		var strength := glow * pulse
+		var body := Rect2(rect.position + Vector2(6, 6), rect.size - Vector2(12, 12))
+		for ring in [[12.0, 0.10], [7.0, 0.18]]:
+			var reach: float = float(ring[0]) * glow
+			for puff in puffs + trail:
+				draw_circle(Vector2(puff.x, puff.y), puff.z + 2.5 + reach, Color(colour, float(ring[1]) * strength))
+			draw_rect(body.grow(2.5 + reach), Color(colour, float(ring[1]) * strength))
+		var rim := 3.0 + 2.5 * glow
+		var rim_colour := Color(colour.lightened(0.12), clampf(0.35 + 0.65 * glow, 0.0, 1.0))
+		for puff in puffs + trail:
+			draw_circle(Vector2(puff.x, puff.y), puff.z + 2.5 + rim, rim_colour)
+		draw_rect(body.grow(2.5 + rim), rim_colour)
+	var paper := PAPER.lerp(colour, 0.12 + 0.2 * glow)
 	for puff in puffs + trail:
 		draw_circle(Vector2(puff.x, puff.y), puff.z + 2.5, INK)
 	draw_rect(Rect2(rect.position + Vector2(6, 6), rect.size - Vector2(12, 12)), INK)
 	for puff in puffs + trail:
-		draw_circle(Vector2(puff.x, puff.y), puff.z, PAPER)
-	draw_rect(Rect2(rect.position + Vector2(8, 8), rect.size - Vector2(16, 16)), PAPER)
-	draw_arc(centre, minf(rx, ry) * 1.2, 0, TAU, 32, Color(colour, 0.0), 1.0)
+		draw_circle(Vector2(puff.x, puff.y), puff.z, paper)
+	draw_rect(Rect2(rect.position + Vector2(8, 8), rect.size - Vector2(16, 16)), paper)
 
 var _spark_start: Dictionary = {}
 

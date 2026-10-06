@@ -85,4 +85,39 @@ func run(check: Callable) -> bool:
 	var judged: bool = game.GOALS.evaluate(page_copy, {"plan": lit_plan, "snapshots": [world], "events": []}).won
 	check.call(judged == (not lit_kid), "HIDING follows the player's lantern plan")
 	game.free()
+	_menus(check)
 	return true
+
+
+## Menus and cards keep the keyboard to themselves: focus never leaks into the HUD behind them.
+func _menus(check: Callable) -> void:
+	var game = MAIN.instantiate()
+	(Engine.get_main_loop() as SceneTree).root.add_child(game)
+	var focus := func() -> String:
+		var owner: Control = game.get_viewport().gui_get_focus_owner()
+		return str(owner.name) if owner != null else ""
+	check.call(game._front.visible and focus.call() == "Start", "Title opens with PLAY focused")
+	# No frame has run yet: lay the button column out by hand.
+	game._front._start.get_parent().notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var walk: Array[String] = []
+	for i in 5:
+		_key(game, KEY_DOWN)
+		walk.append(focus.call())
+	check.call(walk == ["Pages", "Settings", "Credits", "Exit", "Start"], "Down walks LEVELS, SETTINGS, CREDITS, EXIT and wraps without leaving the title: " + str(walk))
+	_key(game, KEY_UP)
+	check.call(focus.call() == "Exit", "Up wraps from PLAY to EXIT")
+	game._front.show_credits()
+	game.get_viewport().gui_release_focus()
+	_key(game, KEY_DOWN)
+	check.call(game._front._credits_panel.visible and game._front.menu_scope() == game._front._credits_panel and game.get_viewport().gui_get_focus_owner() != null, "Focus lost under the Credits is recovered by a direction key")
+	game._front._credits_panel.hide()
+	# A story card owns Enter: it must not skip the Original underneath.
+	game._front.hide()
+	game._show_story_card({"id": "test_card", "kicker": "K", "title": "T", "body": "B", "thought": ""})
+	game._story_card.get_child(1).get_children()
+	var mode_before: String = game.mode
+	_key(game, KEY_SPACE)
+	check.call(game.mode == mode_before and game._story_card.visible, "Space on a story card is left to its button, not used to skip the Original")
+	check.call(game.get_viewport().gui_get_focus_owner() == null or game._story_card.is_ancestor_of(game.get_viewport().gui_get_focus_owner()), "Story card focus stays on the card")
+	game._story_card.hide()
+	game.free()
