@@ -389,7 +389,8 @@ func _build_ui() -> void:
 	var lines: Variant = JSON.parse_string(FileAccess.get_file_as_string(VOICE_ROOT + "lines.json"))
 	if lines is Dictionary:
 		_lines = lines
-	var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/reference/cues.json"))
+	# The reference cue manifest is not shipped in the web build; skip it quietly.
+	var manifest: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://assets/audio/reference/cues.json")) if FileAccess.file_exists("res://assets/audio/reference/cues.json") else null
 	if manifest is Dictionary:
 		for cue in manifest.get("cues", []):
 			if cue is Dictionary and ResourceLoader.exists(cue.get("audio", "")):
