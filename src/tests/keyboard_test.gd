@@ -15,8 +15,12 @@ func _key(game, code: int, shift := false, echo := false) -> void:
 
 
 func run(check: Callable) -> bool:
+	var fresh = MAIN.instantiate()
+	check.call(fresh._screen_covered(), "A page loaded at start-up, before the title menu exists, never narrates")
+	fresh.free()
 	var game = MAIN.instantiate()
 	(Engine.get_main_loop() as SceneTree).root.add_child(game)
+	check.call(game._front.visible and not game._booting and game._screen_covered(), "The game opens on the title menu and holds page narration back")
 	game.tutorial_done = true
 	game._front.hide()
 	var nap := 0

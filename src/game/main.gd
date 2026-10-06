@@ -172,6 +172,7 @@ func _ready() -> void:
 	_update_star_total()
 	_update_star_total()
 	_front.show_title(not completed.is_empty())
+	_booting = false
 
 
 func _exit_tree() -> void:
@@ -592,7 +593,21 @@ func _watch_window() -> void:
 	_hidden_timer.start()
 
 
+## Narration belongs to an open page: nothing may talk on the title or main menu.
+func _silence_menu() -> void:
+	if not (is_instance_valid(_front) and _front.visible) or _title_voice:
+		return
+	if _voice_busy() or not _voice_queue.is_empty() or _narrator_hold:
+		_stop_voice()
+	for player in _character_players:
+		if player.playing:
+			_fade_out(player, 0.15)
+	_lit_waiting.clear()
+	_redpen_waiting = false
+
+
 func _process(delta: float) -> void:
+	_silence_menu()
 	if _redpen_waiting and mode == "PLAN" and not _voice_busy() and not _screen_covered():
 		_redpen_waiting = false
 		_narrate("redpen")
@@ -2022,7 +2037,13 @@ var _title_said := false
 var _title_voice := false
 
 
+## True until the title menu exists: the page loaded behind it at start-up must not narrate.
+var _booting := true
+
+
 func _screen_covered() -> bool:
+	if _booting:
+		return true
 	if _title_voice and not _voice_busy():
 		_title_voice = false
 	return _title_voice or (is_instance_valid(_front) and _front.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or _intro_pending or (is_instance_valid(_story_card) and _story_card.visible) or not _story_queue.is_empty()
