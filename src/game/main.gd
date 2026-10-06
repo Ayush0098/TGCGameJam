@@ -1000,7 +1000,11 @@ func _input(event: InputEvent) -> void:
 		_sound.button_pressed = not _sound.button_pressed
 		get_viewport().set_input_as_handled()
 		return
-	if (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible) or (is_instance_valid(_intro_card) and _intro_card.visible):
+	if _menu_navigation(event):
+		get_viewport().set_input_as_handled()
+		return
+	if (is_instance_valid(_pause_sheet) and _pause_sheet.visible) or (is_instance_valid(_settings_sheet) and _settings_sheet.visible) or (is_instance_valid(_intro_card) and _intro_card.visible) or (is_instance_valid(_story_card) and _story_card.visible) or (is_instance_valid(_endings_book) and _endings_book.visible):
+		# These cards own the keyboard: Enter / Space press their focused button.
 		return
 	if is_instance_valid(_front) and _front.visible:
 		# The title / Sunday Edition owns input; its buttons handle it via the GUI.
@@ -1044,7 +1048,7 @@ func _input(event: InputEvent) -> void:
 		_finish_run()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE and mode != "RESULT":
 		if mode == "PLAN":
 			if _tutorial_pass():
 				get_viewport().set_input_as_handled()
@@ -3572,6 +3576,111 @@ func _show_star_award(before: int, after: int, won: bool) -> void:
 var _key_aim := -1
 
 
+## The controls that make up whatever menu or card is in charge of the keyboard
+## right now, topmost first; empty while the plain PLAN/PLAY screen is showing.
+func _menu_scopes() -> Array[Control]:
+	for sheet in [_story_card, _endings_book, _settings_sheet, _pause_sheet, _intro_card]:
+		if is_instance_valid(sheet) and sheet.visible:
+			return [sheet]
+	if is_instance_valid(_front) and _front.visible:
+		return [_front.menu_scope()]
+	if mode == "RESULT" and is_instance_valid(_result_card) and (_result_card.visible or _tab_bar.visible):
+		return [_result_card, _tab_bar]
+	return []
+
+
+## Godot picks the next focus from every control in the window, so Tab or an arrow
+## on a menu button would wander into the HUD hidden behind it. Keep focus inside
+## the open menu, wrap around its ends, and recover it if it was lost.
+func _menu_navigation(event: InputEvent) -> bool:
+	if not event is InputEventKey or not event.pressed:
+		return false
+	var step := Vector2.ZERO
+	var order := 0
+	var accept := false
+	var paging := event.is_action("ui_page_up", true) or event.is_action("ui_page_down", true)
+	if event.is_action("ui_down", true):
+		step = Vector2.DOWN
+	elif event.is_action("ui_up", true):
+		step = Vector2.UP
+	elif event.is_action("ui_left", true):
+		step = Vector2.LEFT
+	elif event.is_action("ui_right", true):
+		step = Vector2.RIGHT
+	elif event.is_action("ui_focus_next", true):
+		order = 1
+	elif event.is_action("ui_focus_prev", true):
+		order = -1
+	elif event.is_action("ui_accept"):
+		accept = true
+	elif not paging:
+		return false
+	var scopes := _menu_scopes()
+	if scopes.is_empty():
+		return false
+	if is_instance_valid(_endings_book) and scopes[0] == _endings_book and (step.y != 0.0 or paging):
+		# The endings list can be longer than its card: arrows and Page keys scroll it.
+		var list: RichTextLabel = _endings_book.find_children("*", "RichTextLabel", true, false)[0]
+		var jump := 40.0 if not paging else list.size.y - 40.0
+		list.get_v_scroll_bar().value += jump if (step.y > 0.0 or event.is_action("ui_page_down", true)) else -jump
+		return true
+	if paging:
+		return false
+	var items: Array[Control] = []
+	for scope in scopes:
+		for node in scope.find_children("*", "Control", true, false):
+			if node.focus_mode == Control.FOCUS_ALL and node.is_visible_in_tree() and not (node is BaseButton and node.disabled):
+				items.append(node)
+	if items.is_empty():
+		return false
+	var owner := get_viewport().gui_get_focus_owner()
+	if owner is HSlider and step.y == 0.0 and step != Vector2.ZERO:
+		return false
+	var inside := owner != null and owner in items
+	if accept and (inside or scopes[0] == _result_card):
+		# Enter / Space press the focused button (the result card has its own Enter rules).
+		return false
+	if not inside:
+		# Focus was lost (a menu closed, a card was dismissed): put it back, press nothing.
+		(items[0] if step.y >= 0.0 and order >= 0 else items[-1]).grab_focus()
+		return true
+	var target: Control = _focus_target(items, owner, step, order)
+	if target != null:
+		target.grab_focus()
+		_play_effect("PICK")
+	return true
+
+
+func _focus_target(items: Array[Control], from: Control, step: Vector2, order: int) -> Control:
+	if order != 0:
+		var reading := items.duplicate()
+		reading.sort_custom(func(a: Control, b: Control):
+			var pa := a.get_global_rect().get_center()
+			var pb := b.get_global_rect().get_center()
+			return pa.x < pb.x if absf(pa.y - pb.y) < 14.0 else pa.y < pb.y)
+		return reading[posmod(reading.find(from) + order, reading.size())]
+	var origin := from.get_global_rect().get_center()
+	var best: Control = null
+	var best_score := INF
+	var wrap: Control = null
+	var wrap_score := INF
+	for item in items:
+		if item == from:
+			continue
+		var delta := item.get_global_rect().get_center() - origin
+		var along := delta.dot(step)
+		var across := absf(delta.x) if step.y != 0.0 else absf(delta.y)
+		if along > 4.0:
+			if along + across < best_score:
+				best_score = along + across
+				best = item
+		elif across + along < wrap_score:
+			# Nothing further that way: wrap to the far end of the nearest row or column.
+			wrap_score = across + along
+			wrap = item
+	return best if best != null else wrap
+
+
 func _keyboard(event: InputEventKey) -> bool:
 	var key := event.keycode
 	match mode:
@@ -3656,10 +3765,15 @@ func _keyboard(event: InputEventKey) -> bool:
 			if event.echo:
 				return false
 			match key:
-				KEY_ENTER, KEY_KP_ENTER, KEY_N:
+				KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_N:
 					if is_instance_valid(_star_award) and _star_award.visible and not _star_award._done:
 						_star_award._finish()
-					elif _won_current and _next.visible:
+						return true
+					# A focused button on the result card (REPLAY, COMPARE, LEVELS ...) gets its own press.
+					var focused := get_viewport().gui_get_focus_owner()
+					if key != KEY_N and focused is BaseButton and focused.is_visible_in_tree() and (_result_card.is_ancestor_of(focused) or _tab_bar.is_ancestor_of(focused)):
+						return false
+					if _won_current and _next.visible:
 						_next_page()
 					else:
 						_return_to_plan()
