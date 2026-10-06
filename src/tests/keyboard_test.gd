@@ -50,6 +50,12 @@ func run(check: Callable) -> bool:
 	game._move_lantern(0, Vector2(6.0, 0.0), true)
 	var lit: Array = game._lit_ids()
 	check.call("dog" in lit and "boss" in lit, "Bulb lights Chintu and the Prof")
+	# A thought held back while the narrator talks is spoken once it stops.
+	game._said_scripted.clear()
+	game._lit_waiting = ["dog"] as Array[String]
+	game._lit_wait_timer = 0.0
+	game._flush_lit_waiting(1.0)
+	check.call(game._said_scripted.has(str(game.page.id) + ":lit:dog") and game._lit_waiting.is_empty(), "A held-back lit thought is spoken after the narration")
 	_key(game, KEY_TAB)
 	var first: String = game._stage.key_cursor
 	_key(game, KEY_ENTER)
@@ -84,6 +90,14 @@ func run(check: Callable) -> bool:
 			lit_kid = game.RULES.is_lit(game.page, lit_plan, world, actor.slot)
 	var judged: bool = game.GOALS.evaluate(page_copy, {"plan": lit_plan, "snapshots": [world], "events": []}).won
 	check.call(judged == (not lit_kid), "HIDING follows the player's lantern plan")
+	# At the start of a page the arrow keys must not cut off the narration.
+	game._load_page(nap)
+	check.call(game.mode == "INTRO", "A page opens on the Original strip")
+	_key(game, KEY_LEFT)
+	_key(game, KEY_D)
+	check.call(game.mode == "INTRO", "Arrow and letter keys do not skip the Original or its narration")
+	_key(game, KEY_SPACE)
+	check.call(game.mode != "INTRO", "Space still skips the Original strip")
 	game.free()
 	_menus(check)
 	return true

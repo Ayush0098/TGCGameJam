@@ -505,6 +505,7 @@ func _load_page(index: int, override: Dictionary = {}) -> void:
 	_begin(_original_run, true)
 	_fail_count = 0
 	_said_scripted.clear()
+	_lit_waiting.clear()
 	if is_instance_valid(_legend):
 		_legend.text = _legend_text()
 	_queue_story_cards()
@@ -563,6 +564,7 @@ func _begin(recorded: Dictionary, original: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_flush_lit_waiting(delta)
 	_hold_repeat(delta)
 	_coach_tick(delta)
 	_update_music(delta)
@@ -1045,7 +1047,10 @@ func _input(event: InputEvent) -> void:
 			_drop_flick(slot)
 			get_viewport().set_input_as_handled()
 			return
-	if mode in ["INTRO", "ORIGINAL_END"] and (pressed_key or pressed_mouse):
+	# Only Space, Enter or a click skips the Original strip; arrow and letter keys
+	# must not cut off the narration that is still playing.
+	var skip_key: bool = pressed_key and event.keycode in [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER]
+	if mode in ["INTRO", "ORIGINAL_END"] and (skip_key or pressed_mouse):
 		_finish_run()
 		get_viewport().set_input_as_handled()
 		return
@@ -2587,6 +2592,30 @@ func _build_settings_sheet() -> void:
 ## Page dialogue (levels.md): lines spoken when a character is first lit, after a
 ## swap, or on a win. Only lit/active characters speak (theme rule).
 var _said_scripted: Dictionary = {}
+## Characters lit or focused while the narrator was talking; their thought is spoken once it stops.
+var _lit_waiting: Array[String] = []
+var _lit_wait_timer := 0.0
+
+
+## Once the narration is over, speak the focused character's thought first, then any
+## other lit character whose thought was held back, one at a time.
+func _flush_lit_waiting(delta: float) -> void:
+	if _lit_waiting.is_empty():
+		return
+	if mode != "PLAN" or _voice_busy() or _screen_covered():
+		return
+	_lit_wait_timer -= delta
+	if _lit_wait_timer > 0.0:
+		return
+	var lit := _lit_ids()
+	_lit_waiting = _lit_waiting.filter(func(id): return id in lit)
+	if _lit_waiting.is_empty():
+		return
+	var cursor: String = _stage.key_cursor
+	var next: String = cursor if cursor in _lit_waiting else _lit_waiting[0]
+	_lit_wait_timer = 2.6
+	_say_scripted("lit", [next])
+	_lit_waiting.erase(next)
 
 
 func _say_scripted(when: String, ids: Array) -> void:
@@ -2599,6 +2628,13 @@ func _say_scripted(when: String, ids: Array) -> void:
 		var key: String = str(page.id) + ":" + when + ":" + id
 		if when == "lit" and _said_scripted.has(key):
 			continue
+		if when == "lit" and (_voice_busy() or mode != "PLAN") and not _lit_waiting.has(id):
+			# The narrator is still talking: hold this thought back and speak it afterwards.
+			_lit_waiting.append(id)
+			continue
+		if when == "lit" and (_voice_busy() or mode != "PLAN"):
+			continue
+		_lit_waiting.erase(id)
 		_said_scripted[key] = true
 		var life := 2.2
 		var slug := str(page.get("voice", ""))
@@ -3847,6 +3883,7 @@ func _cycle_cursor(direction: int) -> void:
 	var index := order.find(_stage.key_cursor)
 	index = (index + direction + order.size()) % order.size() if index >= 0 else (0 if direction > 0 else order.size() - 1)
 	_stage.key_cursor = order[index]
+	_say_scripted("lit", [_stage.key_cursor])
 	_tutorial_event("choose")
 	if not _stage.key_picked.is_empty() and _stage.key_picked != _stage.key_cursor:
 		_preview(_stage.key_picked, _stage.key_cursor)
