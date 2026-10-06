@@ -1285,6 +1285,10 @@ func _needs_lanterns(definition: Dictionary) -> bool:
 func _update_instructions() -> void:
 	if not is_instance_valid(_instructions) or plan == null or page.is_empty():
 		return
+	if _tutorial_panel >= 0 and mode == "PLAN" and TUTORIAL_ALLOW.has(_tutorial_gate()):
+		# One thing at a time: the tutorial card teaches, this corner just counts.
+		_instructions.text = "Tutorial step %d / %d" % [_tutorial_step + 1, _tutorial_steps().size()]
+		return
 	var text := ""
 	match mode:
 		"INTRO", "ORIGINAL_END":
